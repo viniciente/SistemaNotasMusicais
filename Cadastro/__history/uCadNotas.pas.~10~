@@ -39,31 +39,19 @@ implementation
 {$REGION'OVERRIDE'}
 function TfrmCadNotas.Apagar: Boolean;
 begin
-  if oNotas.Selecionar(qryPrincipal.FieldByName('notasId').AsInteger)then begin
+  if oNotas.Selecionar(qryNotas.FieldByName('notasId').AsInteger)then begin
      Result:=oNotas.Apagar;
   end;
 end;
 
 function TfrmCadNotas.Gravar(EstadoDoCadastro: TEstadoDoCadastro): Boolean;
 begin
-  if Trim(edtNome.Text) = '' then
-  begin
-    ShowMessage('O nome é obrigatório!');
-    Result := False;
-    Exit;
-  end;
-
   oNotas.nome := edtNome.Text;
 
-  if EstadoDoCadastro = ecInserir then
+  if (EstadoDoCadastro = ecInserir) then
     Result := oNotas.Inserir
-  else if EstadoDoCadastro = ecAlterar then
-  begin
-    oNotas.codigo := qryPrincipal.FieldByName('notasId').AsInteger;
+  else if (EstadoDoCadastro = ecAlterar) then
     Result := oNotas.Atualizar;
-  end
-  else
-    Result := False;
 end;
 {$ENDREGION}
 

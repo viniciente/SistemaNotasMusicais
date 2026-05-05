@@ -1,0 +1,55 @@
+unit uPrincipal;
+
+interface
+
+uses
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.Menus, uCadNotas;
+
+type
+  TfrmPrincipal = class(TForm)
+    MainMenu1: TMainMenu;
+    CADASTRO1: TMenuItem;
+    ESCALAMUSICAL1: TMenuItem;
+    ONALIDADES1: TMenuItem;
+    NOTAS1: TMenuItem;
+    N1: TMenuItem;
+    N2: TMenuItem;
+    ARQUIVOS1: TMenuItem;
+    IMPORTAO1: TMenuItem;
+    DOWNLOAD1: TMenuItem;
+    N3: TMenuItem;
+    FECHAR1: TMenuItem;
+    procedure FECHAR1Click(Sender: TObject);
+    procedure NOTAS1Click(Sender: TObject);
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+  end;
+
+var
+  frmPrincipal: TfrmPrincipal;
+
+implementation
+
+{$R *.dfm}
+
+procedure TfrmPrincipal.FECHAR1Click(Sender: TObject);
+begin
+  Application.Terminate;
+end;
+
+procedure TfrmPrincipal.NOTAS1Click(Sender: TObject);
+var
+  frmNotas: TfrmCadNotas;
+begin
+  frmNotas := TfrmCadNotas.Create(Application);
+  try
+    frmNotas.ShowModal;
+  finally
+    frmNotas.Free;
+  end;
+end;
+
+end.

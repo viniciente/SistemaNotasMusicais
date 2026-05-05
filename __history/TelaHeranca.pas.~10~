@@ -84,15 +84,8 @@ end;
 procedure TfrmTelaHeranca.btnEditarClick(Sender: TObject);
 begin
   if dbGridConsulta.DataSource.DataSet.IsEmpty then Exit;
-
-  if qryPrincipal.Active and (not qryPrincipal.IsEmpty) then
-  begin
-    qryPrincipal.Edit;
-
-    pgcPrincipal.ActivePage := tsDados;
-  end;
-
   FEstado := ecAlterar;
+  pgcPrincipal.ActivePage := tsDados;
 end;
 
 procedure TfrmTelaHeranca.btnFecharClick(Sender: TObject);
@@ -140,15 +133,9 @@ begin
                              dgAlwaysShowSelection, dgCancelOnExit,
                              dgTitleClick, dgTitleHotTrack];
 
-  pnlTop.Font.Color := $00FF5EB1;
-  pnlBottom.Font.Color := $00FF5EB1;
-  pnlCadastro.Font.Color := $00FF5EB1;
-  pnlNome.Font.Color := $00FF5EB1;
-  pnlDadosBottom.Font.Color := $00FF5EB1;
-
   for i := 0 to dbGridConsulta.Columns.Count - 1 do
   begin
-    dbGridConsulta.Columns[i].Title.Font.Color := $00FF5EB1;
+    dbGridConsulta.Columns[i].Title.Font.Color := clWhite;
     dbGridConsulta.Columns[i].Title.Font.Style := [fsBold];
   end;
   CentralizarColunas;

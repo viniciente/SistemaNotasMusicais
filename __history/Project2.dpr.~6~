@@ -16,6 +16,8 @@ begin
   Application.Initialize;
   Application.MainFormOnTaskbar := True;
   Application.CreateForm(TdmDados, dmDados);
+  Application.CreateForm(TfrmTelaHeranca, frmTelaHeranca);
+  Application.CreateForm(TfrmCadNotas, frmCadNotas);
   Application.CreateForm(TfrmPrincipal, frmPrincipal);
   Application.Run;
 end.

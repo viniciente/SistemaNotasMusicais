@@ -1,12 +1,21 @@
 inherited frmCadNotas: TfrmCadNotas
   Caption = 'CADASTRO DE NOTAS'
-  OnClose = FormClose
-  OnCreate = FormCreate
   PixelsPerInch = 96
   TextHeight = 13
   inherited pgcPrincipal: TPageControl
+    ActivePage = tsDados
+    ExplicitHeight = 376
     inherited tsConsulta: TTabSheet
-      inherited dbGridConsulta: TDBGrid
+      ExplicitLeft = 4
+      ExplicitTop = 24
+      ExplicitHeight = 348
+      inherited pnlTop: TPanel
+        inherited pnlNome: TPanel
+          ExplicitTop = 1
+        end
+      end
+      inherited DBGrid1: TDBGrid
+        DataSource = dsNotas
         Columns = <
           item
             Expanded = False
@@ -18,6 +27,11 @@ inherited frmCadNotas: TfrmCadNotas
             FieldName = 'nome'
             Visible = True
           end>
+      end
+      inherited pnlBottom: TPanel
+        ExplicitLeft = 0
+        ExplicitTop = 307
+        ExplicitWidth = 681
       end
     end
     inherited tsDados: TTabSheet
@@ -67,27 +81,31 @@ inherited frmCadNotas: TfrmCadNotas
       end
     end
   end
-  inherited qryPrincipal: TFDQuery
+  object qryNotas: TFDQuery
     Active = True
+    Connection = dmDados.FDConexao
     SQL.Strings = (
       'SELECT notasId,'
-      '             nome'
+      '       nome'
       'FROM notas')
-    Left = 429
-    object qryPrincipalnotasId: TFDAutoIncField
+    Left = 560
+    Top = 40
+    object qryNotasnotasId: TFDAutoIncField
       FieldName = 'notasId'
       Origin = 'notasId'
       ProviderFlags = [pfInWhere, pfInKey]
       ReadOnly = True
     end
-    object qryPrincipalnome: TStringField
+    object qryNotasnome: TStringField
       FieldName = 'nome'
       Origin = 'nome'
       Required = True
       Size = 50
     end
   end
-  inherited dsPrincipal: TDataSource
-    Left = 536
+  object dsNotas: TDataSource
+    DataSet = qryNotas
+    Left = 596
+    Top = 40
   end
 end

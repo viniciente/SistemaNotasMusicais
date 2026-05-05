@@ -20,7 +20,7 @@ object frmTelaHeranca: TfrmTelaHeranca
     Top = 0
     Width = 689
     Height = 376
-    ActivePage = tsConsulta
+    ActivePage = tsDados
     Align = alClient
     TabOrder = 0
     object tsConsulta: TTabSheet

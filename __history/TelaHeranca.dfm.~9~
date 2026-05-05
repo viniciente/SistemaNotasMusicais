@@ -44,7 +44,7 @@ object frmTelaHeranca: TfrmTelaHeranca
           Align = alTop
           BevelOuter = bvNone
           Caption = 'CONSULTA'
-          Color = 5263440
+          Color = clGray
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWhite
           Font.Height = -16
@@ -70,7 +70,6 @@ object frmTelaHeranca: TfrmTelaHeranca
           Height = 25
           Caption = '&REMOVER'
           TabOrder = 2
-          OnClick = btnRemoverClick
         end
         object btnEditar: TBitBtn
           Left = 602
@@ -79,7 +78,6 @@ object frmTelaHeranca: TfrmTelaHeranca
           Height = 25
           Caption = '&EDITAR'
           TabOrder = 3
-          OnClick = btnEditarClick
         end
       end
       object dbGridConsulta: TDBGrid
@@ -89,8 +87,6 @@ object frmTelaHeranca: TfrmTelaHeranca
         Height = 250
         Align = alClient
         DataSource = dsPrincipal
-        DrawingStyle = gdsClassic
-        FixedColor = 5263440
         TabOrder = 1
         TitleFont.Charset = DEFAULT_CHARSET
         TitleFont.Color = clWindowText
@@ -113,7 +109,6 @@ object frmTelaHeranca: TfrmTelaHeranca
           Height = 25
           Caption = '&FECHAR'
           TabOrder = 0
-          OnClick = btnFecharClick
         end
       end
     end
@@ -154,7 +149,7 @@ object frmTelaHeranca: TfrmTelaHeranca
         Height = 25
         Align = alTop
         Caption = 'CADASTRO'
-        Color = 5263440
+        Color = clGray
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clWhite
         Font.Height = -16
@@ -168,10 +163,11 @@ object frmTelaHeranca: TfrmTelaHeranca
   end
   object qryPrincipal: TFDQuery
     Connection = dmDados.FDConexao
-    Left = 613
-    Top = 1
+    Left = 405
+    Top = 25
   end
   object dsPrincipal: TDataSource
-    Left = 648
+    Left = 480
+    Top = 24
   end
 end

@@ -6,9 +6,7 @@ uses
   uCadNotas in 'Cadastro\uCadNotas.pas' {frmCadNotas},
   uDmDados in 'DataModule\uDmDados.pas' {dmDados: TDataModule},
   cCadNotas in 'Classes\cCadNotas.pas',
-  uEnum in 'Classes\uEnum.pas',
-  cFuncao in 'Classes\cFuncao.pas',
-  uPrincipal in 'uPrincipal.pas' {frmPrincipal};
+  uEnum in 'Classes\uEnum.pas';
 
 {$R *.res}
 
@@ -16,6 +14,7 @@ begin
   Application.Initialize;
   Application.MainFormOnTaskbar := True;
   Application.CreateForm(TdmDados, dmDados);
-  Application.CreateForm(TfrmPrincipal, frmPrincipal);
+  Application.CreateForm(TfrmTelaHeranca, frmTelaHeranca);
+  Application.CreateForm(TfrmCadNotas, frmCadNotas);
   Application.Run;
 end.

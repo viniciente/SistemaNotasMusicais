@@ -11,8 +11,6 @@ object frmTelaHeranca: TfrmTelaHeranca
   Font.Name = 'Tahoma'
   Font.Style = []
   OldCreateOrder = False
-  Position = poScreenCenter
-  OnCreate = FormCreate
   PixelsPerInch = 96
   TextHeight = 13
   object pgcPrincipal: TPageControl
@@ -23,8 +21,12 @@ object frmTelaHeranca: TfrmTelaHeranca
     ActivePage = tsConsulta
     Align = alClient
     TabOrder = 0
+    ExplicitHeight = 372
     object tsConsulta: TTabSheet
       Caption = 'CONSULTA'
+      ExplicitLeft = 8
+      ExplicitTop = 28
+      ExplicitHeight = 344
       object pnlTop: TPanel
         Left = 0
         Top = 0
@@ -44,7 +46,7 @@ object frmTelaHeranca: TfrmTelaHeranca
           Align = alTop
           BevelOuter = bvNone
           Caption = 'CONSULTA'
-          Color = 5263440
+          Color = clGray
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWhite
           Font.Height = -16
@@ -53,6 +55,7 @@ object frmTelaHeranca: TfrmTelaHeranca
           ParentBackground = False
           ParentFont = False
           TabOrder = 0
+          ExplicitTop = 0
         end
         object btnAdicionar: TBitBtn
           Left = 440
@@ -70,7 +73,6 @@ object frmTelaHeranca: TfrmTelaHeranca
           Height = 25
           Caption = '&REMOVER'
           TabOrder = 2
-          OnClick = btnRemoverClick
         end
         object btnEditar: TBitBtn
           Left = 602
@@ -79,18 +81,14 @@ object frmTelaHeranca: TfrmTelaHeranca
           Height = 25
           Caption = '&EDITAR'
           TabOrder = 3
-          OnClick = btnEditarClick
         end
       end
-      object dbGridConsulta: TDBGrid
+      object DBGrid1: TDBGrid
         Left = 0
         Top = 57
         Width = 681
         Height = 250
         Align = alClient
-        DataSource = dsPrincipal
-        DrawingStyle = gdsClassic
-        FixedColor = 5263440
         TabOrder = 1
         TitleFont.Charset = DEFAULT_CHARSET
         TitleFont.Color = clWindowText
@@ -106,6 +104,9 @@ object frmTelaHeranca: TfrmTelaHeranca
         Align = alBottom
         BevelOuter = bvNone
         TabOrder = 2
+        ExplicitLeft = 64
+        ExplicitTop = 223
+        ExplicitWidth = 185
         object btnFechar: TBitBtn
           Left = 600
           Top = 8
@@ -113,13 +114,13 @@ object frmTelaHeranca: TfrmTelaHeranca
           Height = 25
           Caption = '&FECHAR'
           TabOrder = 0
-          OnClick = btnFecharClick
         end
       end
     end
     object tsDados: TTabSheet
       Caption = 'DADOS'
       ImageIndex = 1
+      ExplicitHeight = 344
       object pnlDadosBottom: TPanel
         Left = 0
         Top = 307
@@ -128,6 +129,9 @@ object frmTelaHeranca: TfrmTelaHeranca
         Align = alBottom
         BevelOuter = bvNone
         TabOrder = 0
+        ExplicitLeft = 176
+        ExplicitTop = 264
+        ExplicitWidth = 185
         object btnSalvar: TBitBtn
           Left = 511
           Top = 8
@@ -154,7 +158,7 @@ object frmTelaHeranca: TfrmTelaHeranca
         Height = 25
         Align = alTop
         Caption = 'CADASTRO'
-        Color = 5263440
+        Color = clGray
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clWhite
         Font.Height = -16
@@ -165,13 +169,5 @@ object frmTelaHeranca: TfrmTelaHeranca
         TabOrder = 1
       end
     end
-  end
-  object qryPrincipal: TFDQuery
-    Connection = dmDados.FDConexao
-    Left = 613
-    Top = 1
-  end
-  object dsPrincipal: TDataSource
-    Left = 648
   end
 end

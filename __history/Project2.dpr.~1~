@@ -1,0 +1,14 @@
+program Project2;
+
+uses
+  Vcl.Forms,
+  TelaHeranca in 'TelaHeranca.pas' {frmTelaHeranca};
+
+{$R *.res}
+
+begin
+  Application.Initialize;
+  Application.MainFormOnTaskbar := True;
+  Application.CreateForm(TfrmTelaHeranca, frmTelaHeranca);
+  Application.Run;
+end.

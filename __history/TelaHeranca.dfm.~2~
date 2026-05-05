@@ -1,0 +1,32 @@
+object frmTelaHeranca: TfrmTelaHeranca
+  Left = 0
+  Top = 0
+  Caption = 'frmTelaHeranca'
+  ClientHeight = 372
+  ClientWidth = 689
+  Color = clBtnFace
+  Font.Charset = DEFAULT_CHARSET
+  Font.Color = clWindowText
+  Font.Height = -11
+  Font.Name = 'Tahoma'
+  Font.Style = []
+  OldCreateOrder = False
+  PixelsPerInch = 96
+  TextHeight = 13
+  object pgcPrincipal: TPageControl
+    Left = 0
+    Top = 0
+    Width = 689
+    Height = 372
+    ActivePage = tsConsulta
+    Align = alClient
+    TabOrder = 0
+    object tsConsulta: TTabSheet
+      Caption = 'CONSULTA'
+    end
+    object tsDados: TTabSheet
+      Caption = 'DADOS'
+      ImageIndex = 1
+    end
+  end
+end

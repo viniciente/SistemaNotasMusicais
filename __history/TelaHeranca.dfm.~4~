@@ -1,0 +1,173 @@
+object frmTelaHeranca: TfrmTelaHeranca
+  Left = 0
+  Top = 0
+  Caption = 'frmTelaHeranca'
+  ClientHeight = 376
+  ClientWidth = 689
+  Color = clBtnFace
+  Font.Charset = DEFAULT_CHARSET
+  Font.Color = clWindowText
+  Font.Height = -11
+  Font.Name = 'Tahoma'
+  Font.Style = []
+  OldCreateOrder = False
+  PixelsPerInch = 96
+  TextHeight = 13
+  object pgcPrincipal: TPageControl
+    Left = 0
+    Top = 0
+    Width = 689
+    Height = 376
+    ActivePage = tsConsulta
+    Align = alClient
+    TabOrder = 0
+    ExplicitHeight = 372
+    object tsConsulta: TTabSheet
+      Caption = 'CONSULTA'
+      ExplicitLeft = 8
+      ExplicitTop = 28
+      ExplicitHeight = 344
+      object pnlTop: TPanel
+        Left = 0
+        Top = 0
+        Width = 681
+        Height = 57
+        Margins.Left = 0
+        Margins.Top = 0
+        Margins.Right = 0
+        Margins.Bottom = 0
+        Align = alTop
+        TabOrder = 0
+        object pnlNome: TPanel
+          Left = 1
+          Top = 1
+          Width = 679
+          Height = 24
+          Align = alTop
+          BevelOuter = bvNone
+          Caption = 'CONSULTA'
+          Color = clGray
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWhite
+          Font.Height = -16
+          Font.Name = 'Tahoma'
+          Font.Style = [fsBold]
+          ParentBackground = False
+          ParentFont = False
+          TabOrder = 0
+          ExplicitTop = 0
+        end
+        object btnAdicionar: TBitBtn
+          Left = 440
+          Top = 28
+          Width = 75
+          Height = 25
+          Caption = '&ADICIONAR'
+          TabOrder = 1
+          OnClick = btnAdicionarClick
+        end
+        object btnRemover: TBitBtn
+          Left = 521
+          Top = 28
+          Width = 75
+          Height = 25
+          Caption = '&REMOVER'
+          TabOrder = 2
+        end
+        object btnEditar: TBitBtn
+          Left = 602
+          Top = 28
+          Width = 75
+          Height = 25
+          Caption = '&EDITAR'
+          TabOrder = 3
+        end
+      end
+      object DBGrid1: TDBGrid
+        Left = 0
+        Top = 57
+        Width = 681
+        Height = 250
+        Align = alClient
+        TabOrder = 1
+        TitleFont.Charset = DEFAULT_CHARSET
+        TitleFont.Color = clWindowText
+        TitleFont.Height = -11
+        TitleFont.Name = 'Tahoma'
+        TitleFont.Style = []
+      end
+      object pnlBottom: TPanel
+        Left = 0
+        Top = 307
+        Width = 681
+        Height = 41
+        Align = alBottom
+        BevelOuter = bvNone
+        TabOrder = 2
+        ExplicitLeft = 64
+        ExplicitTop = 223
+        ExplicitWidth = 185
+        object btnFechar: TBitBtn
+          Left = 600
+          Top = 8
+          Width = 75
+          Height = 25
+          Caption = '&FECHAR'
+          TabOrder = 0
+        end
+      end
+    end
+    object tsDados: TTabSheet
+      Caption = 'DADOS'
+      ImageIndex = 1
+      ExplicitHeight = 344
+      object pnlDadosBottom: TPanel
+        Left = 0
+        Top = 307
+        Width = 681
+        Height = 41
+        Align = alBottom
+        BevelOuter = bvNone
+        TabOrder = 0
+        ExplicitLeft = 176
+        ExplicitTop = 264
+        ExplicitWidth = 185
+        object btnSalvar: TBitBtn
+          Left = 511
+          Top = 8
+          Width = 75
+          Height = 25
+          Caption = '&SALVAR'
+          TabOrder = 0
+          OnClick = btnSalvarClick
+        end
+        object btnCancelar: TBitBtn
+          Left = 592
+          Top = 8
+          Width = 75
+          Height = 25
+          Caption = '&CANCELAR'
+          TabOrder = 1
+          OnClick = btnCancelarClick
+        end
+      end
+      object pnlCadastro: TPanel
+        Left = 0
+        Top = 0
+        Width = 681
+        Height = 25
+        Align = alTop
+        Caption = 'CADASTRO'
+        Color = clGray
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWhite
+        Font.Height = -16
+        Font.Name = 'Tahoma'
+        Font.Style = [fsBold]
+        ParentBackground = False
+        ParentFont = False
+        TabOrder = 1
+      end
+    end
+  end
+end

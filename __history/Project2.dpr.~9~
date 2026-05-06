@@ -10,9 +10,7 @@ uses
   cFuncao in 'Classes\cFuncao.pas',
   uPrincipal in 'uPrincipal.pas' {frmPrincipal},
   uCadTonalidades in 'Cadastro\uCadTonalidades.pas' {frmCadTonalidades},
-  cCadTonalidades in 'Classes\cCadTonalidades.pas',
-  uCadEscalaMusical in 'Cadastro\uCadEscalaMusical.pas' {frmCadEscalaMusical},
-  cCadEscalaMusical in 'Classes\cCadEscalaMusical.pas';
+  cCadTonalidades in 'Classes\cCadTonalidades.pas';
 
 {$R *.res}
 
@@ -21,5 +19,6 @@ begin
   Application.MainFormOnTaskbar := True;
   Application.CreateForm(TdmDados, dmDados);
   Application.CreateForm(TfrmPrincipal, frmPrincipal);
+  Application.CreateForm(TfrmCadTonalidades, frmCadTonalidades);
   Application.Run;
 end.

@@ -1,9 +1,13 @@
 inherited frmCadNotas: TfrmCadNotas
   Caption = 'CADASTRO DE NOTAS'
+  ClientWidth = 681
   OnClose = FormClose
+  ExplicitWidth = 697
   PixelsPerInch = 96
   TextHeight = 13
   inherited pgcPrincipal: TPageControl
+    Width = 681
+    ActivePage = tsDados
     inherited tsConsulta: TTabSheet
       inherited dbGridConsulta: TDBGrid
         Columns = <
@@ -20,6 +24,10 @@ inherited frmCadNotas: TfrmCadNotas
       end
     end
     inherited tsDados: TTabSheet
+      ExplicitLeft = 4
+      ExplicitTop = 24
+      ExplicitWidth = 681
+      ExplicitHeight = 348
       object lblCodigo: TLabel [0]
         Left = 16
         Top = 44
@@ -46,7 +54,11 @@ inherited frmCadNotas: TfrmCadNotas
         Font.Style = [fsBold]
         ParentFont = False
       end
+      inherited pnlDadosBottom: TPanel
+        Width = 673
+      end
       inherited pnlCadastro: TPanel
+        Width = 673
         TabOrder = 3
       end
       object edtCodigo: TEdit

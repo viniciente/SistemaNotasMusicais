@@ -22,7 +22,6 @@ object frmPrincipal: TfrmPrincipal
       Caption = 'CADASTRO'
       object ESCALAMUSICAL1: TMenuItem
         Caption = 'ESCALA MUSICAL'
-        OnClick = ESCALAMUSICAL1Click
       end
       object N1: TMenuItem
         Caption = '-'
@@ -44,6 +43,15 @@ object frmPrincipal: TfrmPrincipal
       object FECHAR1: TMenuItem
         Caption = 'FECHAR'
         OnClick = FECHAR1Click
+      end
+    end
+    object ARQUIVOS1: TMenuItem
+      Caption = 'ARQUIVOS'
+      object IMPORTAO1: TMenuItem
+        Caption = 'UPLOAD'
+      end
+      object DOWNLOAD1: TMenuItem
+        Caption = 'DOWNLOAD'
       end
     end
   end

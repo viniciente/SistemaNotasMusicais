@@ -126,6 +126,11 @@
             <FormType>dfm</FormType>
         </DCCReference>
         <DCCReference Include="Classes\cCadTonalidades.pas"/>
+        <DCCReference Include="Cadastro\uCadEscalaMusical.pas">
+            <Form>frmCadEscalaMusical</Form>
+            <FormType>dfm</FormType>
+        </DCCReference>
+        <DCCReference Include="Classes\cCadEscalaMusical.pas"/>
         <BuildConfiguration Include="Release">
             <Key>Cfg_2</Key>
             <CfgParent>Base</CfgParent>
@@ -146,6 +151,9 @@
                 <Source>
                     <Source Name="MainSource">Project2.dpr</Source>
                 </Source>
+                <Excluded_Packages>
+                    <Excluded_Packages Name="$(BDSBIN)\dclofficexp250.bpl">Microsoft Office XP Sample Automation Server Wrapper Components</Excluded_Packages>
+                </Excluded_Packages>
             </Delphi.Personality>
             <Deployment Version="3">
                 <DeployFile LocalName="Win32\Debug\Project2.exe" Configuration="Debug" Class="ProjectOutput">

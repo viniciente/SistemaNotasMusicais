@@ -4,7 +4,7 @@ interface
 
 uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
-  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.Menus, uCadNotas, uCadTonalidades;
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.Menus, uCadNotas;
 
 type
   TfrmPrincipal = class(TForm)
@@ -22,7 +22,6 @@ type
     FECHAR1: TMenuItem;
     procedure FECHAR1Click(Sender: TObject);
     procedure NOTAS1Click(Sender: TObject);
-    procedure ONALIDADES1Click(Sender: TObject);
   private
     { Private declarations }
   public
@@ -50,17 +49,6 @@ begin
     frmNotas.ShowModal;
   finally
     frmNotas.Free;
-  end;
-end;
-
-procedure TfrmPrincipal.ONALIDADES1Click(Sender: TObject);
-var frmTonalidades : TfrmCadTonalidades;
-begin
-  frmTonalidades := TfrmCadTonalidades.Create(Application);
-  try
-    frmTonalidades.ShowModal;
-  finally
-    frmTonalidades.Free;
   end;
 end;
 

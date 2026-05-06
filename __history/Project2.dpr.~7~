@@ -8,9 +8,7 @@ uses
   cCadNotas in 'Classes\cCadNotas.pas',
   uEnum in 'Classes\uEnum.pas',
   cFuncao in 'Classes\cFuncao.pas',
-  uPrincipal in 'uPrincipal.pas' {frmPrincipal},
-  uCadTonalidades in 'Cadastro\uCadTonalidades.pas' {frmCadTonalidades},
-  cCadTonalidades in 'Classes\cCadTonalidades.pas';
+  uPrincipal in 'uPrincipal.pas' {frmPrincipal};
 
 {$R *.res}
 
@@ -19,6 +17,5 @@ begin
   Application.MainFormOnTaskbar := True;
   Application.CreateForm(TdmDados, dmDados);
   Application.CreateForm(TfrmPrincipal, frmPrincipal);
-  Application.CreateForm(TfrmCadTonalidades, frmCadTonalidades);
   Application.Run;
 end.

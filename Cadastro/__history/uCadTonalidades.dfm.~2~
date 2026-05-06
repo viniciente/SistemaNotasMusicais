@@ -1,0 +1,104 @@
+inherited frmTelaHeranca1: TfrmTelaHeranca1
+  Caption = 'frmTelaHeranca1'
+  PixelsPerInch = 96
+  TextHeight = 13
+  inherited pgcPrincipal: TPageControl
+    inherited tsDados: TTabSheet
+      ExplicitLeft = 8
+      ExplicitTop = 28
+      ExplicitWidth = 681
+      ExplicitHeight = 348
+      object lblNome: TLabel [0]
+        Left = 16
+        Top = 99
+        Width = 137
+        Height = 16
+        Caption = 'Nome da Tonalidade'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -13
+        Font.Name = 'Tahoma'
+        Font.Style = [fsBold]
+        ParentFont = False
+      end
+      object lblCodigo: TLabel [1]
+        Left = 16
+        Top = 55
+        Width = 43
+        Height = 16
+        Caption = 'Codigo'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -13
+        Font.Name = 'Tahoma'
+        Font.Style = [fsBold]
+        ParentFont = False
+      end
+      object lblNota: TLabel [2]
+        Left = 16
+        Top = 142
+        Width = 81
+        Height = 16
+        Caption = 'Nota Musical'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -13
+        Font.Name = 'Tahoma'
+        Font.Style = [fsBold]
+        ParentFont = False
+      end
+      object edtCodigo: TEdit
+        Left = 16
+        Top = 72
+        Width = 121
+        Height = 21
+        Enabled = False
+        TabOrder = 2
+      end
+      object edtNomeTonalidade: TEdit
+        Left = 16
+        Top = 115
+        Width = 185
+        Height = 21
+        TabOrder = 3
+      end
+      object DBLookupComboBox1: TDBLookupComboBox
+        Left = 16
+        Top = 160
+        Width = 185
+        Height = 21
+        KeyField = 'notasId'
+        ListField = 'nome'
+        ListSource = dsNota
+        TabOrder = 4
+      end
+    end
+  end
+  object qryNota: TFDQuery
+    Active = True
+    Connection = dmDados.FDConexao
+    SQL.Strings = (
+      'SELECT notasId,'
+      '             nome'
+      'FROM notas')
+    Left = 588
+    Top = 184
+    object qryNotanotasId: TFDAutoIncField
+      FieldName = 'notasId'
+      Origin = 'notasId'
+      ProviderFlags = [pfInWhere, pfInKey]
+      ReadOnly = True
+    end
+    object qryNotanome: TStringField
+      FieldName = 'nome'
+      Origin = 'nome'
+      Required = True
+      Size = 50
+    end
+  end
+  object dsNota: TDataSource
+    DataSet = qryNota
+    Left = 620
+    Top = 184
+  end
+end

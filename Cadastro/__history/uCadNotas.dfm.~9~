@@ -1,6 +1,7 @@
 inherited frmCadNotas: TfrmCadNotas
   Caption = 'CADASTRO DE NOTAS'
   OnClose = FormClose
+  OnCreate = FormCreate
   PixelsPerInch = 96
   TextHeight = 13
   inherited pgcPrincipal: TPageControl

@@ -9,7 +9,7 @@ uses
   uEnum in 'Classes\uEnum.pas',
   cFuncao in 'Classes\cFuncao.pas',
   uPrincipal in 'uPrincipal.pas' {frmPrincipal},
-  uCadTonalidades in 'Cadastro\uCadTonalidades.pas' {frmCadTonalidades},
+  uCadTonalidades in 'Cadastro\uCadTonalidades.pas' {frmTelaHeranca1},
   cCadTonalidades in 'Classes\cCadTonalidades.pas';
 
 {$R *.res}
@@ -19,6 +19,6 @@ begin
   Application.MainFormOnTaskbar := True;
   Application.CreateForm(TdmDados, dmDados);
   Application.CreateForm(TfrmPrincipal, frmPrincipal);
-  Application.CreateForm(TfrmCadTonalidades, frmCadTonalidades);
+  Application.CreateForm(TfrmTelaHeranca1, frmTelaHeranca1);
   Application.Run;
 end.

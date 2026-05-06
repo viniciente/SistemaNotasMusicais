@@ -28,7 +28,6 @@ object frmPrincipal: TfrmPrincipal
       end
       object ONALIDADES1: TMenuItem
         Caption = 'TONALIDADES'
-        OnClick = ONALIDADES1Click
       end
       object N2: TMenuItem
         Caption = '-'

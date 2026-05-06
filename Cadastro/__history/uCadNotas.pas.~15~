@@ -21,7 +21,6 @@ type
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure btnEditarClick(Sender: TObject);
-    procedure btnAdicionarClick(Sender: TObject);
   private
     { Private declarations }
     oNotas:TNotas;
@@ -68,12 +67,6 @@ begin
     Result := False;
 end;
 {$ENDREGION}
-
-procedure TfrmCadNotas.btnAdicionarClick(Sender: TObject);
-begin
-  inherited;
-  edtNome.SetFocus;
-end;
 
 procedure TfrmCadNotas.btnEditarClick(Sender: TObject);
 begin

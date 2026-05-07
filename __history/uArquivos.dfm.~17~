@@ -11,6 +11,9 @@ object frmArquivos: TfrmArquivos
   Font.Name = 'Tahoma'
   Font.Style = []
   OldCreateOrder = False
+  Position = poScreenCenter
+  OnCreate = FormCreate
+  OnShow = FormShow
   PixelsPerInch = 96
   TextHeight = 13
   object pgcPrincipal: TPageControl
@@ -21,13 +24,12 @@ object frmArquivos: TfrmArquivos
     ActivePage = tsDados
     Align = alClient
     TabOrder = 0
-    OnChange = pgcPrincipalChange
-    ExplicitLeft = -24
-    ExplicitTop = -8
     object tsConsulta: TTabSheet
       Caption = 'CONSULTA'
-      ExplicitWidth = 681
-      ExplicitHeight = 348
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       object pnlTop: TPanel
         Left = 0
         Top = 0
@@ -39,7 +41,6 @@ object frmArquivos: TfrmArquivos
         Margins.Bottom = 0
         Align = alTop
         TabOrder = 0
-        ExplicitWidth = 681
         object pnlNome: TPanel
           Left = 1
           Top = 1
@@ -57,7 +58,6 @@ object frmArquivos: TfrmArquivos
           ParentBackground = False
           ParentFont = False
           TabOrder = 0
-          ExplicitWidth = 679
         end
         object btnExportar: TBitBtn
           Left = 400
@@ -66,6 +66,7 @@ object frmArquivos: TfrmArquivos
           Height = 25
           Caption = 'EXPORTAR TXT'
           TabOrder = 1
+          OnClick = btnExportarClick
         end
         object btnImportar: TBitBtn
           Left = 512
@@ -74,6 +75,7 @@ object frmArquivos: TfrmArquivos
           Height = 25
           Caption = 'IMPORTAR TXT'
           TabOrder = 2
+          OnClick = btnImportarClick
         end
       end
       object dbGridConsulta: TDBGrid
@@ -82,6 +84,7 @@ object frmArquivos: TfrmArquivos
         Width = 705
         Height = 261
         Align = alClient
+        DataSource = dsArquivos
         DrawingStyle = gdsClassic
         FixedColor = 5263440
         TabOrder = 1
@@ -90,6 +93,52 @@ object frmArquivos: TfrmArquivos
         TitleFont.Height = -11
         TitleFont.Name = 'Tahoma'
         TitleFont.Style = []
+        Columns = <
+          item
+            Expanded = False
+            FieldName = 'escalaId'
+            Visible = True
+          end
+          item
+            Expanded = False
+            FieldName = 'nome'
+            Visible = True
+          end
+          item
+            Expanded = False
+            FieldName = 'tonalidade'
+            Visible = True
+          end
+          item
+            Expanded = False
+            FieldName = 'tipoEscala'
+            Visible = True
+          end
+          item
+            Expanded = False
+            FieldName = 'listaNota'
+            Visible = True
+          end
+          item
+            Expanded = False
+            FieldName = 'descricao'
+            Visible = True
+          end
+          item
+            Expanded = False
+            FieldName = 'caminhoArquivo'
+            Visible = True
+          end
+          item
+            Expanded = False
+            FieldName = 'nomeArquivo'
+            Visible = True
+          end
+          item
+            Expanded = False
+            FieldName = 'conteudoArquivo'
+            Visible = True
+          end>
       end
       object pnlBottom: TPanel
         Left = 0
@@ -99,8 +148,6 @@ object frmArquivos: TfrmArquivos
         Align = alBottom
         BevelOuter = bvNone
         TabOrder = 2
-        ExplicitTop = 307
-        ExplicitWidth = 681
         object btnFechar: TBitBtn
           Left = 624
           Top = 10
@@ -108,14 +155,13 @@ object frmArquivos: TfrmArquivos
           Height = 25
           Caption = '&FECHAR'
           TabOrder = 0
+          OnClick = btnFecharClick
         end
       end
     end
     object tsDados: TTabSheet
       Caption = 'DADOS'
       ImageIndex = 1
-      ExplicitLeft = 0
-      ExplicitTop = 96
       object pnlDadosBottom: TPanel
         Left = 0
         Top = 318
@@ -124,8 +170,6 @@ object frmArquivos: TfrmArquivos
         Align = alBottom
         BevelOuter = bvNone
         TabOrder = 0
-        ExplicitTop = 307
-        ExplicitWidth = 681
         object btnSalvar: TBitBtn
           Left = 511
           Top = 8
@@ -133,6 +177,7 @@ object frmArquivos: TfrmArquivos
           Height = 25
           Caption = '&SALVAR'
           TabOrder = 0
+          OnClick = btnSalvarClick
         end
         object btnCancelar: TBitBtn
           Left = 592
@@ -141,6 +186,7 @@ object frmArquivos: TfrmArquivos
           Height = 25
           Caption = '&CANCELAR'
           TabOrder = 1
+          OnClick = btnCancelarClick
         end
       end
       object pnlCadastro: TPanel
@@ -159,7 +205,6 @@ object frmArquivos: TfrmArquivos
         ParentBackground = False
         ParentFont = False
         TabOrder = 1
-        ExplicitWidth = 681
       end
       object DBGrid1: TDBGrid
         Left = 0
@@ -167,6 +212,7 @@ object frmArquivos: TfrmArquivos
         Width = 705
         Height = 293
         Align = alClient
+        DataSource = dsImport
         DrawingStyle = gdsClassic
         FixedColor = 5263440
         TabOrder = 2
@@ -179,12 +225,103 @@ object frmArquivos: TfrmArquivos
     end
   end
   object qryArquivos: TFDQuery
+    Active = True
     Connection = dmDados.FDConexao
+    SQL.Strings = (
+      '        SELECT e.escalaId,'
+      '               e.nome,'
+      '               t.nome AS tonalidade,'
+      '               te.nome AS tipoEscala,'
+      '               e.listaNota,'
+      '               e.descricao,'
+      '               e.caminhoArquivo,'
+      '               e.nomeArquivo,'
+      '               e.conteudoArquivo'
+      '     FROM escalas e'
+      '     INNER JOIN tonalidades t ON t.tonalidadeId = e.tonalidadeId'
+      '     INNER JOIN tipoEscala te ON te.tipoEscalaId = e.tipoId'
+      '     ORDER BY e.nome')
     Left = 525
     Top = 1
+    object qryArquivosescalaId: TFDAutoIncField
+      FieldName = 'escalaId'
+      Origin = 'escalaId'
+      ProviderFlags = [pfInWhere, pfInKey]
+      ReadOnly = True
+    end
+    object qryArquivosnome: TStringField
+      FieldName = 'nome'
+      Origin = 'nome'
+      Required = True
+      Size = 100
+    end
+    object qryArquivostonalidade: TStringField
+      FieldName = 'tonalidade'
+      Origin = 'tonalidade'
+      Required = True
+      Size = 50
+    end
+    object qryArquivostipoEscala: TStringField
+      FieldName = 'tipoEscala'
+      Origin = 'tipoEscala'
+      Required = True
+      Size = 30
+    end
+    object qryArquivoslistaNota: TStringField
+      FieldName = 'listaNota'
+      Origin = 'listaNota'
+      Required = True
+      Size = 255
+    end
+    object qryArquivosdescricao: TStringField
+      FieldName = 'descricao'
+      Origin = 'descricao'
+      Size = 500
+    end
+    object qryArquivoscaminhoArquivo: TStringField
+      FieldName = 'caminhoArquivo'
+      Origin = 'caminhoArquivo'
+      Size = 500
+    end
+    object qryArquivosnomeArquivo: TStringField
+      FieldName = 'nomeArquivo'
+      Origin = 'nomeArquivo'
+      Size = 255
+    end
+    object qryArquivosconteudoArquivo: TStringField
+      FieldName = 'conteudoArquivo'
+      Origin = 'conteudoArquivo'
+      Size = 500
+    end
   end
   object dsArquivos: TDataSource
     DataSet = qryArquivos
     Left = 592
+  end
+  object dlgSalvar: TSaveDialog
+    Left = 340
+    Top = 48
+  end
+  object dlgAbrir: TOpenDialog
+    FileName = 'Selecionar arquivo TXT'
+    Filter = 'Arquivo de Texto|*.txt'
+    Left = 452
+    Top = 72
+  end
+  object cdsImport: TFDMemTable
+    FetchOptions.AssignedValues = [evMode]
+    FetchOptions.Mode = fmAll
+    ResourceOptions.AssignedValues = [rvSilentMode]
+    ResourceOptions.SilentMode = True
+    UpdateOptions.AssignedValues = [uvCheckRequired, uvAutoCommitUpdates]
+    UpdateOptions.CheckRequired = False
+    UpdateOptions.AutoCommitUpdates = True
+    Left = 548
+    Top = 88
+  end
+  object dsImport: TDataSource
+    DataSet = cdsImport
+    Left = 604
+    Top = 88
   end
 end

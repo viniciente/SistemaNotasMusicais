@@ -1,15 +1,21 @@
 inherited frmCadEscalaMusical: TfrmCadEscalaMusical
   Caption = 'CADASTRO DE ESCALA MUSICAL'
+  ClientHeight = 375
   OnShow = FormShow
+  ExplicitHeight = 414
   PixelsPerInch = 96
   TextHeight = 13
   inherited pgcPrincipal: TPageControl
+    Height = 375
+    ActivePage = tsConsulta
+    ExplicitHeight = 375
     inherited tsConsulta: TTabSheet
       ExplicitLeft = 4
       ExplicitTop = 24
       ExplicitWidth = 681
-      ExplicitHeight = 348
+      ExplicitHeight = 347
       inherited dbGridConsulta: TDBGrid
+        Height = 249
         Columns = <
           item
             Expanded = False
@@ -38,11 +44,6 @@ inherited frmCadEscalaMusical: TfrmCadEscalaMusical
           end
           item
             Expanded = False
-            FieldName = 'caminhoArquivo'
-            Visible = True
-          end
-          item
-            Expanded = False
             FieldName = 'nomeArquivo'
             Visible = True
           end
@@ -50,14 +51,23 @@ inherited frmCadEscalaMusical: TfrmCadEscalaMusical
             Expanded = False
             FieldName = 'conteudoArquivo'
             Visible = True
+          end
+          item
+            Expanded = False
+            FieldName = 'caminhoArquivo'
+            Visible = True
           end>
+      end
+      inherited pnlBottom: TPanel
+        Top = 306
+        ExplicitTop = 306
       end
     end
     inherited tsDados: TTabSheet
       ExplicitLeft = 4
       ExplicitTop = 24
       ExplicitWidth = 681
-      ExplicitHeight = 348
+      ExplicitHeight = 347
       object lblCodigo: TLabel [0]
         Left = 3
         Top = 44
@@ -86,7 +96,7 @@ inherited frmCadEscalaMusical: TfrmCadEscalaMusical
       end
       object lblTonalidade: TLabel [2]
         Left = 416
-        Top = 39
+        Top = 44
         Width = 69
         Height = 16
         Caption = 'Tonalidade'
@@ -111,7 +121,7 @@ inherited frmCadEscalaMusical: TfrmCadEscalaMusical
         ParentFont = False
       end
       object lblNotas: TLabel [4]
-        Left = 552
+        Left = 557
         Top = 44
         Width = 37
         Height = 16
@@ -148,6 +158,10 @@ inherited frmCadEscalaMusical: TfrmCadEscalaMusical
         Font.Name = 'Tahoma'
         Font.Style = [fsBold]
         ParentFont = False
+      end
+      inherited pnlDadosBottom: TPanel
+        Top = 306
+        ExplicitTop = 306
       end
       object edtCodigo: TEdit
         Left = 0
@@ -236,50 +250,47 @@ inherited frmCadEscalaMusical: TfrmCadEscalaMusical
       '    ORDER BY e.nome')
     Left = 597
     object qryPrincipalescalaId: TFDAutoIncField
+      DisplayLabel = 'Id'
       FieldName = 'escalaId'
-      Origin = 'escalaId'
-      ProviderFlags = [pfInWhere, pfInKey]
       ReadOnly = True
     end
     object qryPrincipalnome: TStringField
+      DisplayLabel = 'Nome'
       FieldName = 'nome'
-      Origin = 'nome'
       Required = True
       Size = 100
     end
     object qryPrincipaltonalidade: TStringField
+      DisplayLabel = 'Tonalidade'
       FieldName = 'tonalidade'
-      Origin = 'tonalidade'
       Required = True
       Size = 50
     end
     object qryPrincipaltipoEscala: TStringField
+      DisplayLabel = 'TipoEscala'
       FieldName = 'tipoEscala'
-      Origin = 'tipoEscala'
       Required = True
       Size = 30
     end
-    object qryPrincipaldescricao: TMemoField
+    object qryPrincipaldescricao: TStringField
+      DisplayLabel = 'Descricao'
       FieldName = 'descricao'
-      Origin = 'descricao'
-      BlobType = ftMemo
-      Size = 2147483647
+      Size = 500
     end
     object qryPrincipalcaminhoArquivo: TStringField
+      DisplayLabel = 'Caminho do Arquivo'
       FieldName = 'caminhoArquivo'
-      Origin = 'caminhoArquivo'
       Size = 500
     end
     object qryPrincipalnomeArquivo: TStringField
+      DisplayLabel = 'Nome do Arquivo'
       FieldName = 'nomeArquivo'
-      Origin = 'nomeArquivo'
       Size = 255
     end
-    object qryPrincipalconteudoArquivo: TMemoField
+    object qryPrincipalconteudoArquivo: TStringField
+      DisplayLabel = 'Conteudo'
       FieldName = 'conteudoArquivo'
-      Origin = 'conteudoArquivo'
-      BlobType = ftMemo
-      Size = 2147483647
+      Size = 500
     end
   end
   object qryTonalidades: TFDQuery

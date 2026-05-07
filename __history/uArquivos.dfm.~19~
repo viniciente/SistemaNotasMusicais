@@ -11,6 +11,7 @@ object frmArquivos: TfrmArquivos
   Font.Name = 'Tahoma'
   Font.Style = []
   OldCreateOrder = False
+  Position = poScreenCenter
   OnCreate = FormCreate
   OnShow = FormShow
   PixelsPerInch = 96
@@ -23,7 +24,6 @@ object frmArquivos: TfrmArquivos
     ActivePage = tsConsulta
     Align = alClient
     TabOrder = 0
-    OnChange = pgcPrincipalChange
     object tsConsulta: TTabSheet
       Caption = 'CONSULTA'
       object pnlTop: TPanel
@@ -58,7 +58,7 @@ object frmArquivos: TfrmArquivos
         object btnExportar: TBitBtn
           Left = 400
           Top = 31
-          Width = 75
+          Width = 81
           Height = 25
           Caption = 'EXPORTAR TXT'
           TabOrder = 1
@@ -67,10 +67,11 @@ object frmArquivos: TfrmArquivos
         object btnImportar: TBitBtn
           Left = 512
           Top = 31
-          Width = 75
+          Width = 81
           Height = 25
           Caption = 'IMPORTAR TXT'
           TabOrder = 2
+          OnClick = btnImportarClick
         end
       end
       object dbGridConsulta: TDBGrid
@@ -121,17 +122,17 @@ object frmArquivos: TfrmArquivos
           end
           item
             Expanded = False
-            FieldName = 'caminhoArquivo'
-            Visible = True
-          end
-          item
-            Expanded = False
             FieldName = 'nomeArquivo'
             Visible = True
           end
           item
             Expanded = False
             FieldName = 'conteudoArquivo'
+            Visible = True
+          end
+          item
+            Expanded = False
+            FieldName = 'caminhoArquivo'
             Visible = True
           end>
       end
@@ -172,6 +173,7 @@ object frmArquivos: TfrmArquivos
           Height = 25
           Caption = '&SALVAR'
           TabOrder = 0
+          OnClick = btnSalvarClick
         end
         object btnCancelar: TBitBtn
           Left = 592
@@ -180,6 +182,7 @@ object frmArquivos: TfrmArquivos
           Height = 25
           Caption = '&CANCELAR'
           TabOrder = 1
+          OnClick = btnCancelarClick
         end
       end
       object pnlCadastro: TPanel
@@ -205,6 +208,7 @@ object frmArquivos: TfrmArquivos
         Width = 705
         Height = 293
         Align = alClient
+        DataSource = dsImport
         DrawingStyle = gdsClassic
         FixedColor = 5263440
         TabOrder = 2
@@ -236,51 +240,60 @@ object frmArquivos: TfrmArquivos
     Left = 525
     Top = 1
     object qryArquivosescalaId: TFDAutoIncField
+      DisplayLabel = 'Id'
       FieldName = 'escalaId'
       Origin = 'escalaId'
       ProviderFlags = [pfInWhere, pfInKey]
       ReadOnly = True
     end
     object qryArquivosnome: TStringField
+      DisplayLabel = 'Nome'
       FieldName = 'nome'
       Origin = 'nome'
       Required = True
       Size = 100
     end
     object qryArquivostonalidade: TStringField
+      DisplayLabel = 'Tonalidade'
       FieldName = 'tonalidade'
       Origin = 'tonalidade'
       Required = True
       Size = 50
     end
     object qryArquivostipoEscala: TStringField
+      DisplayLabel = 'Tipo Escala'
       FieldName = 'tipoEscala'
       Origin = 'tipoEscala'
       Required = True
       Size = 30
     end
     object qryArquivoslistaNota: TStringField
+      DisplayLabel = 'Notas'
       FieldName = 'listaNota'
       Origin = 'listaNota'
       Required = True
       Size = 255
     end
     object qryArquivosdescricao: TStringField
+      DisplayLabel = 'Descri'#231#227'o'
       FieldName = 'descricao'
       Origin = 'descricao'
       Size = 500
     end
     object qryArquivoscaminhoArquivo: TStringField
+      DisplayLabel = 'Caminho do Arquivo'
       FieldName = 'caminhoArquivo'
       Origin = 'caminhoArquivo'
       Size = 500
     end
     object qryArquivosnomeArquivo: TStringField
+      DisplayLabel = 'Nome do Arquivo'
       FieldName = 'nomeArquivo'
       Origin = 'nomeArquivo'
       Size = 255
     end
     object qryArquivosconteudoArquivo: TStringField
+      DisplayLabel = 'Conteudo'
       FieldName = 'conteudoArquivo'
       Origin = 'conteudoArquivo'
       Size = 500
@@ -293,5 +306,27 @@ object frmArquivos: TfrmArquivos
   object dlgSalvar: TSaveDialog
     Left = 340
     Top = 48
+  end
+  object dlgAbrir: TOpenDialog
+    FileName = 'Selecionar arquivo TXT'
+    Filter = 'Arquivo de Texto|*.txt'
+    Left = 452
+    Top = 72
+  end
+  object cdsImport: TFDMemTable
+    FetchOptions.AssignedValues = [evMode]
+    FetchOptions.Mode = fmAll
+    ResourceOptions.AssignedValues = [rvSilentMode]
+    ResourceOptions.SilentMode = True
+    UpdateOptions.AssignedValues = [uvCheckRequired, uvAutoCommitUpdates]
+    UpdateOptions.CheckRequired = False
+    UpdateOptions.AutoCommitUpdates = True
+    Left = 548
+    Top = 88
+  end
+  object dsImport: TDataSource
+    DataSet = cdsImport
+    Left = 604
+    Top = 88
   end
 end

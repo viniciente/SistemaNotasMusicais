@@ -20,7 +20,7 @@ object frmTelaHeranca: TfrmTelaHeranca
     Top = 0
     Width = 689
     Height = 376
-    ActivePage = tsConsulta
+    ActivePage = tsDados
     Align = alClient
     TabOrder = 0
     object tsConsulta: TTabSheet
@@ -55,27 +55,27 @@ object frmTelaHeranca: TfrmTelaHeranca
           TabOrder = 0
         end
         object btnAdicionar: TBitBtn
-          Left = 440
+          Left = 369
           Top = 28
-          Width = 75
+          Width = 107
           Height = 25
           Caption = '&ADICIONAR'
           TabOrder = 1
           OnClick = btnAdicionarClick
         end
         object btnRemover: TBitBtn
-          Left = 521
+          Left = 482
           Top = 28
-          Width = 75
+          Width = 89
           Height = 25
           Caption = '&REMOVER'
           TabOrder = 2
           OnClick = btnRemoverClick
         end
         object btnEditar: TBitBtn
-          Left = 602
+          Left = 577
           Top = 28
-          Width = 75
+          Width = 98
           Height = 25
           Caption = '&EDITAR'
           TabOrder = 3
@@ -107,9 +107,9 @@ object frmTelaHeranca: TfrmTelaHeranca
         BevelOuter = bvNone
         TabOrder = 2
         object btnFechar: TBitBtn
-          Left = 600
+          Left = 577
           Top = 8
-          Width = 75
+          Width = 98
           Height = 25
           Caption = '&FECHAR'
           TabOrder = 0

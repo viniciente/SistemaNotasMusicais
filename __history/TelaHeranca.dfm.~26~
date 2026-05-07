@@ -172,6 +172,7 @@ object frmTelaHeranca: TfrmTelaHeranca
     Top = 1
   end
   object dsPrincipal: TDataSource
+    DataSet = qryPrincipal
     Left = 648
   end
 end

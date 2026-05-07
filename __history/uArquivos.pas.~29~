@@ -18,7 +18,6 @@ type
     pnlTop: TPanel;
     pnlNome: TPanel;
     dbGridConsulta: TDBGrid;
-    DBGrid1: TDBGrid;
     pnlBottom: TPanel;
     btnFechar: TBitBtn;
     tsDados: TTabSheet;
@@ -88,9 +87,8 @@ begin
   pnlCadastro.Font.Color := $00FF5EB1;
   pnlNome.Font.Color := $00FF5EB1;
   pnlDadosBottom.Font.Color := $00FF5EB1;
-  pnlCadastro.Font.Color := $00FF5EB1;
 
-  for i := 0 to dbGridConsulta.Columns.Count- 1 do
+  for i := 0 to dbGridConsulta.Columns.Count - 1 do
   begin
     dbGridConsulta.Columns[i].Title.Font.Color := $00FF5EB1;
     dbGridConsulta.Columns[i].Title.Font.Style := [fsBold];
@@ -443,7 +441,6 @@ begin
   finally
     resumoErros.Free;
   end;
-  pgcPrincipal.ActivePage := tsDados;
 end;
 
 procedure TfrmArquivos.LerArquivoTXT(caminho: string);

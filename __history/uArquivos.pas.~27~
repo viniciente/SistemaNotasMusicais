@@ -1,4 +1,4 @@
-Ôªøunit uArquivos;
+unit uArquivos;
 
 interface
 
@@ -18,7 +18,6 @@ type
     pnlTop: TPanel;
     pnlNome: TPanel;
     dbGridConsulta: TDBGrid;
-    DBGrid1: TDBGrid;
     pnlBottom: TPanel;
     btnFechar: TBitBtn;
     tsDados: TTabSheet;
@@ -88,9 +87,8 @@ begin
   pnlCadastro.Font.Color := $00FF5EB1;
   pnlNome.Font.Color := $00FF5EB1;
   pnlDadosBottom.Font.Color := $00FF5EB1;
-  pnlCadastro.Font.Color := $00FF5EB1;
 
-  for i := 0 to dbGridConsulta.Columns.Count- 1 do
+  for i := 0 to dbGridConsulta.Columns.Count - 1 do
   begin
     dbGridConsulta.Columns[i].Title.Font.Color := $00FF5EB1;
     dbGridConsulta.Columns[i].Title.Font.Style := [fsBold];
@@ -108,7 +106,7 @@ begin
     // Centraliza o texto das linhas
     dbGridConsulta.Columns[I].Alignment := taCenter;
 
-    // Centraliza o texto do t√≠tulo
+    // Centraliza o texto do tÌtulo
     dbGridConsulta.Columns[I].Title.Alignment := taCenter;
   end;
 end;
@@ -196,7 +194,7 @@ begin
     vQuery.Open;
     if vQuery.IsEmpty then
     begin
-      msgErro := 'Tipo "' + sTipo + '" n√£o encontrado no banco';
+      msgErro := 'Tipo "' + sTipo + '" n„o encontrado no banco';
       Exit;
     end;
     tipoId := vQuery.FieldByName('tipoEscalaId').AsInteger;
@@ -208,7 +206,7 @@ begin
     vQuery.Open;
     if vQuery.IsEmpty then
     begin
-      msgErro := 'Tonalidade "' + sTonalidade + '" n√£o encontrada no banco';
+      msgErro := 'Tonalidade "' + sTonalidade + '" n„o encontrada no banco';
       Exit;
     end;
     tonalidadeId := vQuery.FieldByName('tonalidadeId').AsInteger;
@@ -223,7 +221,7 @@ begin
     vQuery.Open;
     if vQuery.FieldByName('total').AsInteger > 0 then
     begin
-      msgErro := 'Escala "' + sNome + '" j√° cadastrada com essa tonalidade';
+      msgErro := 'Escala "' + sNome + '" j· cadastrada com essa tonalidade';
       Exit;
     end;
 
@@ -239,7 +237,7 @@ begin
       vQuery.Open;
       if vQuery.IsEmpty then
       begin
-        msgErro := 'Nota "' + notaNome + '" n√£o encontrada no banco';
+        msgErro := 'Nota "' + notaNome + '" n„o encontrada no banco';
         Exit;
       end;
       if notasIds <> '' then notasIds := notasIds + ',';
@@ -281,7 +279,7 @@ var
 begin
   if qryArquivos.IsEmpty then
   begin
-    ShowMessage('N√£o a dados para exportar!');
+    ShowMessage('N„o a dados para exportar!');
     Exit;
   end;
 
@@ -334,7 +332,7 @@ begin
     linhas.SaveToFile(dlgSalvar.FileName, TEncoding.UTF8);
 
     ShowMessage(
-      'Exporta√ß√£o concluida com sucesso!' + sLineBreak +
+      'ExportaÁ„o concluida com sucesso!' + sLineBreak +
       IntToStr(linhas.Count) + ' escala(s) exportada(s).' + sLineBreak +
       'Arquivo: ' + dlgSalvar.FileName
     );
@@ -367,7 +365,6 @@ var
   msgErro: string;
   salvos, erros: Integer;
   resumoErros: TStringList;
-  msg: string;
 begin
   if cdsImport.IsEmpty then
   begin
@@ -377,8 +374,7 @@ begin
 
   salvos      := 0;
   erros       := 0;
-  resumoErros := TStringList.Create;  // ‚Üê adiciona
-  try
+  resumoErros := TStringList.Create;
     cdsImport.DisableControls;
     try
       cdsImport.First;
@@ -387,8 +383,7 @@ begin
         if cdsImport.FieldByName('Status').AsString = 'ERRO' then
         begin
           Inc(erros);
-          // J√° tem erro de formato ‚Äî registra no resumo
-          resumoErros.Add('‚Ä¢ ' + cdsImport.FieldByName('Nome').AsString +
+          resumoErros.Add('ï ' + cdsImport.FieldByName('Nome').AsString +
             ': ' + cdsImport.FieldByName('Erro').AsString);
           cdsImport.Next;
           Continue;
@@ -411,8 +406,7 @@ begin
         else
         begin
           Inc(erros);
-          // Registra no resumo com o nome da escala + motivo
-          resumoErros.Add('‚Ä¢ ' + cdsImport.FieldByName('Nome').AsString +
+          resumoErros.Add('ï ' + cdsImport.FieldByName('Nome').AsString +
             ': ' + msgErro);
           cdsImport.Edit;
           cdsImport.FieldByName('Status').AsString := 'ERRO';
@@ -427,24 +421,16 @@ begin
     end;
 
     CarregarDados;
-
-    // Monta mensagem final detalhada
-    msg := 'Importa√ß√£o conclu√≠da!' + #13#10 +
+    msg := 'ImportaÁ„o concluÌda!' + #13#10 +
                'Salvos: ' + IntToStr(salvos) + #13#10 +
                'Erros:  ' + IntToStr(erros);
-
     if resumoErros.Count > 0 then
       msg := msg + #13#10 + #13#10 +
              'Detalhes dos erros:' + #13#10 +
              resumoErros.Text;
-
     ShowMessage(msg);
-
-  finally
     resumoErros.Free;
   end;
-  pgcPrincipal.ActivePage := tsDados;
-end;
 
 procedure TfrmArquivos.LerArquivoTXT(caminho: string);
 var
@@ -469,14 +455,14 @@ begin
 
       partes := linhas[i].Split(['|']);
 
-      // Linha com formato inv√°lido
+      // Linha com formato inv·lido
       if Length(partes) <> 5 then
       begin
         cdsImport.Append;
         cdsImport.FieldByName('Status').AsString  := 'ERRO';
         cdsImport.FieldByName('Nome').AsString    := Trim(linhas[i]);
         cdsImport.FieldByName('Erro').AsString    :=
-          'Formato inv√°lido: precisa de 5 campos separados por "|"';
+          'Formato inv·lido: precisa de 5 campos separados por "|"';
         cdsImport.Post;
         Continue;
       end;
@@ -487,7 +473,7 @@ begin
       sNotas      := Trim(partes[3]);
       sDescricao  := Trim(partes[4]);
 
-      // Valida campos obrigat√≥rios
+      // Valida campos obrigatÛrios
       erro := '';
       if sNome = ''       then erro := 'Nome vazio';
       if sTipo = ''       then erro := erro + IfThen(erro<>'', ' | ') + 'Tipo vazio';

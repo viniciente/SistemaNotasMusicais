@@ -94,6 +94,7 @@ begin
   begin
     dbGridConsulta.Columns[i].Title.Font.Color := $00FF5EB1;
     dbGridConsulta.Columns[i].Title.Font.Style := [fsBold];
+    DBGrid1.Columns[i].Title.Font.Color := $00FF5EB1;
   end;
   CentralizarColunas;
   PrepararGridImport;

@@ -11,6 +11,9 @@ object frmArquivos: TfrmArquivos
   Font.Name = 'Tahoma'
   Font.Style = []
   OldCreateOrder = False
+  Position = poScreenCenter
+  OnCreate = FormCreate
+  OnShow = FormShow
   PixelsPerInch = 96
   TextHeight = 13
   object pgcPrincipal: TPageControl
@@ -21,7 +24,6 @@ object frmArquivos: TfrmArquivos
     ActivePage = tsConsulta
     Align = alClient
     TabOrder = 0
-    OnChange = pgcPrincipalChange
     object tsConsulta: TTabSheet
       Caption = 'CONSULTA'
       object pnlTop: TPanel
@@ -77,6 +79,7 @@ object frmArquivos: TfrmArquivos
         Width = 705
         Height = 261
         Align = alClient
+        DataSource = dsArquivos
         DrawingStyle = gdsClassic
         FixedColor = 5263440
         TabOrder = 1
@@ -85,6 +88,52 @@ object frmArquivos: TfrmArquivos
         TitleFont.Height = -11
         TitleFont.Name = 'Tahoma'
         TitleFont.Style = []
+        Columns = <
+          item
+            Expanded = False
+            FieldName = 'escalaId'
+            Visible = True
+          end
+          item
+            Expanded = False
+            FieldName = 'nome'
+            Visible = True
+          end
+          item
+            Expanded = False
+            FieldName = 'tonalidade'
+            Visible = True
+          end
+          item
+            Expanded = False
+            FieldName = 'tipoEscala'
+            Visible = True
+          end
+          item
+            Expanded = False
+            FieldName = 'listaNota'
+            Visible = True
+          end
+          item
+            Expanded = False
+            FieldName = 'descricao'
+            Visible = True
+          end
+          item
+            Expanded = False
+            FieldName = 'caminhoArquivo'
+            Visible = True
+          end
+          item
+            Expanded = False
+            FieldName = 'nomeArquivo'
+            Visible = True
+          end
+          item
+            Expanded = False
+            FieldName = 'conteudoArquivo'
+            Visible = True
+          end>
       end
       object pnlBottom: TPanel
         Left = 0
@@ -101,6 +150,7 @@ object frmArquivos: TfrmArquivos
           Height = 25
           Caption = '&FECHAR'
           TabOrder = 0
+          OnClick = btnFecharClick
         end
       end
     end
@@ -122,6 +172,7 @@ object frmArquivos: TfrmArquivos
           Height = 25
           Caption = '&SALVAR'
           TabOrder = 0
+          OnClick = btnSalvarClick
         end
         object btnCancelar: TBitBtn
           Left = 592
@@ -130,6 +181,7 @@ object frmArquivos: TfrmArquivos
           Height = 25
           Caption = '&CANCELAR'
           TabOrder = 1
+          OnClick = btnCancelarClick
         end
       end
       object pnlCadastro: TPanel
@@ -167,9 +219,74 @@ object frmArquivos: TfrmArquivos
     end
   end
   object qryArquivos: TFDQuery
+    Active = True
     Connection = dmDados.FDConexao
+    SQL.Strings = (
+      '        SELECT e.escalaId,'
+      '               e.nome,'
+      '               t.nome AS tonalidade,'
+      '               te.nome AS tipoEscala,'
+      '               e.listaNota,'
+      '               e.descricao,'
+      '               e.caminhoArquivo,'
+      '               e.nomeArquivo,'
+      '               e.conteudoArquivo'
+      '     FROM escalas e'
+      '     INNER JOIN tonalidades t ON t.tonalidadeId = e.tonalidadeId'
+      '     INNER JOIN tipoEscala te ON te.tipoEscalaId = e.tipoId'
+      '     ORDER BY e.nome')
     Left = 525
     Top = 1
+    object qryArquivosescalaId: TFDAutoIncField
+      FieldName = 'escalaId'
+      Origin = 'escalaId'
+      ProviderFlags = [pfInWhere, pfInKey]
+      ReadOnly = True
+    end
+    object qryArquivosnome: TStringField
+      FieldName = 'nome'
+      Origin = 'nome'
+      Required = True
+      Size = 100
+    end
+    object qryArquivostonalidade: TStringField
+      FieldName = 'tonalidade'
+      Origin = 'tonalidade'
+      Required = True
+      Size = 50
+    end
+    object qryArquivostipoEscala: TStringField
+      FieldName = 'tipoEscala'
+      Origin = 'tipoEscala'
+      Required = True
+      Size = 30
+    end
+    object qryArquivoslistaNota: TStringField
+      FieldName = 'listaNota'
+      Origin = 'listaNota'
+      Required = True
+      Size = 255
+    end
+    object qryArquivosdescricao: TStringField
+      FieldName = 'descricao'
+      Origin = 'descricao'
+      Size = 500
+    end
+    object qryArquivoscaminhoArquivo: TStringField
+      FieldName = 'caminhoArquivo'
+      Origin = 'caminhoArquivo'
+      Size = 500
+    end
+    object qryArquivosnomeArquivo: TStringField
+      FieldName = 'nomeArquivo'
+      Origin = 'nomeArquivo'
+      Size = 255
+    end
+    object qryArquivosconteudoArquivo: TStringField
+      FieldName = 'conteudoArquivo'
+      Origin = 'conteudoArquivo'
+      Size = 500
+    end
   end
   object dsArquivos: TDataSource
     DataSet = qryArquivos

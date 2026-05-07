@@ -21,7 +21,7 @@ object frmArquivos: TfrmArquivos
     Top = 0
     Width = 713
     Height = 387
-    ActivePage = tsConsulta
+    ActivePage = tsDados
     Align = alClient
     TabOrder = 0
     object tsConsulta: TTabSheet
@@ -122,17 +122,17 @@ object frmArquivos: TfrmArquivos
           end
           item
             Expanded = False
+            FieldName = 'caminhoArquivo'
+            Visible = True
+          end
+          item
+            Expanded = False
             FieldName = 'nomeArquivo'
             Visible = True
           end
           item
             Expanded = False
             FieldName = 'conteudoArquivo'
-            Visible = True
-          end
-          item
-            Expanded = False
-            FieldName = 'caminhoArquivo'
             Visible = True
           end>
       end
@@ -240,60 +240,51 @@ object frmArquivos: TfrmArquivos
     Left = 525
     Top = 1
     object qryArquivosescalaId: TFDAutoIncField
-      DisplayLabel = 'Id'
       FieldName = 'escalaId'
       Origin = 'escalaId'
       ProviderFlags = [pfInWhere, pfInKey]
       ReadOnly = True
     end
     object qryArquivosnome: TStringField
-      DisplayLabel = 'Nome'
       FieldName = 'nome'
       Origin = 'nome'
       Required = True
       Size = 100
     end
     object qryArquivostonalidade: TStringField
-      DisplayLabel = 'Tonalidade'
       FieldName = 'tonalidade'
       Origin = 'tonalidade'
       Required = True
       Size = 50
     end
     object qryArquivostipoEscala: TStringField
-      DisplayLabel = 'Tipo Escala'
       FieldName = 'tipoEscala'
       Origin = 'tipoEscala'
       Required = True
       Size = 30
     end
     object qryArquivoslistaNota: TStringField
-      DisplayLabel = 'Notas'
       FieldName = 'listaNota'
       Origin = 'listaNota'
       Required = True
       Size = 255
     end
     object qryArquivosdescricao: TStringField
-      DisplayLabel = 'Descri'#231#227'o'
       FieldName = 'descricao'
       Origin = 'descricao'
       Size = 500
     end
     object qryArquivoscaminhoArquivo: TStringField
-      DisplayLabel = 'Caminho do Arquivo'
       FieldName = 'caminhoArquivo'
       Origin = 'caminhoArquivo'
       Size = 500
     end
     object qryArquivosnomeArquivo: TStringField
-      DisplayLabel = 'Nome do Arquivo'
       FieldName = 'nomeArquivo'
       Origin = 'nomeArquivo'
       Size = 255
     end
     object qryArquivosconteudoArquivo: TStringField
-      DisplayLabel = 'Conteudo'
       FieldName = 'conteudoArquivo'
       Origin = 'conteudoArquivo'
       Size = 500

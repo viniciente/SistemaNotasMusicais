@@ -7,9 +7,13 @@ inherited frmCadNotas: TfrmCadNotas
   TextHeight = 13
   inherited pgcPrincipal: TPageControl
     Width = 681
+    ActivePage = tsConsulta
     ExplicitWidth = 681
     inherited tsConsulta: TTabSheet
+      ExplicitLeft = 4
+      ExplicitTop = 24
       ExplicitWidth = 673
+      ExplicitHeight = 348
       inherited pnlTop: TPanel
         Width = 673
         ExplicitWidth = 673
@@ -54,7 +58,10 @@ inherited frmCadNotas: TfrmCadNotas
       end
     end
     inherited tsDados: TTabSheet
+      ExplicitLeft = 4
+      ExplicitTop = 24
       ExplicitWidth = 673
+      ExplicitHeight = 348
       object lblCodigo: TLabel [0]
         Left = 16
         Top = 44
@@ -115,12 +122,14 @@ inherited frmCadNotas: TfrmCadNotas
       'FROM notas')
     Left = 429
     object qryPrincipalnotasId: TFDAutoIncField
+      DisplayLabel = 'Id'
       FieldName = 'notasId'
       Origin = 'notasId'
       ProviderFlags = [pfInWhere, pfInKey]
       ReadOnly = True
     end
     object qryPrincipalnome: TStringField
+      DisplayLabel = 'Nome'
       FieldName = 'nome'
       Origin = 'nome'
       Required = True

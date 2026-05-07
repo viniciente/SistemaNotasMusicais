@@ -8,7 +8,12 @@ inherited frmCadEscalaMusical: TfrmCadEscalaMusical
   inherited pgcPrincipal: TPageControl
     Height = 375
     ActivePage = tsConsulta
+    ExplicitHeight = 375
     inherited tsConsulta: TTabSheet
+      ExplicitLeft = 4
+      ExplicitTop = 24
+      ExplicitWidth = 681
+      ExplicitHeight = 347
       inherited dbGridConsulta: TDBGrid
         Height = 249
         Columns = <
@@ -39,11 +44,6 @@ inherited frmCadEscalaMusical: TfrmCadEscalaMusical
           end
           item
             Expanded = False
-            FieldName = 'caminhoArquivo'
-            Visible = True
-          end
-          item
-            Expanded = False
             FieldName = 'nomeArquivo'
             Visible = True
           end
@@ -51,13 +51,23 @@ inherited frmCadEscalaMusical: TfrmCadEscalaMusical
             Expanded = False
             FieldName = 'conteudoArquivo'
             Visible = True
+          end
+          item
+            Expanded = False
+            FieldName = 'caminhoArquivo'
+            Visible = True
           end>
       end
       inherited pnlBottom: TPanel
         Top = 306
+        ExplicitTop = 306
       end
     end
     inherited tsDados: TTabSheet
+      ExplicitLeft = 4
+      ExplicitTop = 24
+      ExplicitWidth = 681
+      ExplicitHeight = 347
       object lblCodigo: TLabel [0]
         Left = 3
         Top = 44
@@ -151,6 +161,7 @@ inherited frmCadEscalaMusical: TfrmCadEscalaMusical
       end
       inherited pnlDadosBottom: TPanel
         Top = 306
+        ExplicitTop = 306
       end
       object edtCodigo: TEdit
         Left = 0
@@ -192,10 +203,9 @@ inherited frmCadEscalaMusical: TfrmCadEscalaMusical
         Left = 3
         Top = 108
         Width = 543
-        Height = 20
+        Height = 21
         Anchors = [akLeft, akTop, akRight, akBottom]
         TabOrder = 7
-        ExplicitHeight = 21
       end
       object clbNotas: TCheckListBox
         Left = 557
@@ -240,37 +250,45 @@ inherited frmCadEscalaMusical: TfrmCadEscalaMusical
       '    ORDER BY e.nome')
     Left = 597
     object qryPrincipalescalaId: TFDAutoIncField
+      DisplayLabel = 'Id'
       FieldName = 'escalaId'
       ReadOnly = True
     end
     object qryPrincipalnome: TStringField
+      DisplayLabel = 'Nome'
       FieldName = 'nome'
       Required = True
       Size = 100
     end
     object qryPrincipaltonalidade: TStringField
+      DisplayLabel = 'Tonalidade'
       FieldName = 'tonalidade'
       Required = True
       Size = 50
     end
     object qryPrincipaltipoEscala: TStringField
+      DisplayLabel = 'TipoEscala'
       FieldName = 'tipoEscala'
       Required = True
       Size = 30
     end
     object qryPrincipaldescricao: TStringField
+      DisplayLabel = 'Descricao'
       FieldName = 'descricao'
       Size = 500
     end
     object qryPrincipalcaminhoArquivo: TStringField
+      DisplayLabel = 'Caminho do Arquivo'
       FieldName = 'caminhoArquivo'
       Size = 500
     end
     object qryPrincipalnomeArquivo: TStringField
+      DisplayLabel = 'Nome do Arquivo'
       FieldName = 'nomeArquivo'
       Size = 255
     end
     object qryPrincipalconteudoArquivo: TStringField
+      DisplayLabel = 'Conteudo'
       FieldName = 'conteudoArquivo'
       Size = 500
     end

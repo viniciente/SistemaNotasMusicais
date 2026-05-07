@@ -131,6 +131,15 @@
             <FormType>dfm</FormType>
         </DCCReference>
         <DCCReference Include="Classes\cCadEscalaMusical.pas"/>
+        <DCCReference Include="Cadastro\uCadTipoEscala.pas">
+            <Form>frmCadTipoEscala</Form>
+            <FormType>dfm</FormType>
+        </DCCReference>
+        <DCCReference Include="Classes\cCadTipoEscala.pas"/>
+        <DCCReference Include="uArquivos.pas">
+            <Form>frmArquivos</Form>
+            <FormType>dfm</FormType>
+        </DCCReference>
         <BuildConfiguration Include="Release">
             <Key>Cfg_2</Key>
             <CfgParent>Base</CfgParent>

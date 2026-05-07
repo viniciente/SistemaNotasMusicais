@@ -1,4 +1,4 @@
-unit uCadEscalaMusical;
+ï»¿unit uCadEscalaMusical;
 
 interface
 
@@ -28,15 +28,18 @@ type
     qryNotas: TFDQuery;
     qryTipoEscala: TFDQuery;
     qryTonalidades: TFDQuery;
-    qryPrincipalescalaId: TFDAutoIncField;
-    qryPrincipalnome: TStringField;
-    qryPrincipaltonalidade: TStringField;
-    qryPrincipaltipoEscala: TStringField;
-    qryPrincipaldescricao: TMemoField;
     btnImportar: TButton;
     edtArquivo: TEdit;
     lblArquivo: TLabel;
     dlgAbrir: TOpenDialog;
+    qryPrincipalescalaId: TFDAutoIncField;
+    qryPrincipalnome: TStringField;
+    qryPrincipaltonalidade: TStringField;
+    qryPrincipaltipoEscala: TStringField;
+    qryPrincipaldescricao: TStringField;
+    qryPrincipalcaminhoArquivo: TStringField;
+    qryPrincipalnomeArquivo: TStringField;
+    qryPrincipalconteudoArquivo: TStringField;
     procedure btnEditarClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure FormShow(Sender: TObject);
@@ -122,13 +125,15 @@ begin
 end;
 
 function TfrmCadEscalaMusical.Gravar(EstadoDoCadastro: TEstadoDoCadastro): Boolean;
+var
+linhas : TStringList;
 begin
   Result := False;
 
-  // Validações
+  // ValidaÃ§Ãµes
   if Trim(edtNome.Text) = '' then
   begin
-    ShowMessage('O nome da escala é obrigatório!');
+    ShowMessage('O nome da escala Ã© obrigatÃ³rio!');
     Exit;
   end;
 
@@ -150,12 +155,27 @@ begin
     Exit;
   end;
 
-  // Preenche o objeto
-  oEscala.nome        := Trim(edtNome.Text);
+// Preenche o objeto
+  oEscala.nome         := Trim(edtNome.Text);
   oEscala.tonalidadeId := Integer(lkpTonalidade.KeyValue);
-  oEscala.tipoId      := Integer(lkpTipoEscala.KeyValue);
-  oEscala.listaNota   := PegarNotasMarcadas;
-  oEscala.descricao   := Trim(edtDescricao.Text);
+  oEscala.tipoId       := Integer(lkpTipoEscala.KeyValue);
+  oEscala.listaNota    := PegarNotasMarcadas;
+  oEscala.descricao    := Trim(edtDescricao.Text);
+
+  // Dados do arquivo
+  if edtArquivo.Text <> '' then
+  begin
+    oEscala.nomeArquivo    := ExtractFileName(edtArquivo.Text);
+    oEscala.caminhoArquivo := edtArquivo.Text;
+
+    linhas := TStringList.Create;
+    try
+      linhas.LoadFromFile(edtArquivo.Text, TEncoding.UTF8);
+      oEscala.conteudoArquivo := linhas.Text;
+    finally
+      linhas.Free;
+    end;
+  end;
 
   // Insere ou Atualiza
   if EstadoDoCadastro = ecInserir then
@@ -173,8 +193,6 @@ begin
   Result := oEscala.Apagar;
 end;
 
-
-
 procedure TfrmCadEscalaMusical.btnEditarClick(Sender: TObject);
 begin
   if not Assigned(oEscala)then Exit;
@@ -186,6 +204,10 @@ begin
     lkpTonalidade.KeyValue := oEscala.tonalidadeId;
     lkpTipoEscala.KeyValue := oEscala.tipoId;
     MarcarNotasSalvas(oEscala.listaNota);
+    if oEscala.caminhoArquivo <> '' then
+      edtArquivo.Text := oEscala.caminhoArquivo
+    else
+      edtArquivo.Text := '';
   end
   else begin
     btnCancelar.Click;
@@ -216,77 +238,53 @@ var
   notasIds: string;
   vQuery: TFDQuery;
   i: Integer;
-  notaNome: string;
-  destino: string;
-  nomeArquivo: string;
+  notaNome : string;
 begin
   linhas := TStringList.Create;
   try
     linhas.LoadFromFile(caminho, TEncoding.UTF8);
 
-    if linhas.Count = 0 then
-    begin
-      ShowMessage('Arquivo vazio!');
-      Exit;
-    end;
+    if linhas.Count = 0 then begin ShowMessage('Arquivo vazio!'); Exit; end;
 
-    // Lê a primeira linha com conteúdo
     partes := linhas[0].Split(['|']);
 
-    // Valida se tem os 5 campos obrigatórios
     if Length(partes) <> 5 then
     begin
-      ShowMessage(
-        'Formato inválido! O arquivo deve conter exatamente 5 campos separados por "|".' + #13#10 +
-        'Formato esperado: Nome | Tipo Escala | Tonalidade | Notas | Descrição'
-      );
+      ShowMessage('Formato invÃ¡lido! O arquivo deve conter exatamente 5 campos separados por "|".');
       Exit;
     end;
 
-    // Limpa espaços extras de cada campo
     sNome       := Trim(partes[0]);
     sTipo       := Trim(partes[1]);
     sTonalidade := Trim(partes[2]);
     sNotas      := Trim(partes[3]);
     sDescricao  := Trim(partes[4]);
 
-    // Valida campos obrigatórios
-    if sNome = '' then begin ShowMessage('Nome da escala não pode ser vazio!'); Exit; end;
-    if sTipo = '' then begin ShowMessage('Tipo da escala não pode ser vazio!'); Exit; end;
-    if sTonalidade = '' then begin ShowMessage('Tonalidade não pode ser vazia!'); Exit; end;
-    if sNotas = '' then begin ShowMessage('Lista de notas não pode ser vazia!'); Exit; end;
+    if sNome = '' then begin ShowMessage('Nome da escala nÃ£o pode ser vazio!'); Exit; end;
+    if sTipo = '' then begin ShowMessage('Tipo da escala nÃ£o pode ser vazio!'); Exit; end;
+    if sTonalidade = '' then begin ShowMessage('Tonalidade nÃ£o pode ser vazia!'); Exit; end;
+    if sNotas = '' then begin ShowMessage('Lista de notas nÃ£o pode ser vazia!'); Exit; end;
 
     vQuery := TFDQuery.Create(nil);
     try
       vQuery.Connection := dmDados.FDConexao;
 
-      // Busca o ID do tipo de escala pelo nome
-      vQuery.Close;
+      // Busca tipoId
       vQuery.SQL.Text := 'SELECT tipoEscalaId FROM tipoEscala WHERE LOWER(nome) = LOWER(:nome)';
       vQuery.ParamByName('nome').AsString := sTipo;
       vQuery.Open;
-
-      if vQuery.IsEmpty then
-      begin
-        ShowMessage('Tipo de escala "' + sTipo + '" não encontrado no banco de dados!');
-        Exit;
-      end;
+      if vQuery.IsEmpty then begin ShowMessage('Tipo "' + sTipo + '" nÃ£o encontrado!'); Exit; end;
       tipoId := vQuery.FieldByName('tipoEscalaId').AsInteger;
 
-      // Busca o ID da tonalidade pelo nome
+      // Busca tonalidadeId
       vQuery.Close;
       vQuery.SQL.Text := 'SELECT tonalidadeId FROM tonalidades WHERE LOWER(nome) = LOWER(:nome)';
       vQuery.ParamByName('nome').AsString := sTonalidade;
       vQuery.Open;
-
-      if vQuery.IsEmpty then
-      begin
-        ShowMessage('Tonalidade "' + sTonalidade + '" não encontrada no banco de dados!');
-        Exit;
-      end;
+      if vQuery.IsEmpty then begin ShowMessage('Tonalidade "' + sTonalidade + '" nÃ£o encontrada!'); Exit; end;
       tonalidadeId := vQuery.FieldByName('tonalidadeId').AsInteger;
 
-      // Verifica duplicidade: mesma escala + mesma tonalidade
+      // Verifica duplicidade
       vQuery.Close;
       vQuery.SQL.Text :=
         'SELECT COUNT(*) AS total FROM escalas ' +
@@ -294,14 +292,13 @@ begin
       vQuery.ParamByName('nome').AsString := sNome;
       vQuery.ParamByName('tonalidade').AsInteger := tonalidadeId;
       vQuery.Open;
-
       if vQuery.FieldByName('total').AsInteger > 0 then
       begin
-        ShowMessage('Já existe a escala "' + sNome + '" com essa tonalidade cadastrada!');
+        ShowMessage('JÃ¡ existe a escala "' + sNome + '" com essa tonalidade!');
         Exit;
       end;
 
-      // Busca os IDs de cada nota pelo nome
+      // Busca IDs das notas
       notasIds := '';
       for i := 0 to High(sNotas.Split([','])) do
       begin
@@ -310,45 +307,26 @@ begin
         vQuery.SQL.Text := 'SELECT notasId FROM notas WHERE LOWER(nome) = LOWER(:nome)';
         vQuery.ParamByName('nome').AsString := notaNome;
         vQuery.Open;
-
-        if vQuery.IsEmpty then
-        begin
-          ShowMessage('Nota "' + notaNome + '" não encontrada no banco de dados!');
-          Exit;
-        end;
-
+        if vQuery.IsEmpty then begin ShowMessage('Nota "' + notaNome + '" nÃ£o encontrada!'); Exit; end;
         if notasIds <> '' then notasIds := notasIds + ',';
         notasIds := notasIds + vQuery.FieldByName('notasId').AsString;
       end;
 
-      // Tudo validado — salva no banco
-      oEscala.nome         := sNome;
-      oEscala.tipoId       := tipoId;
-      oEscala.tonalidadeId := tonalidadeId;
-      oEscala.listaNota    := notasIds;
-      oEscala.descricao    := sDescricao;
+      // âœ… SÃ³ preenche os campos â€” quem salva Ã© o botÃ£o Salvar
+      edtNome.Text           := sNome;
+      edtDescricao.Text      := sDescricao;
+      lkpTonalidade.KeyValue := tonalidadeId;
+      lkpTipoEscala.KeyValue := tipoId;
+      MarcarNotasSalvas(notasIds);
 
-      if oEscala.Inserir then
-      begin
-        // Copia o arquivo para a pasta do sistema
-        destino := ExtractFilePath(Application.ExeName) + 'Importacoes\';
-        if not DirectoryExists(destino) then
-          CreateDir(destino);
+      // Guarda o caminho para usar no Gravar
+      edtArquivo.Text := caminho;
 
-        nomeArquivo := destino + FormatDateTime('yyyymmdd_hhmmss', Now) + '_' + ExtractFileName(caminho);
-        TFile.Copy(caminho, nomeArquivo, True);
-
-        // Atualiza o grid
-        qryPrincipal.Close;
-        qryPrincipal.Open;
-
-        ShowMessage('Escala importada e salva com sucesso!' + #13#10 + 'Arquivo salvo em: ' + nomeArquivo);
-      end;
+      ShowMessage('Arquivo lido com sucesso! Confira os campos e clique em Salvar.');
 
     finally
       vQuery.Free;
     end;
-
   finally
     linhas.Free;
   end;

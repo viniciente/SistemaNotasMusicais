@@ -1,0 +1,117 @@
+unit uCadTipoEscala;
+
+interface
+
+uses
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes,
+  Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, TelaHeranca, Data.DB,
+  FireDAC.Stan.Intf, FireDAC.Stan.Option, FireDAC.Stan.Param, FireDAC.Stan.Error,
+  FireDAC.DatS, FireDAC.Phys.Intf, FireDAC.DApt.Intf, FireDAC.Stan.Async,
+  FireDAC.DApt, FireDAC.Comp.DataSet, FireDAC.Comp.Client, Vcl.Grids,
+  Vcl.DBGrids, Vcl.StdCtrls, Vcl.Buttons, Vcl.ExtCtrls, Vcl.ComCtrls,
+  cCadTipoEscala, uEnum, uDmDados;
+
+type
+  TfrmCadTipoEscala = class(TfrmTelaHeranca)
+    qryPrincipaltipoEscalaId: TFDAutoIncField;
+    qryPrincipalnome: TStringField;
+    edtNome: TEdit;
+    lblNome: TLabel;
+    edtCodigo: TEdit;
+    lblCodigo: TLabel;
+    dbGridConsulta : TDBGrid;
+    procedure FormCreate(Sender: TObject);
+    procedure FormShow(Sender: TObject);
+    procedure btnEditarClick(Sender: TObject);
+    procedure FormClose(Sender: TObject; var Action: TCloseAction);
+
+  private
+    oTipoEscala: TTipoEscala;
+    function Gravar(EstadoDoCadastro: TEstadoDoCadastro): Boolean; override;
+    function Apagar: Boolean; override;
+    procedure CarregarDadosParaEdicao;
+  public
+  end;
+
+var
+  frmCadTipoEscala: TfrmCadTipoEscala;
+
+implementation
+
+{$R *.dfm}
+
+procedure TfrmCadTipoEscala.FormClose(Sender: TObject; var Action: TCloseAction);
+begin
+  inherited;
+  if Assigned(oTipoEscala)then
+    FreeAndNil(oTipoEscala);
+end;
+
+procedure TfrmCadTipoEscala.FormCreate(Sender: TObject);
+begin
+  inherited;
+  oTipoEscala := TTipoEscala.Create(dmDados.FDConexao);
+end;
+
+procedure TfrmCadTipoEscala.FormShow(Sender: TObject);
+begin
+  qryPrincipal.Close;
+  qryPrincipal.Open;
+end;
+
+function TfrmCadTipoEscala.Gravar(EstadoDoCadastro: TEstadoDoCadastro): Boolean;
+begin
+  Result := False;
+
+  if Trim(edtNome.Text) = '' then
+  begin
+    ShowMessage('O nome é obrigatório!');
+    Exit;
+  end;
+
+  oTipoEscala.nome := Trim(edtNome.Text);
+
+  if EstadoDoCadastro = ecInserir then
+    Result := oTipoEscala.Inserir
+  else
+  begin
+    oTipoEscala.codigo := qryPrincipal.FieldByName('tipoEscalaId').AsInteger;
+    Result := oTipoEscala.Atualizar;
+  end;
+
+  if Result then
+  begin
+    qryPrincipal.Close;
+    qryPrincipal.Open;
+  end;
+end;
+
+function TfrmCadTipoEscala.Apagar: Boolean;
+begin
+  oTipoEscala.codigo := qryPrincipal.FieldByName('tipoEscalaId').AsInteger;
+  Result := oTipoEscala.Apagar;
+
+  if Result then
+  begin
+    qryPrincipal.Close;
+    qryPrincipal.Open;
+  end;
+end;
+
+procedure TfrmCadTipoEscala.CarregarDadosParaEdicao;
+begin
+  if oTipoEscala.Selecionar(qryPrincipal.FieldByName('tipoEscalaId').AsInteger) then
+  begin
+    edtCodigo.Text := IntToStr(oTipoEscala.codigo);
+    edtNome.Text   := oTipoEscala.nome;
+  end;
+end;
+
+procedure TfrmCadTipoEscala.btnEditarClick(Sender: TObject);
+begin
+  if qryPrincipal.IsEmpty then Exit;
+  CarregarDadosParaEdicao;
+  inherited;
+end;
+
+end.

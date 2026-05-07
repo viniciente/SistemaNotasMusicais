@@ -12,7 +12,10 @@ uses
   uCadTonalidades in 'Cadastro\uCadTonalidades.pas' {frmCadTonalidades},
   cCadTonalidades in 'Classes\cCadTonalidades.pas',
   uCadEscalaMusical in 'Cadastro\uCadEscalaMusical.pas' {frmCadEscalaMusical},
-  cCadEscalaMusical in 'Classes\cCadEscalaMusical.pas';
+  cCadEscalaMusical in 'Classes\cCadEscalaMusical.pas',
+  uCadTipoEscala in 'Cadastro\uCadTipoEscala.pas' {frmCadTipoEscala},
+  cCadTipoEscala in 'Classes\cCadTipoEscala.pas',
+  uArquivos in 'uArquivos.pas' {frmArquivos};
 
 {$R *.res}
 

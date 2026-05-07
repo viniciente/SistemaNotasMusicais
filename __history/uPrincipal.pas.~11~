@@ -1,0 +1,92 @@
+unit uPrincipal;
+
+interface
+
+uses
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.Menus, uCadNotas, uCadTonalidades, uCadEscalaMusical, uCadTipoEscala;
+
+type
+  TfrmPrincipal = class(TForm)
+    MainMenu1: TMainMenu;
+    CADASTRO1: TMenuItem;
+    ESCALAMUSICAL1: TMenuItem;
+    ONALIDADES1: TMenuItem;
+    NOTAS1: TMenuItem;
+    N1: TMenuItem;
+    N2: TMenuItem;
+    N3: TMenuItem;
+    FECHAR1: TMenuItem;
+    N4: TMenuItem;
+    IPOESCALA1: TMenuItem;
+    procedure FECHAR1Click(Sender: TObject);
+    procedure NOTAS1Click(Sender: TObject);
+    procedure ONALIDADES1Click(Sender: TObject);
+    procedure ESCALAMUSICAL1Click(Sender: TObject);
+    procedure TIPOESCALA1Click(Sender: TObject);
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+  end;
+
+var
+  frmPrincipal: TfrmPrincipal;
+
+implementation
+
+{$R *.dfm}
+
+procedure TfrmPrincipal.ESCALAMUSICAL1Click(Sender: TObject);
+var
+  frmEscalaMusical: TfrmCadEscalaMusical;
+begin
+  frmEscalaMusical := TfrmCadEscalaMusical.Create(Application);
+  try
+    frmEscalaMusical.ShowModal;
+  finally
+    frmEscalaMusical.Free;
+  end;
+end;
+
+procedure TfrmPrincipal.FECHAR1Click(Sender: TObject);
+begin
+  Application.Terminate;
+end;
+
+procedure TfrmPrincipal.TIPOESCALA1Click(Sender: TObject);
+var
+  frmTipoEscala: TfrmCadTipoEscala;
+begin
+  frmTipoEscala := TfrmCadTipoEscala.Create(Application);
+  try
+    frmTipoEscala.ShowModal;
+  finally
+    frmTipoEscala.Free;
+  end;
+end;
+
+procedure TfrmPrincipal.NOTAS1Click(Sender: TObject);
+var
+  frmNotas: TfrmCadNotas;
+begin
+  frmNotas := TfrmCadNotas.Create(Application);
+  try
+    frmNotas.ShowModal;
+  finally
+    frmNotas.Free;
+  end;
+end;
+
+procedure TfrmPrincipal.ONALIDADES1Click(Sender: TObject);
+var frmTonalidades : TfrmCadTonalidades;
+begin
+  frmTonalidades := TfrmCadTonalidades.Create(Application);
+  try
+    frmTonalidades.ShowModal;
+  finally
+    frmTonalidades.Free;
+  end;
+end;
+
+end.

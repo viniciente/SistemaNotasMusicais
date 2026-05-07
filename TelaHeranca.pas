@@ -13,7 +13,7 @@ uses
   uEnum, uDmDados, RxToolEdit, RxCurrEdit, Vcl.Buttons,
   FireDAC.UI.Intf, FireDAC.Stan.Def,
   FireDAC.Stan.Pool, FireDAC.Phys, FireDAC.VCLUI.Wait, System.IniFiles,
-  System.IOUtils;
+  System.IOUtils, Vcl.CheckLst;
 
 type
   TfrmTelaHeranca = class(TForm)
@@ -175,7 +175,7 @@ begin
 end;
 
 procedure TfrmTelaHeranca.LimparEdits;
-var i: Integer;
+var i, j: Integer;
 begin
   for i := 0 to ComponentCount - 1 do begin
     if (Components[i] is TLabeledEdit) then
@@ -191,7 +191,12 @@ begin
     else if (Components[i] is TDateEdit) then
       TDateEdit(Components[i]).Date := 0
     else if (Components[i] is TMaskEdit) then
-      TMaskEdit(Components[i]).Text := '';
+      TMaskEdit(Components[i]).Text := ''
+    else if (Components[i] is TCheckListBox) then
+    begin
+      for j := 0 to TCheckListBox(Components[i]).Items.Count - 1 do
+        TCheckListBox(Components[i]).Checked[j] := False;
+    end;
   end;
 end;
 

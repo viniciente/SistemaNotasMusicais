@@ -112,6 +112,9 @@ begin
   inherited;
   oTonalidades := TTonalidades.Create(DmDados.FDConexao);
 
+  qryPrincipal.Close;
+  qryPrincipal.Open;
+
   qryNota.Close;
   qryNota.Open;
 end;

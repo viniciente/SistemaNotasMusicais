@@ -4,7 +4,8 @@ interface
 
 uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
-  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.Menus, uCadNotas, uCadTonalidades, uCadEscalaMusical;
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.Menus, uCadNotas, uCadTonalidades, uCadEscalaMusical, uCadTipoEscala,
+  uArquivos;
 
 type
   TfrmPrincipal = class(TForm)
@@ -17,10 +18,16 @@ type
     N2: TMenuItem;
     N3: TMenuItem;
     FECHAR1: TMenuItem;
+    N4: TMenuItem;
+    IPOESCALA1: TMenuItem;
+    ARQUIVOS1: TMenuItem;
+    IMPORTAOEXPORTAO1: TMenuItem;
     procedure FECHAR1Click(Sender: TObject);
     procedure NOTAS1Click(Sender: TObject);
     procedure ONALIDADES1Click(Sender: TObject);
     procedure ESCALAMUSICAL1Click(Sender: TObject);
+    procedure TIPOESCALA1Click(Sender: TObject);
+    procedure IMPORTAOEXPORTAO1Click(Sender: TObject);
   private
     { Private declarations }
   public
@@ -49,6 +56,30 @@ end;
 procedure TfrmPrincipal.FECHAR1Click(Sender: TObject);
 begin
   Application.Terminate;
+end;
+
+procedure TfrmPrincipal.IMPORTAOEXPORTAO1Click(Sender: TObject);
+var
+  frmArquivos: TfrmArquivos;
+begin
+  frmArquivos := TfrmArquivos.Create(Application);
+  try
+    frmArquivos.ShowModal;
+  finally
+    frmArquivos.Free;
+  end;
+end;
+
+procedure TfrmPrincipal.TIPOESCALA1Click(Sender: TObject);
+var
+  frmTipoEscala: TfrmCadTipoEscala;
+begin
+  frmTipoEscala := TfrmCadTipoEscala.Create(Application);
+  try
+    frmTipoEscala.ShowModal;
+  finally
+    frmTipoEscala.Free;
+  end;
 end;
 
 procedure TfrmPrincipal.NOTAS1Click(Sender: TObject);

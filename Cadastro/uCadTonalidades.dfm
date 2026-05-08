@@ -3,12 +3,7 @@ inherited frmCadTonalidades: TfrmCadTonalidades
   PixelsPerInch = 96
   TextHeight = 13
   inherited pgcPrincipal: TPageControl
-    ActivePage = tsConsulta
     inherited tsConsulta: TTabSheet
-      ExplicitLeft = 4
-      ExplicitTop = 24
-      ExplicitWidth = 681
-      ExplicitHeight = 348
       inherited dbGridConsulta: TDBGrid
         Columns = <
           item
@@ -31,6 +26,8 @@ inherited frmCadTonalidades: TfrmCadTonalidades
     inherited tsDados: TTabSheet
       ExplicitLeft = 8
       ExplicitTop = 28
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       object lblNome: TLabel [0]
         Left = 16
         Top = 99

@@ -13,6 +13,7 @@ object frmTelaHeranca: TfrmTelaHeranca
   OldCreateOrder = False
   Position = poScreenCenter
   OnCreate = FormCreate
+  OnShow = FormShow
   PixelsPerInch = 96
   TextHeight = 13
   object pgcPrincipal: TPageControl
@@ -59,6 +60,7 @@ object frmTelaHeranca: TfrmTelaHeranca
           Top = 28
           Width = 107
           Height = 25
+          Cursor = crHandPoint
           Caption = '&ADICIONAR'
           TabOrder = 1
           OnClick = btnAdicionarClick
@@ -90,6 +92,7 @@ object frmTelaHeranca: TfrmTelaHeranca
           Top = 28
           Width = 89
           Height = 25
+          Cursor = crHandPoint
           Caption = '&REMOVER'
           TabOrder = 2
           OnClick = btnRemoverClick
@@ -121,6 +124,7 @@ object frmTelaHeranca: TfrmTelaHeranca
           Top = 28
           Width = 98
           Height = 25
+          Cursor = crHandPoint
           Caption = '&EDITAR'
           TabOrder = 3
           OnClick = btnEditarClick
@@ -160,6 +164,7 @@ object frmTelaHeranca: TfrmTelaHeranca
         DataSource = dsPrincipal
         DrawingStyle = gdsClassic
         FixedColor = 5263440
+        ReadOnly = True
         TabOrder = 1
         TitleFont.Charset = DEFAULT_CHARSET
         TitleFont.Color = clWindowText
@@ -177,9 +182,10 @@ object frmTelaHeranca: TfrmTelaHeranca
         TabOrder = 2
         object btnFechar: TPngBitBtn
           Left = 577
-          Top = 8
+          Top = 6
           Width = 98
           Height = 25
+          Cursor = crHandPoint
           Caption = '&FECHAR'
           TabOrder = 0
           OnClick = btnFecharClick
@@ -224,6 +230,7 @@ object frmTelaHeranca: TfrmTelaHeranca
           Top = 8
           Width = 75
           Height = 25
+          Cursor = crHandPoint
           Caption = '&SALVAR'
           TabOrder = 0
           OnClick = btnSalvarClick
@@ -256,6 +263,7 @@ object frmTelaHeranca: TfrmTelaHeranca
           Top = 8
           Width = 75
           Height = 25
+          Cursor = crHandPoint
           Caption = '&CANCELAR'
           TabOrder = 1
           OnClick = btnCancelarClick

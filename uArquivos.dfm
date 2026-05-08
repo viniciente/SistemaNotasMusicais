@@ -12,6 +12,7 @@ object frmArquivos: TfrmArquivos
   Font.Style = []
   OldCreateOrder = False
   Position = poScreenCenter
+  OnClose = FormClose
   OnCreate = FormCreate
   OnShow = FormShow
   PixelsPerInch = 96
@@ -60,6 +61,7 @@ object frmArquivos: TfrmArquivos
           Top = 31
           Width = 105
           Height = 25
+          Cursor = crHandPoint
           Caption = 'EXPORTAR TXT'
           TabOrder = 1
           OnClick = btnExportarClick
@@ -91,6 +93,7 @@ object frmArquivos: TfrmArquivos
           Top = 31
           Width = 105
           Height = 25
+          Cursor = crHandPoint
           Caption = 'IMPORTAR TXT'
           TabOrder = 2
           OnClick = btnImportarClick
@@ -126,6 +129,7 @@ object frmArquivos: TfrmArquivos
         DataSource = dsArquivos
         DrawingStyle = gdsClassic
         FixedColor = 5263440
+        ReadOnly = True
         TabOrder = 1
         TitleFont.Charset = DEFAULT_CHARSET
         TitleFont.Color = clWindowText
@@ -192,6 +196,7 @@ object frmArquivos: TfrmArquivos
           Top = 10
           Width = 75
           Height = 25
+          Cursor = crHandPoint
           Caption = '&FECHAR'
           TabOrder = 0
           OnClick = btnFecharClick
@@ -236,6 +241,7 @@ object frmArquivos: TfrmArquivos
           Top = 8
           Width = 75
           Height = 25
+          Cursor = crHandPoint
           Caption = '&SALVAR'
           TabOrder = 0
           OnClick = btnSalvarClick
@@ -268,6 +274,7 @@ object frmArquivos: TfrmArquivos
           Top = 8
           Width = 89
           Height = 25
+          Cursor = crHandPoint
           Caption = '&CANCELAR'
           TabOrder = 1
           OnClick = btnCancelarClick
@@ -321,6 +328,7 @@ object frmArquivos: TfrmArquivos
         DataSource = dsImport
         DrawingStyle = gdsClassic
         FixedColor = 5263440
+        ReadOnly = True
         TabOrder = 2
         TitleFont.Charset = DEFAULT_CHARSET
         TitleFont.Color = clWindowText
@@ -331,7 +339,6 @@ object frmArquivos: TfrmArquivos
     end
   end
   object qryArquivos: TFDQuery
-    Active = True
     Connection = dmDados.FDConexao
     SQL.Strings = (
       '        SELECT e.escalaId,'

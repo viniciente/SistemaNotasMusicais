@@ -9,7 +9,7 @@ uses
   FireDAC.DatS, FireDAC.Phys.Intf, FireDAC.DApt.Intf, FireDAC.Stan.Async,
   FireDAC.DApt, FireDAC.Comp.DataSet, FireDAC.Comp.Client, Vcl.Grids,
   Vcl.DBGrids, Vcl.StdCtrls, Vcl.Buttons, Vcl.ExtCtrls, Vcl.ComCtrls,
-  cCadTipoEscala, uEnum, uDmDados;
+  cCadTipoEscala, uEnum, uDmDados, PngBitBtn;
 
 type
   TfrmCadTipoEscala = class(TfrmTelaHeranca)

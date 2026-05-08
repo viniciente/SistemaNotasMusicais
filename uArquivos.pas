@@ -50,6 +50,7 @@ type
     procedure btnSalvarClick(Sender: TObject);
     procedure btnCancelarClick(Sender: TObject);
     procedure btnImportarClick(Sender: TObject);
+    procedure FormClose(Sender: TObject; var Action: TCloseAction);
   private
     procedure CarregarDados;
     function ObterNomesNotas(listaNota: string): string;
@@ -58,9 +59,12 @@ type
     procedure PrepararGridImport;
     procedure LerArquivoTXT(caminho: string);
     function ValidarESalvarLinha(
-    sNome, sTipo, sTonalidade, sNotas, sDescricao: string;
-    out msgErro: string): Boolean;
-  public
+  sNome, sTipo, sTonalidade, sNotas, sDescricao,
+  sCaminho, sNomeArq, sConteudo: string;
+  out msgErro: string): Boolean;
+    procedure CarregarConfiguracaoGrid(pGrid: TDBGrid);
+
+    procedure SalvarConfiguracaoGrid(pGrid: TDBGrid);  public
     { Public declarations }
   end;
 
@@ -72,13 +76,25 @@ implementation
 {$R *.dfm}
 
 
+procedure TfrmArquivos.FormClose(Sender: TObject; var Action: TCloseAction);
+begin
+
+  SalvarConfiguracaoGrid(dbGridConsulta);
+end;
+
 procedure TfrmArquivos.FormCreate(Sender: TObject);
   var i: Integer;
+  fld: TStringField;
 begin
   qryArquivos.Connection := dmDados.FDConexao;
   pgcPrincipal.ActivePage := tsConsulta;
 
   dbGridConsulta.Options := [dgTitles, dgIndicator, dgColumnResize,
+                             dgColLines, dgRowLines, dgTabs,
+                             dgAlwaysShowSelection, dgCancelOnExit,
+                             dgTitleClick, dgTitleHotTrack];
+
+  DBGrid1.Options := [dgTitles, dgIndicator, dgColumnResize,
                              dgColLines, dgRowLines, dgTabs,
                              dgAlwaysShowSelection, dgCancelOnExit,
                              dgTitleClick, dgTitleHotTrack];
@@ -94,7 +110,16 @@ begin
   begin
     dbGridConsulta.Columns[i].Title.Font.Color := $00FF5EB1;
     dbGridConsulta.Columns[i].Title.Font.Style := [fsBold];
+    //DBGrid1.Columns[i].Title.Font.Color := $00FF5EB1
   end;
+
+  fld := TStringField.Create(qryArquivos);
+  fld.FieldName  := 'nomesNotas';
+  fld.FieldKind  := fkCalculated;
+  fld.DisplayLabel := 'Notas';
+  fld.Size       := 500;
+  fld.DataSet    := qryArquivos;
+
   CentralizarColunas;
   PrepararGridImport;
 end;
@@ -116,6 +141,7 @@ end;
 procedure TfrmArquivos.FormShow(Sender: TObject);
 begin
   CarregarDados;
+  CarregarConfiguracaoGrid(dbGridConsulta);
 end;
 
 procedure TfrmArquivos.CarregarDados;
@@ -174,7 +200,9 @@ begin
   cdsImport.Open;
 end;
 
-function TfrmArquivos.ValidarESalvarLinha(sNome, sTipo, sTonalidade, sNotas, sDescricao: string;
+function TfrmArquivos.ValidarESalvarLinha(
+  sNome, sTipo, sTonalidade, sNotas, sDescricao,
+  sCaminho, sNomeArq, sConteudo: string;
   out msgErro: string): Boolean;
 var
   vQuery: TFDQuery;
@@ -249,11 +277,14 @@ begin
     // Salva
     oEscala := TEscalas.Create(dmDados.FDConexao);
     try
-      oEscala.nome         := sNome;
-      oEscala.tipoId       := tipoId;
-      oEscala.tonalidadeId := tonalidadeId;
-      oEscala.listaNota    := notasIds;
-      oEscala.descricao    := sDescricao;
+      oEscala.nome            := sNome;
+      oEscala.tipoId          := tipoId;
+      oEscala.tonalidadeId    := tonalidadeId;
+      oEscala.listaNota       := notasIds;
+      oEscala.descricao       := sDescricao;
+      oEscala.caminhoArquivo  := sCaminho;
+      oEscala.nomeArquivo     := sNomeArq;
+      oEscala.conteudoArquivo := sConteudo;
       Result := oEscala.Inserir;
       if not Result then msgErro := 'Erro ao inserir no banco';
     finally
@@ -285,7 +316,6 @@ begin
     Exit;
   end;
 
-  // Configura o di logo de salvar
   dlgSalvar.Title      := 'Exportar escalas para TXT';
   dlgSalvar.Filter     := 'Arquivo de Texto|*.txt';
   dlgSalvar.DefaultExt := 'txt';
@@ -295,7 +325,6 @@ begin
 
   linhas := TStringList.Create;
   try
-    // Salva a posi  o atual do cursor no grid
     posicaoAtual := qryArquivos.GetBookmark;
     try
       qryArquivos.DisableControls;
@@ -356,9 +385,9 @@ begin
 
   if dlgAbrir.Execute then
   begin
-    PrepararGridImport;              // limpa e prepara o grid
+    PrepararGridImport;
     LerArquivoTXT(dlgAbrir.FileName);
-    pgcPrincipal.ActivePage := tsDados; // vai para aba DADOS
+    pgcPrincipal.ActivePage := tsDados;
   end;
 end;
 
@@ -394,13 +423,16 @@ begin
           Continue;
         end;
 
-        if ValidarESalvarLinha(
-          cdsImport.FieldByName('Nome').AsString,
-          cdsImport.FieldByName('Tipo').AsString,
-          cdsImport.FieldByName('Tonalidade').AsString,
-          cdsImport.FieldByName('Notas').AsString,
-          cdsImport.FieldByName('Descricao').AsString,
-          msgErro) then
+      if ValidarESalvarLinha(
+        cdsImport.FieldByName('Nome').AsString,
+        cdsImport.FieldByName('Tipo').AsString,
+        cdsImport.FieldByName('Tonalidade').AsString,
+        cdsImport.FieldByName('Notas').AsString,
+        cdsImport.FieldByName('Descricao').AsString,
+        dlgAbrir.FileName,
+        ExtractFileName(dlgAbrir.FileName),
+        '',
+        msgErro) then
         begin
           Inc(salvos);
           cdsImport.Edit;
@@ -443,7 +475,7 @@ begin
   finally
     resumoErros.Free;
   end;
-  pgcPrincipal.ActivePage := tsDados;
+  pgcPrincipal.ActivePage := tsConsulta;
 end;
 
 procedure TfrmArquivos.LerArquivoTXT(caminho: string);
@@ -535,6 +567,70 @@ begin
       for j := 0 to TCheckListBox(Components[i]).Items.Count - 1 do
         TCheckListBox(Components[i]).Checked[j] := False;
     end;
+  end;
+end;
+
+procedure TfrmArquivos.SalvarConfiguracaoGrid(pGrid: TDBGrid);
+var
+  Ini: TIniFile;
+  i: Integer;
+  NomeArquivo: string;
+begin
+  // Agora o nome é fixo, salvando na pasta do executável
+  NomeArquivo := ExtractFilePath(Application.ExeName) + 'config_grids.ini';
+
+  Ini := TIniFile.Create(NomeArquivo);
+  try
+    for i := 0 to pGrid.Columns.Count - 1 do
+    begin
+      // Usamos o Self.Name (Nome da Tela) + Nome do Grid para não misturar as telas
+      Ini.WriteInteger(Self.Name + '_' + pGrid.Name + '_Width', pGrid.Columns[i].FieldName, pGrid.Columns[i].Width);
+      Ini.WriteInteger(Self.Name + '_' + pGrid.Name + '_Index', pGrid.Columns[i].FieldName, pGrid.Columns[i].Index);
+      Ini.WriteBool(Self.Name + '_' + pGrid.Name + '_Visible',  pGrid.Columns[i].FieldName, pGrid.Columns[i].Visible);
+    end;
+  finally
+    Ini.Free;
+  end;
+end;
+
+procedure TfrmArquivos.CarregarConfiguracaoGrid(pGrid: TDBGrid);
+var
+  Ini: TIniFile;
+  i, vPos: Integer;
+  NomeArquivo: string;
+  vFieldName: string;
+  vSecao: string;
+begin
+  NomeArquivo := ExtractFilePath(Application.ExeName) + 'config_grids.ini';
+
+  if not FileExists(NomeArquivo) then Exit;
+
+  vSecao := Self.Name + '_' + pGrid.Name;
+  Ini := TIniFile.Create(NomeArquivo);
+  try
+    // 1º Passo: Ajusta Largura e Visibilidade
+    for i := 0 to pGrid.Columns.Count - 1 do
+    begin
+      vFieldName := pGrid.Columns[i].FieldName;
+      pGrid.Columns[i].Width := Ini.ReadInteger(vSecao + '_Width', vFieldName, pGrid.Columns[i].Width);
+      pGrid.Columns[i].Visible := Ini.ReadBool(vSecao + '_Visible', vFieldName, pGrid.Columns[i].Visible);
+    end;
+
+    // 2º Passo: Restaura a Ordem das colunas
+    for i := 0 to pGrid.Columns.Count - 1 do
+    begin
+      for vPos := 0 to pGrid.Columns.Count - 1 do
+      begin
+        vFieldName := pGrid.Columns[vPos].FieldName;
+        if Ini.ReadInteger(vSecao + '_Index', vFieldName, -1) = i then
+        begin
+          pGrid.Columns[vPos].Index := i;
+          Break;
+        end;
+      end;
+    end;
+  finally
+    Ini.Free;
   end;
 end;
 

@@ -1,15 +1,9 @@
 inherited frmCadTipoEscala: TfrmCadTipoEscala
   Caption = 'CADASTRO DE TIPO ESCALAS'
-  OnClose = FormClose
-  OnShow = FormShow
   PixelsPerInch = 96
   TextHeight = 13
   inherited pgcPrincipal: TPageControl
     inherited tsConsulta: TTabSheet
-      ExplicitLeft = 4
-      ExplicitTop = 24
-      ExplicitWidth = 681
-      ExplicitHeight = 348
       inherited dbGridConsulta: TDBGrid
         Columns = <
           item
@@ -25,10 +19,6 @@ inherited frmCadTipoEscala: TfrmCadTipoEscala
       end
     end
     inherited tsDados: TTabSheet
-      ExplicitLeft = 4
-      ExplicitTop = 24
-      ExplicitWidth = 681
-      ExplicitHeight = 348
       object lblNome: TLabel [0]
         Left = 16
         Top = 93

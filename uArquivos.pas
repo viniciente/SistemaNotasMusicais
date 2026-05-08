@@ -9,7 +9,7 @@ uses
   FireDAC.Comp.DataSet, FireDAC.Comp.Client, Vcl.StdCtrls, Vcl.Buttons, Vcl.Grids, Vcl.DBGrids,
   Vcl.ExtCtrls, Vcl.ComCtrls, uDmDados, Vcl.Mask, uEnum, RxToolEdit, RxCurrEdit, FireDAC.UI.Intf, FireDAC.Stan.Def,
   FireDAC.Stan.Pool, FireDAC.Phys, FireDAC.VCLUI.Wait, System.IniFiles,
-  System.IOUtils, Vcl.CheckLst, Vcl.DBCtrls, cCadEscalaMusical, System.StrUtils;
+  System.IOUtils, Vcl.CheckLst, Vcl.DBCtrls, cCadEscalaMusical, System.StrUtils, PngBitBtn;
 
 type
   TfrmArquivos = class(TForm)
@@ -20,16 +20,16 @@ type
     dbGridConsulta: TDBGrid;
     DBGrid1: TDBGrid;
     pnlBottom: TPanel;
-    btnFechar: TBitBtn;
+    btnFechar: TPngBitBtn;
     tsDados: TTabSheet;
     pnlDadosBottom: TPanel;
-    btnSalvar: TBitBtn;
-    btnCancelar: TBitBtn;
+    btnSalvar: TPngBitBtn;
+    btnCancelar: TPngBitBtn;
     pnlCadastro: TPanel;
     qryArquivos: TFDQuery;
     dsArquivos: TDataSource;
-    btnExportar: TBitBtn;
-    btnImportar: TBitBtn;
+    btnExportar: TPngBitBtn;
+    btnImportar: TPngBitBtn;
     dlgSalvar: TSaveDialog;
     qryArquivosescalaId: TFDAutoIncField;
     qryArquivosnome: TStringField;
@@ -429,7 +429,7 @@ begin
     CarregarDados;
 
     // Monta mensagem final detalhada
-    msg := 'Importação concluída!' + #13#10 +
+    msg := 'Registro da Importação!' + #13#10 +
                'Salvos: ' + IntToStr(salvos) + #13#10 +
                'Erros:  ' + IntToStr(erros);
 

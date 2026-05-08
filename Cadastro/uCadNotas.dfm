@@ -7,13 +7,9 @@ inherited frmCadNotas: TfrmCadNotas
   TextHeight = 13
   inherited pgcPrincipal: TPageControl
     Width = 681
-    ActivePage = tsConsulta
     ExplicitWidth = 681
     inherited tsConsulta: TTabSheet
-      ExplicitLeft = 4
-      ExplicitTop = 24
       ExplicitWidth = 673
-      ExplicitHeight = 348
       inherited pnlTop: TPanel
         Width = 673
         ExplicitWidth = 673
@@ -21,17 +17,17 @@ inherited frmCadNotas: TfrmCadNotas
           Width = 671
           ExplicitWidth = 671
         end
-        inherited btnAdicionar: TBitBtn
-          Left = 429
-          ExplicitLeft = 429
+        inherited btnAdicionar: TPngBitBtn
+          Left = 361
+          ExplicitLeft = 361
         end
-        inherited btnRemover: TBitBtn
-          Left = 510
-          ExplicitLeft = 510
+        inherited btnRemover: TPngBitBtn
+          Left = 474
+          ExplicitLeft = 474
         end
-        inherited btnEditar: TBitBtn
-          Left = 591
-          ExplicitLeft = 591
+        inherited btnEditar: TPngBitBtn
+          Left = 568
+          ExplicitLeft = 568
         end
       end
       inherited dbGridConsulta: TDBGrid
@@ -51,17 +47,14 @@ inherited frmCadNotas: TfrmCadNotas
       inherited pnlBottom: TPanel
         Width = 673
         ExplicitWidth = 673
-        inherited btnFechar: TBitBtn
-          Left = 593
-          ExplicitLeft = 593
+        inherited btnFechar: TPngBitBtn
+          Left = 570
+          ExplicitLeft = 570
         end
       end
     end
     inherited tsDados: TTabSheet
-      ExplicitLeft = 4
-      ExplicitTop = 24
       ExplicitWidth = 673
-      ExplicitHeight = 348
       object lblCodigo: TLabel [0]
         Left = 16
         Top = 44

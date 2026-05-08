@@ -1,0 +1,465 @@
+inherited frmCadEscalaMusical: TfrmCadEscalaMusical
+  Caption = 'CADASTRO DE ESCALA MUSICAL'
+  ClientHeight = 375
+  OnShow = FormShow
+  ExplicitHeight = 414
+  PixelsPerInch = 96
+  TextHeight = 13
+  inherited pgcPrincipal: TPageControl
+    Height = 375
+    ExplicitHeight = 375
+    inherited tsConsulta: TTabSheet
+      ExplicitLeft = 4
+      ExplicitTop = 24
+      ExplicitWidth = 681
+      ExplicitHeight = 347
+      inherited pnlTop: TPanel
+        Height = 65
+        ExplicitHeight = 65
+        object lblFiltroTonalidade: TLabel [0]
+          Left = 0
+          Top = 23
+          Width = 76
+          Height = 16
+          Caption = 'Tonalidades'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -13
+          Font.Name = 'Tahoma'
+          Font.Style = [fsBold]
+          ParentFont = False
+        end
+        object lblFiltroTipoEscala: TLabel [1]
+          Left = 138
+          Top = 23
+          Width = 70
+          Height = 16
+          Caption = 'Tipo Escala'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -13
+          Font.Name = 'Tahoma'
+          Font.Style = [fsBold]
+          ParentFont = False
+        end
+        inherited btnAdicionar: TBitBtn
+          Top = 36
+          ExplicitTop = 36
+        end
+        inherited btnRemover: TBitBtn
+          Top = 36
+          ExplicitTop = 36
+        end
+        inherited btnEditar: TBitBtn
+          Top = 36
+          ExplicitTop = 36
+        end
+        object lkpPesqTipo: TDBLookupComboBox
+          Left = 138
+          Top = 40
+          Width = 125
+          Height = 21
+          KeyField = 'tipoEscalaId'
+          ListField = 'nome'
+          ListSource = dsPesqTipoEscala
+          TabOrder = 4
+          OnClick = lkpPesqTipoClick
+        end
+        object lkpPesqTonalidade: TDBLookupComboBox
+          Left = 0
+          Top = 40
+          Width = 125
+          Height = 21
+          KeyField = 'tonalidadeId'
+          ListField = 'nome'
+          ListSource = dsPesqTonalidades
+          TabOrder = 5
+          OnClick = lkpPesqTonalidadeClick
+        end
+        object btnLimparFiltro: TPngBitBtn
+          Left = 272
+          Top = 40
+          Width = 75
+          Height = 21
+          Caption = 'Limpar'
+          TabOrder = 6
+          OnClick = btnLimparFiltroClick
+        end
+      end
+      inherited dbGridConsulta: TDBGrid
+        Top = 65
+        Height = 241
+        Columns = <
+          item
+            Expanded = False
+            FieldName = 'escalaId'
+            Visible = True
+          end
+          item
+            Expanded = False
+            FieldName = 'nome'
+            Visible = True
+          end
+          item
+            Expanded = False
+            FieldName = 'tonalidade'
+            Visible = True
+          end
+          item
+            Expanded = False
+            FieldName = 'tipoEscala'
+            Visible = True
+          end
+          item
+            Expanded = False
+            FieldName = 'descricao'
+            Visible = True
+          end
+          item
+            Expanded = False
+            FieldName = 'nomeArquivo'
+            Visible = True
+          end
+          item
+            Expanded = False
+            FieldName = 'conteudoArquivo'
+            Visible = True
+          end
+          item
+            Expanded = False
+            FieldName = 'caminhoArquivo'
+            Visible = True
+          end>
+      end
+      inherited pnlBottom: TPanel
+        Top = 306
+        ExplicitTop = 306
+      end
+    end
+    inherited tsDados: TTabSheet
+      ExplicitHeight = 347
+      object lblCodigo: TLabel [0]
+        Left = 3
+        Top = 44
+        Width = 43
+        Height = 16
+        Caption = 'Codigo'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -13
+        Font.Name = 'Tahoma'
+        Font.Style = [fsBold]
+        ParentFont = False
+      end
+      object lblNome: TLabel [1]
+        Left = 124
+        Top = 44
+        Width = 99
+        Height = 16
+        Caption = 'Nome da Escala'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -13
+        Font.Name = 'Tahoma'
+        Font.Style = [fsBold]
+        ParentFont = False
+      end
+      object lblTonalidade: TLabel [2]
+        Left = 416
+        Top = 44
+        Width = 69
+        Height = 16
+        Caption = 'Tonalidade'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -13
+        Font.Name = 'Tahoma'
+        Font.Style = [fsBold]
+        ParentFont = False
+      end
+      object lblTipoEscala: TLabel [3]
+        Left = 271
+        Top = 44
+        Width = 90
+        Height = 16
+        Caption = 'Tipo de Escala'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -13
+        Font.Name = 'Tahoma'
+        Font.Style = [fsBold]
+        ParentFont = False
+      end
+      object lblNotas: TLabel [4]
+        Left = 557
+        Top = 44
+        Width = 37
+        Height = 16
+        Caption = 'Notas'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -13
+        Font.Name = 'Tahoma'
+        Font.Style = [fsBold]
+        ParentFont = False
+      end
+      object lblDescricao: TLabel [5]
+        Left = 3
+        Top = 86
+        Width = 63
+        Height = 16
+        Caption = 'Descri'#231#227'o'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -13
+        Font.Name = 'Tahoma'
+        Font.Style = [fsBold]
+        ParentFont = False
+      end
+      object lblArquivo: TLabel [6]
+        Left = 84
+        Top = 260
+        Width = 150
+        Height = 16
+        Caption = 'Arquivo de Importa'#231#227'o'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -13
+        Font.Name = 'Tahoma'
+        Font.Style = [fsBold]
+        ParentFont = False
+      end
+      inherited pnlDadosBottom: TPanel
+        Top = 306
+        ExplicitTop = 306
+      end
+      object edtCodigo: TEdit
+        Left = 0
+        Top = 61
+        Width = 105
+        Height = 21
+        Enabled = False
+        TabOrder = 2
+      end
+      object edtNome: TEdit
+        Left = 124
+        Top = 61
+        Width = 133
+        Height = 21
+        TabOrder = 3
+      end
+      object lkpTonalidade: TDBLookupComboBox
+        Left = 416
+        Top = 61
+        Width = 130
+        Height = 21
+        KeyField = 'tonalidadeId'
+        ListField = 'nome'
+        ListSource = dsTonalidades
+        TabOrder = 5
+      end
+      object lkpTipoEscala: TDBLookupComboBox
+        Left = 271
+        Top = 61
+        Width = 122
+        Height = 21
+        KeyField = 'tipoEscalaId'
+        ListField = 'nome'
+        ListSource = dsTipoEscala
+        TabOrder = 4
+      end
+      object edtDescricao: TEdit
+        AlignWithMargins = True
+        Left = 3
+        Top = 108
+        Width = 543
+        Height = 146
+        Anchors = [akLeft, akTop, akRight, akBottom]
+        TabOrder = 7
+      end
+      object clbNotas: TCheckListBox
+        Left = 557
+        Top = 61
+        Width = 121
+        Height = 240
+        ItemHeight = 13
+        TabOrder = 6
+      end
+      object btnImportar: TButton
+        Left = 3
+        Top = 276
+        Width = 75
+        Height = 25
+        Caption = 'Importar TXT'
+        TabOrder = 8
+        OnClick = btnImportarClick
+      end
+      object edtArquivo: TEdit
+        Left = 84
+        Top = 278
+        Width = 197
+        Height = 21
+        ReadOnly = True
+        TabOrder = 9
+      end
+    end
+  end
+  inherited qryPrincipal: TFDQuery
+    SQL.Strings = (
+      '    SELECT e.escalaId,'
+      '           e.nome,'
+      '           t.nome AS tonalidade,'
+      '           te.nome AS tipoEscala,'
+      '           e.descricao,'
+      '           e.caminhoArquivo,'
+      '           e.nomeArquivo,'
+      '           e.conteudoArquivo'
+      '    FROM escalas e'
+      '    INNER JOIN tonalidades t ON t.tonalidadeId = e.tonalidadeId'
+      '    INNER JOIN tipoEscala te ON te.tipoEscalaId = e.tipoId'
+      '    ORDER BY e.nome')
+    Left = 597
+    object qryPrincipalescalaId: TFDAutoIncField
+      DisplayLabel = 'Id'
+      FieldName = 'escalaId'
+      ReadOnly = True
+    end
+    object qryPrincipalnome: TStringField
+      DisplayLabel = 'Nome'
+      FieldName = 'nome'
+      Required = True
+      Size = 100
+    end
+    object qryPrincipaltonalidade: TStringField
+      DisplayLabel = 'Tonalidade'
+      FieldName = 'tonalidade'
+      Required = True
+      Size = 50
+    end
+    object qryPrincipaltipoEscala: TStringField
+      DisplayLabel = 'Tipo de Escala'
+      FieldName = 'tipoEscala'
+      Required = True
+      Size = 30
+    end
+    object qryPrincipaldescricao: TStringField
+      DisplayLabel = 'Descri'#231#227'o'
+      FieldName = 'descricao'
+      Size = 500
+    end
+    object qryPrincipalcaminhoArquivo: TStringField
+      DisplayLabel = 'Caminho do Arquivo'
+      FieldName = 'caminhoArquivo'
+      Size = 500
+    end
+    object qryPrincipalnomeArquivo: TStringField
+      DisplayLabel = 'Nome do Arquivo'
+      FieldName = 'nomeArquivo'
+      Size = 255
+    end
+    object qryPrincipalconteudoArquivo: TStringField
+      DisplayLabel = 'Conteudo'
+      FieldName = 'conteudoArquivo'
+      Size = 500
+    end
+  end
+  object qryTonalidades: TFDQuery
+    Active = True
+    Connection = dmDados.FDConexao
+    SQL.Strings = (
+      'SELECT tonalidadeId,'
+      '       nome'
+      'FROM tonalidades')
+    Left = 596
+    Top = 96
+    object qryTonalidadestonalidadeId: TFDAutoIncField
+      FieldName = 'tonalidadeId'
+      Origin = 'tonalidadeId'
+      ProviderFlags = [pfInWhere, pfInKey]
+      ReadOnly = True
+    end
+    object qryTonalidadesnome: TStringField
+      FieldName = 'nome'
+      Origin = 'nome'
+      Required = True
+      Size = 50
+    end
+  end
+  object qryTipoEscala: TFDQuery
+    Active = True
+    Connection = dmDados.FDConexao
+    SQL.Strings = (
+      'SELECT tipoEscalaId,'
+      '             nome'
+      'FROM tipoEscala'
+      'ORDER BY nome')
+    Left = 596
+    Top = 144
+    object qryTipoEscalatipoEscalaId: TFDAutoIncField
+      FieldName = 'tipoEscalaId'
+      Origin = 'tipoEscalaId'
+      ProviderFlags = [pfInWhere, pfInKey]
+      ReadOnly = True
+    end
+    object qryTipoEscalanome: TStringField
+      FieldName = 'nome'
+      Origin = 'nome'
+      Required = True
+      Size = 30
+    end
+  end
+  object dsTonalidades: TDataSource
+    DataSet = qryTonalidades
+    Left = 628
+    Top = 96
+  end
+  object dsTipoEscala: TDataSource
+    DataSet = qryTipoEscala
+    Left = 636
+    Top = 144
+  end
+  object qryNotas: TFDQuery
+    Connection = dmDados.FDConexao
+    SQL.Strings = (
+      '')
+    Left = 596
+    Top = 184
+  end
+  object dlgAbrir: TOpenDialog
+    Filter = 'Arquivo de Texto|*.txt'
+    Left = 636
+    Top = 192
+  end
+  object qryPesqTonalidades: TFDQuery
+    Active = True
+    Connection = dmDados.FDConexao
+    SQL.Strings = (
+      'SELECT tonalidadeId,'
+      '       nome'
+      'FROM tonalidades'
+      'ORDER BY nome')
+    Left = 596
+    Top = 232
+  end
+  object qryPesqTipoEscala: TFDQuery
+    Active = True
+    Connection = dmDados.FDConexao
+    SQL.Strings = (
+      'SELECT tipoEscalaId,'
+      '       nome'
+      'FROM tipoEscala'
+      'ORDER BY nome')
+    Left = 596
+    Top = 280
+  end
+  object dsPesqTonalidades: TDataSource
+    DataSet = qryPesqTonalidades
+    Left = 636
+    Top = 240
+  end
+  object dsPesqTipoEscala: TDataSource
+    DataSet = qryPesqTipoEscala
+    Left = 644
+    Top = 288
+  end
+end

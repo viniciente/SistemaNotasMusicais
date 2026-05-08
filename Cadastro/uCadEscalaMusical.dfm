@@ -7,15 +7,102 @@ inherited frmCadEscalaMusical: TfrmCadEscalaMusical
   TextHeight = 13
   inherited pgcPrincipal: TPageControl
     Height = 375
-    ActivePage = tsConsulta
     ExplicitHeight = 375
     inherited tsConsulta: TTabSheet
-      ExplicitLeft = 4
-      ExplicitTop = 24
-      ExplicitWidth = 681
       ExplicitHeight = 347
+      inherited pnlTop: TPanel
+        Height = 65
+        ExplicitHeight = 65
+        object lblFiltroTonalidade: TLabel [0]
+          Left = 0
+          Top = 23
+          Width = 76
+          Height = 16
+          Caption = 'Tonalidades'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -13
+          Font.Name = 'Tahoma'
+          Font.Style = [fsBold]
+          ParentFont = False
+        end
+        object lblFiltroTipoEscala: TLabel [1]
+          Left = 138
+          Top = 23
+          Width = 70
+          Height = 16
+          Caption = 'Tipo Escala'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -13
+          Font.Name = 'Tahoma'
+          Font.Style = [fsBold]
+          ParentFont = False
+        end
+        inherited btnAdicionar: TPngBitBtn
+          Top = 36
+          ExplicitTop = 36
+        end
+        inherited btnRemover: TPngBitBtn
+          Top = 36
+          ExplicitTop = 36
+        end
+        inherited btnEditar: TPngBitBtn
+          Top = 36
+          ExplicitTop = 36
+        end
+        object lkpPesqTipo: TDBLookupComboBox
+          Left = 138
+          Top = 40
+          Width = 125
+          Height = 21
+          KeyField = 'tipoEscalaId'
+          ListField = 'nome'
+          ListSource = dsPesqTipoEscala
+          TabOrder = 4
+          OnClick = lkpPesqTipoClick
+        end
+        object lkpPesqTonalidade: TDBLookupComboBox
+          Left = 0
+          Top = 40
+          Width = 125
+          Height = 21
+          KeyField = 'tonalidadeId'
+          ListField = 'nome'
+          ListSource = dsPesqTonalidades
+          TabOrder = 5
+          OnClick = lkpPesqTonalidadeClick
+        end
+        object btnLimparFiltro: TPngBitBtn
+          Left = 272
+          Top = 40
+          Width = 75
+          Height = 21
+          Caption = 'Limpar'
+          TabOrder = 6
+          OnClick = btnLimparFiltroClick
+          PngImage.Data = {
+            89504E470D0A1A0A0000000D49484452000000100000001008060000001FF3FF
+            61000000097048597300000EC300000EC301C76FA8640000001974455874536F
+            667477617265007777772E696E6B73636170652E6F72679BEE3C1A0000017149
+            44415478DA9552CD2B4471143DD747630651C402296583AD46F217988D15598C
+            B290AC30A9C9C762926F35CAC2CA4A4AD9494D564ACD06230B65658B9D8D299A
+            89EBBCBC37BDDE076F6EDDEEF99D7BEF79F7777F4F50A66D407B1438216C639C
+            95729AD7A1AD0CD7F44E937A0B2CB00F0DBD0397848336FA31B0C01AF488C571
+            1BF55C09C40209AC427B599C256C34A9DB2A60240979F1143016F50D6C3319E5
+            F19531CD85DD1167892F6A80C904E4C3A8750970D47192878411476A8A7EB304
+            3C08442DB2249086863FD9CFCCBC9730ED6919D2ED24650BDAF0058C1127E95D
+            7FAC224F817A9700DF36CF58FBDF223959660512F312C871DE0E1634F35CE1D3
+            5F6062601172EF124841EBAA811DE21963E374DE08ED8EBA04C7DFF3521673F3
+            BB0461C21C7D02BF7F5BC8AC3966731C3E56DAB64265131822ECE3750E4CFAAC
+            088CA620055E3543A1615F01CB38CD9CF122BCF36913B0300D29DA72E76C68A1
+            50D457C069F62F135F314478EEB7F23F11125F6F08EBF7A10000000049454E44
+            AE426082}
+        end
+      end
       inherited dbGridConsulta: TDBGrid
-        Height = 249
+        Top = 65
+        Height = 241
         Columns = <
           item
             Expanded = False
@@ -64,9 +151,6 @@ inherited frmCadEscalaMusical: TfrmCadEscalaMusical
       end
     end
     inherited tsDados: TTabSheet
-      ExplicitLeft = 4
-      ExplicitTop = 24
-      ExplicitWidth = 681
       ExplicitHeight = 347
       object lblCodigo: TLabel [0]
         Left = 3
@@ -250,46 +334,47 @@ inherited frmCadEscalaMusical: TfrmCadEscalaMusical
       '    ORDER BY e.nome')
     Left = 597
     object qryPrincipalescalaId: TFDAutoIncField
-      DisplayLabel = 'Id'
       FieldName = 'escalaId'
+      Origin = 'escalaId'
+      ProviderFlags = [pfInWhere, pfInKey]
       ReadOnly = True
     end
     object qryPrincipalnome: TStringField
-      DisplayLabel = 'Nome'
       FieldName = 'nome'
+      Origin = 'nome'
       Required = True
       Size = 100
     end
     object qryPrincipaltonalidade: TStringField
-      DisplayLabel = 'Tonalidade'
       FieldName = 'tonalidade'
+      Origin = 'tonalidade'
       Required = True
       Size = 50
     end
     object qryPrincipaltipoEscala: TStringField
-      DisplayLabel = 'TipoEscala'
       FieldName = 'tipoEscala'
+      Origin = 'tipoEscala'
       Required = True
       Size = 30
     end
     object qryPrincipaldescricao: TStringField
-      DisplayLabel = 'Descricao'
       FieldName = 'descricao'
+      Origin = 'descricao'
       Size = 500
     end
     object qryPrincipalcaminhoArquivo: TStringField
-      DisplayLabel = 'Caminho do Arquivo'
       FieldName = 'caminhoArquivo'
+      Origin = 'caminhoArquivo'
       Size = 500
     end
     object qryPrincipalnomeArquivo: TStringField
-      DisplayLabel = 'Nome do Arquivo'
       FieldName = 'nomeArquivo'
+      Origin = 'nomeArquivo'
       Size = 255
     end
     object qryPrincipalconteudoArquivo: TStringField
-      DisplayLabel = 'Conteudo'
       FieldName = 'conteudoArquivo'
+      Origin = 'conteudoArquivo'
       Size = 500
     end
   end
@@ -300,8 +385,8 @@ inherited frmCadEscalaMusical: TfrmCadEscalaMusical
       'SELECT tonalidadeId,'
       '       nome'
       'FROM tonalidades')
-    Left = 548
-    Top = 160
+    Left = 596
+    Top = 96
     object qryTonalidadestonalidadeId: TFDAutoIncField
       FieldName = 'tonalidadeId'
       Origin = 'tonalidadeId'
@@ -323,8 +408,8 @@ inherited frmCadEscalaMusical: TfrmCadEscalaMusical
       '             nome'
       'FROM tipoEscala'
       'ORDER BY nome')
-    Left = 548
-    Top = 224
+    Left = 596
+    Top = 144
     object qryTipoEscalatipoEscalaId: TFDAutoIncField
       FieldName = 'tipoEscalaId'
       Origin = 'tipoEscalaId'
@@ -340,24 +425,56 @@ inherited frmCadEscalaMusical: TfrmCadEscalaMusical
   end
   object dsTonalidades: TDataSource
     DataSet = qryTonalidades
-    Left = 604
-    Top = 160
+    Left = 628
+    Top = 96
   end
   object dsTipoEscala: TDataSource
     DataSet = qryTipoEscala
-    Left = 604
-    Top = 224
+    Left = 636
+    Top = 144
   end
   object qryNotas: TFDQuery
     Connection = dmDados.FDConexao
     SQL.Strings = (
       '')
-    Left = 444
-    Top = 280
+    Left = 596
+    Top = 184
   end
   object dlgAbrir: TOpenDialog
     Filter = 'Arquivo de Texto|*.txt'
-    Left = 372
-    Top = 296
+    Left = 636
+    Top = 192
+  end
+  object qryPesqTonalidades: TFDQuery
+    Active = True
+    Connection = dmDados.FDConexao
+    SQL.Strings = (
+      'SELECT tonalidadeId,'
+      '       nome'
+      'FROM tonalidades'
+      'ORDER BY nome')
+    Left = 596
+    Top = 232
+  end
+  object qryPesqTipoEscala: TFDQuery
+    Active = True
+    Connection = dmDados.FDConexao
+    SQL.Strings = (
+      'SELECT tipoEscalaId,'
+      '       nome'
+      'FROM tipoEscala'
+      'ORDER BY nome')
+    Left = 596
+    Top = 280
+  end
+  object dsPesqTonalidades: TDataSource
+    DataSet = qryPesqTonalidades
+    Left = 636
+    Top = 240
+  end
+  object dsPesqTipoEscala: TDataSource
+    DataSet = qryPesqTipoEscala
+    Left = 644
+    Top = 288
   end
 end

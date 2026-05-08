@@ -1,0 +1,405 @@
+﻿unit uCadEscalaMusical;
+
+interface
+
+uses
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes,
+  Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, TelaHeranca, Data.DB,
+  FireDAC.Stan.Intf, FireDAC.Stan.Option, FireDAC.Stan.Param, FireDAC.Stan.Error,
+  FireDAC.DatS, FireDAC.Phys.Intf, FireDAC.DApt.Intf, FireDAC.Stan.Async,
+  FireDAC.DApt, FireDAC.Comp.DataSet, FireDAC.Comp.Client, Vcl.Grids,
+  Vcl.DBGrids, Vcl.StdCtrls, Vcl.Buttons, Vcl.ExtCtrls, Vcl.ComCtrls,
+  Vcl.CheckLst, Vcl.DBCtrls, System.StrUtils,
+  cCadEscalaMusical, uEnum, uDmDados, System.IOUtils, PngBitBtn;
+
+type
+  TfrmCadEscalaMusical = class(TfrmTelaHeranca)
+    edtCodigo: TEdit;
+    edtNome: TEdit;
+    lkpTonalidade: TDBLookupComboBox;
+    lkpTipoEscala: TDBLookupComboBox;
+    edtDescricao: TEdit;
+    lblCodigo: TLabel;
+    lblNome: TLabel;
+    lblTonalidade: TLabel;
+    lblTipoEscala: TLabel;
+    lblNotas: TLabel;
+    clbNotas: TCheckListBox;
+    qryNotas: TFDQuery;
+    qryTipoEscala: TFDQuery;
+    qryTonalidades: TFDQuery;
+    btnImportar: TButton;
+    edtArquivo: TEdit;
+    lblArquivo: TLabel;
+    dlgAbrir: TOpenDialog;
+    qryPrincipalescalaId: TFDAutoIncField;
+    qryPrincipalnome: TStringField;
+    qryPrincipaltonalidade: TStringField;
+    qryPrincipaltipoEscala: TStringField;
+    qryPrincipaldescricao: TStringField;
+    qryPrincipalcaminhoArquivo: TStringField;
+    qryPrincipalnomeArquivo: TStringField;
+    qryPrincipalconteudoArquivo: TStringField;
+    lkpPesqTipo: TDBLookupComboBox;
+    lkpPesqTonalidade: TDBLookupComboBox;
+    lblFiltroTonalidade: TLabel;
+    lblFiltroTipoEscala: TLabel;
+    qryPesqTonalidades: TFDQuery;
+    qryPesqTipoEscala: TFDQuery;
+    dsPesqTonalidades: TDataSource;
+    dsPesqTipoEscala: TDataSource;
+    btnLimparFiltro: TPngBitBtn;
+    procedure btnEditarClick(Sender: TObject);
+    procedure FormCreate(Sender: TObject);
+    procedure FormShow(Sender: TObject);
+    procedure btnImportarClick(Sender: TObject);
+    procedure lkpPesqTonalidadeClick(Sender: TObject);
+    procedure lkpPesqTipoClick(Sender: TObject);
+    procedure btnLimparFiltroClick(Sender: TObject);
+    procedure btnAdicionarClick(Sender: TObject);
+
+  private
+    oEscala: TEscalas;
+    procedure CarregarNotas;
+    procedure MarcarNotasSalvas(notasSalvas: string);
+    function PegarNotasMarcadas: string;
+    function Gravar(EstadoDoCadastro: TEstadoDoCadastro): Boolean; override;
+    function Apagar: Boolean; override;
+    procedure ImportarArquivoTXT(caminho: string);
+    procedure FiltrarDados;
+  end;
+
+var
+  frmCadEscalaMusical: TfrmCadEscalaMusical;
+
+implementation
+
+{$R *.dfm}
+
+procedure TfrmCadEscalaMusical.FormCreate(Sender: TObject);
+var i : Integer;
+begin
+  inherited;
+  oEscala := TEscalas.Create(dmDados.FDConexao);
+end;
+
+procedure TfrmCadEscalaMusical.FormShow(Sender: TObject);
+begin
+  inherited;
+  qryTonalidades.Open;
+  qryTipoEscala.Open;
+
+  qryPesqTonalidades.Open;
+  qryPesqTipoEscala.Open;
+
+  qryPrincipal.Open;
+end;
+
+procedure TfrmCadEscalaMusical.CarregarNotas;
+begin
+  clbNotas.Items.Clear;
+
+  qryNotas.Close;
+  qryNotas.SQL.Text := 'SELECT notasId, nome FROM notas ORDER BY nome';
+  qryNotas.Open;
+
+  while not qryNotas.Eof do
+  begin
+    clbNotas.Items.AddObject(
+      qryNotas.FieldByName('nome').AsString,
+      TObject(qryNotas.FieldByName('notasId').AsInteger)
+    );
+    qryNotas.Next;
+  end;
+end;
+
+procedure TfrmCadEscalaMusical.MarcarNotasSalvas(notasSalvas: string);
+var
+  i, notaId: Integer;
+  ids: TArray<string>;
+begin
+  ids := notasSalvas.Split([',']);
+
+  for i := 0 to clbNotas.Count - 1 do
+  begin
+    notaId := Integer(clbNotas.Items.Objects[i]);
+    clbNotas.Checked[i] := IndexStr(IntToStr(notaId), ids) >= 0;
+  end;
+end;
+
+function TfrmCadEscalaMusical.PegarNotasMarcadas: string;
+var
+  i, notaId: Integer;
+begin
+  Result := '';
+  for i := 0 to clbNotas.Count - 1 do
+  begin
+    if clbNotas.Checked[i] then
+    begin
+      notaId := Integer(clbNotas.Items.Objects[i]);
+      if Result <> '' then Result := Result + ',';
+      Result := Result + IntToStr(notaId);
+    end;
+  end;
+end;
+
+function TfrmCadEscalaMusical.Gravar(EstadoDoCadastro: TEstadoDoCadastro): Boolean;
+var
+linhas : TStringList;
+begin
+  Result := False;
+
+  // Validações
+  if Trim(edtNome.Text) = '' then
+  begin
+    ShowMessage('O nome da escala é obrigatório!');
+    Exit;
+  end;
+
+  if lkpTonalidade.KeyValue = Null then
+  begin
+    ShowMessage('Selecione uma tonalidade!');
+    Exit;
+  end;
+
+  if lkpTipoEscala.KeyValue = Null then
+  begin
+    ShowMessage('Selecione um tipo de escala!');
+    Exit;
+  end;
+
+  if PegarNotasMarcadas = '' then
+  begin
+    ShowMessage('Selecione ao menos uma nota!');
+    Exit;
+  end;
+
+// Preenche o objeto
+  oEscala.nome         := Trim(edtNome.Text);
+  oEscala.tonalidadeId := Integer(lkpTonalidade.KeyValue);
+  oEscala.tipoId       := Integer(lkpTipoEscala.KeyValue);
+  oEscala.listaNota    := PegarNotasMarcadas;
+  oEscala.descricao    := Trim(edtDescricao.Text);
+
+  // Dados do arquivo
+  if edtArquivo.Text <> '' then
+  begin
+    oEscala.nomeArquivo    := ExtractFileName(edtArquivo.Text);
+    oEscala.caminhoArquivo := edtArquivo.Text;
+
+    linhas := TStringList.Create;
+    try
+      linhas.LoadFromFile(edtArquivo.Text, TEncoding.UTF8);
+      oEscala.conteudoArquivo := linhas.Text;
+    finally
+      linhas.Free;
+    end;
+  end;
+
+  // Insere ou Atualiza
+  if EstadoDoCadastro = ecInserir then
+    Result := oEscala.Inserir
+  else
+  begin
+    oEscala.codigo := qryPrincipal.FieldByName('escalaId').AsInteger;
+    Result := oEscala.Atualizar;
+  end;
+end;
+
+function TfrmCadEscalaMusical.Apagar: Boolean;
+begin
+  oEscala.codigo := qryPrincipal.FieldByName('escalaId').AsInteger;
+  Result := oEscala.Apagar;
+end;
+
+procedure TfrmCadEscalaMusical.btnAdicionarClick(Sender: TObject);
+begin
+  inherited;
+  qryNotas.Close;
+  qryNotas.Open;
+end;
+
+procedure TfrmCadEscalaMusical.btnEditarClick(Sender: TObject);
+begin
+  if not Assigned(oEscala)then Exit;
+
+  if oEscala.Selecionar(qryPrincipal.FieldByName('escalaId').AsInteger)then begin
+    edtCodigo.Text := IntToStr(oEscala.Codigo);
+    edtNome.Text          := oEscala.nome;
+    edtDescricao.Text     := oEscala.descricao;
+    lkpTonalidade.KeyValue := oEscala.tonalidadeId;
+    lkpTipoEscala.KeyValue := oEscala.tipoId;
+    MarcarNotasSalvas(oEscala.listaNota);
+    if oEscala.caminhoArquivo <> '' then
+      edtArquivo.Text := oEscala.caminhoArquivo
+    else
+      edtArquivo.Text := '';
+  end
+  else begin
+    btnCancelar.Click;
+    Abort;
+  end;
+
+  inherited
+end;
+
+procedure TfrmCadEscalaMusical.btnImportarClick(Sender: TObject);
+begin
+  dlgAbrir.Filter := 'Arquivo de Texto|*.txt';
+  dlgAbrir.FileName := '';
+
+  if dlgAbrir.Execute then
+  begin
+    edtArquivo.Text := dlgAbrir.FileName;
+    ImportarArquivoTXT(dlgAbrir.FileName);
+  end;
+end;
+
+procedure TfrmCadEscalaMusical.btnLimparFiltroClick(Sender: TObject);
+begin
+  lkpPesqTonalidade.KeyValue := Null;
+  lkpPesqTipo.KeyValue       := Null;
+  FiltrarDados; // recarrega sem filtro
+end;
+
+procedure TfrmCadEscalaMusical.ImportarArquivoTXT(caminho: string);
+var
+  linhas: TStringList;
+  partes: TArray<string>;
+  sNome, sTipo, sTonalidade, sNotas, sDescricao: string;
+  tipoId, tonalidadeId: Integer;
+  notasIds: string;
+  vQuery: TFDQuery;
+  i: Integer;
+  notaNome : string;
+begin
+  linhas := TStringList.Create;
+  try
+    linhas.LoadFromFile(caminho, TEncoding.UTF8);
+
+    if linhas.Count = 0 then begin ShowMessage('Arquivo vazio!'); Exit; end;
+
+    partes := linhas[0].Split(['|']);
+
+    if Length(partes) <> 5 then
+    begin
+      ShowMessage('Formato inválido! O arquivo deve conter exatamente 5 campos separados por "|".');
+      Exit;
+    end;
+
+    sNome       := Trim(partes[0]);
+    sTipo       := Trim(partes[1]);
+    sTonalidade := Trim(partes[2]);
+    sNotas      := Trim(partes[3]);
+    sDescricao  := Trim(partes[4]);
+
+    if sNome = '' then begin ShowMessage('Nome da escala não pode ser vazio!'); Exit; end;
+    if sTipo = '' then begin ShowMessage('Tipo da escala não pode ser vazio!'); Exit; end;
+    if sTonalidade = '' then begin ShowMessage('Tonalidade não pode ser vazia!'); Exit; end;
+    if sNotas = '' then begin ShowMessage('Lista de notas não pode ser vazia!'); Exit; end;
+
+    vQuery := TFDQuery.Create(nil);
+    try
+      vQuery.Connection := dmDados.FDConexao;
+
+      // Busca tipoId
+      vQuery.SQL.Text := 'SELECT tipoEscalaId FROM tipoEscala WHERE LOWER(nome) = LOWER(:nome)';
+      vQuery.ParamByName('nome').AsString := sTipo;
+      vQuery.Open;
+      if vQuery.IsEmpty then begin ShowMessage('Tipo "' + sTipo + '" não encontrado!'); Exit; end;
+      tipoId := vQuery.FieldByName('tipoEscalaId').AsInteger;
+
+      // Busca tonalidadeId
+      vQuery.Close;
+      vQuery.SQL.Text := 'SELECT tonalidadeId FROM tonalidades WHERE LOWER(nome) = LOWER(:nome)';
+      vQuery.ParamByName('nome').AsString := sTonalidade;
+      vQuery.Open;
+      if vQuery.IsEmpty then begin ShowMessage('Tonalidade "' + sTonalidade + '" não encontrada!'); Exit; end;
+      tonalidadeId := vQuery.FieldByName('tonalidadeId').AsInteger;
+
+      // Verifica duplicidade
+      vQuery.Close;
+      vQuery.SQL.Text :=
+        'SELECT COUNT(*) AS total FROM escalas ' +
+        'WHERE LOWER(nome) = LOWER(:nome) AND tonalidadeId = :tonalidade';
+      vQuery.ParamByName('nome').AsString := sNome;
+      vQuery.ParamByName('tonalidade').AsInteger := tonalidadeId;
+      vQuery.Open;
+      if vQuery.FieldByName('total').AsInteger > 0 then
+      begin
+        ShowMessage('Já existe a escala "' + sNome + '" com essa tonalidade!');
+        Exit;
+      end;
+
+      // Busca IDs das notas
+      notasIds := '';
+      for i := 0 to High(sNotas.Split([','])) do
+      begin
+        notaNome := Trim(sNotas.Split([','])[i]);
+        vQuery.Close;
+        vQuery.SQL.Text := 'SELECT notasId FROM notas WHERE LOWER(nome) = LOWER(:nome)';
+        vQuery.ParamByName('nome').AsString := notaNome;
+        vQuery.Open;
+        if vQuery.IsEmpty then begin ShowMessage('Nota "' + notaNome + '" não encontrada!'); Exit; end;
+        if notasIds <> '' then notasIds := notasIds + ',';
+        notasIds := notasIds + vQuery.FieldByName('notasId').AsString;
+      end;
+
+      // ✅ Só preenche os campos — quem salva é o botão Salvar
+      edtNome.Text           := sNome;
+      edtDescricao.Text      := sDescricao;
+      lkpTonalidade.KeyValue := tonalidadeId;
+      lkpTipoEscala.KeyValue := tipoId;
+      MarcarNotasSalvas(notasIds);
+
+      // Guarda o caminho para usar no Gravar
+      edtArquivo.Text := caminho;
+
+      ShowMessage('Arquivo lido com sucesso! Confira os campos e clique em Salvar.');
+
+    finally
+      vQuery.Free;
+    end;
+  finally
+    linhas.Free;
+  end;
+end;
+
+procedure TfrmCadEscalaMusical.lkpPesqTipoClick(Sender: TObject);
+begin
+  FiltrarDados;
+end;
+
+procedure TfrmCadEscalaMusical.lkpPesqTonalidadeClick(Sender: TObject);
+begin
+  FiltrarDados;
+end;
+
+procedure TfrmCadEscalaMusical.FiltrarDados;
+var
+  vSQL: string;
+begin
+  vSQL :=
+    'SELECT e.escalaId, e.nome, t.nome AS tonalidade, te.nome AS tipoEscala, ' +
+    '       e.descricao, e.caminhoArquivo, e.nomeArquivo, e.conteudoArquivo ' +
+    'FROM escalas e ' +
+    'INNER JOIN tonalidades t ON t.tonalidadeId = e.tonalidadeId ' +
+    'INNER JOIN tipoEscala te ON te.tipoEscalaId = e.tipoId ' +
+    'WHERE 1=1 ';
+
+  if not VarIsNull(lkpPesqTonalidade.KeyValue) and
+     not VarIsEmpty(lkpPesqTonalidade.KeyValue) then
+    vSQL := vSQL + ' AND e.tonalidadeId = ' + IntToStr(Integer(lkpPesqTonalidade.KeyValue));
+
+  if not VarIsNull(lkpPesqTipo.KeyValue) and
+     not VarIsEmpty(lkpPesqTipo.KeyValue) then
+    vSQL := vSQL + ' AND e.tipoId = ' + IntToStr(Integer(lkpPesqTipo.KeyValue));
+
+  vSQL := vSQL + ' ORDER BY e.nome';
+
+  qryPrincipal.Close;
+  qryPrincipal.SQL.Text := vSQL;
+  qryPrincipal.Open;
+end;
+
+end.

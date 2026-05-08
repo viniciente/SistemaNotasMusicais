@@ -10,7 +10,7 @@ uses
   FireDAC.DApt, FireDAC.Comp.DataSet, FireDAC.Comp.Client, Vcl.Grids,
   Vcl.DBGrids, Vcl.StdCtrls, Vcl.Buttons, Vcl.ExtCtrls, Vcl.ComCtrls,
   Vcl.CheckLst, Vcl.DBCtrls, System.StrUtils,
-  cCadEscalaMusical, uEnum, uDmDados, System.IOUtils;
+  cCadEscalaMusical, uEnum, uDmDados, System.IOUtils, PngBitBtn;
 
 type
   TfrmCadEscalaMusical = class(TfrmTelaHeranca)
@@ -32,6 +32,15 @@ type
     edtArquivo: TEdit;
     lblArquivo: TLabel;
     dlgAbrir: TOpenDialog;
+    lkpPesqTipo: TDBLookupComboBox;
+    lkpPesqTonalidade: TDBLookupComboBox;
+    lblFiltroTonalidade: TLabel;
+    lblFiltroTipoEscala: TLabel;
+    qryPesqTonalidades: TFDQuery;
+    qryPesqTipoEscala: TFDQuery;
+    dsPesqTonalidades: TDataSource;
+    dsPesqTipoEscala: TDataSource;
+    btnLimparFiltro: TPngBitBtn;
     qryPrincipalescalaId: TFDAutoIncField;
     qryPrincipalnome: TStringField;
     qryPrincipaltonalidade: TStringField;
@@ -44,6 +53,9 @@ type
     procedure FormCreate(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure btnImportarClick(Sender: TObject);
+    procedure lkpPesqTonalidadeClick(Sender: TObject);
+    procedure lkpPesqTipoClick(Sender: TObject);
+    procedure btnLimparFiltroClick(Sender: TObject);
 
   private
     oEscala: TEscalas;
@@ -53,6 +65,7 @@ type
     function Gravar(EstadoDoCadastro: TEstadoDoCadastro): Boolean; override;
     function Apagar: Boolean; override;
     procedure ImportarArquivoTXT(caminho: string);
+    procedure FiltrarDados;
   end;
 
 var
@@ -71,7 +84,13 @@ end;
 
 procedure TfrmCadEscalaMusical.FormShow(Sender: TObject);
 begin
-  qryPrincipal.Close;
+  inherited;
+  qryTonalidades.Open;
+  qryTipoEscala.Open;
+
+  qryPesqTonalidades.Open;
+  qryPesqTipoEscala.Open;
+
   qryPrincipal.Open;
   CarregarNotas;
 end;
@@ -126,24 +145,25 @@ end;
 
 function TfrmCadEscalaMusical.Gravar(EstadoDoCadastro: TEstadoDoCadastro): Boolean;
 var
-linhas : TStringList;
+  linhas: TStringList;
+  vQuery: TFDQuery;
 begin
   Result := False;
 
-  // Validações
   if Trim(edtNome.Text) = '' then
   begin
     ShowMessage('O nome da escala é obrigatório!');
     Exit;
   end;
 
-  if lkpTonalidade.KeyValue = Null then
+  // ← TROCA = Null por VarIsNull
+  if VarIsNull(lkpTonalidade.KeyValue) or VarIsEmpty(lkpTonalidade.KeyValue) then
   begin
     ShowMessage('Selecione uma tonalidade!');
     Exit;
   end;
 
-  if lkpTipoEscala.KeyValue = Null then
+  if VarIsNull(lkpTipoEscala.KeyValue) or VarIsEmpty(lkpTipoEscala.KeyValue) then
   begin
     ShowMessage('Selecione um tipo de escala!');
     Exit;
@@ -155,7 +175,41 @@ begin
     Exit;
   end;
 
-// Preenche o objeto
+  // Validação de duplicidade
+  vQuery := TFDQuery.Create(nil);
+  try
+    vQuery.Connection := dmDados.FDConexao;
+    vQuery.SQL.Text :=
+      'SELECT COUNT(*) AS total FROM escalas ' +
+      'WHERE LOWER(nome) = LOWER(:nome) ' +
+      'AND tonalidadeId = :ton ' +
+      'AND escalaId <> :id';
+
+    // Define os tipos explicitamente antes de atribuir os valores
+    vQuery.ParamByName('nome').DataType := ftString;
+    vQuery.ParamByName('nome').AsString := Trim(edtNome.Text);
+
+    vQuery.ParamByName('ton').DataType  := ftInteger;
+    vQuery.ParamByName('ton').AsInteger := Integer(lkpTonalidade.KeyValue);
+
+    vQuery.ParamByName('id').DataType   := ftInteger;
+    if EstadoDoCadastro = ecInserir then
+      vQuery.ParamByName('id').AsInteger := -1
+    else
+      vQuery.ParamByName('id').AsInteger := qryPrincipal.FieldByName('escalaId').AsInteger;
+
+    vQuery.Open;
+
+    if vQuery.FieldByName('total').AsInteger > 0 then
+    begin
+      ShowMessage('Já existe a escala "' + Trim(edtNome.Text) + '" cadastrada com essa tonalidade!');
+      Exit;
+    end;
+  finally
+    vQuery.Free;
+  end;
+
+  // Preenche o objeto
   oEscala.nome         := Trim(edtNome.Text);
   oEscala.tonalidadeId := Integer(lkpTonalidade.KeyValue);
   oEscala.tipoId       := Integer(lkpTipoEscala.KeyValue);
@@ -167,7 +221,6 @@ begin
   begin
     oEscala.nomeArquivo    := ExtractFileName(edtArquivo.Text);
     oEscala.caminhoArquivo := edtArquivo.Text;
-
     linhas := TStringList.Create;
     try
       linhas.LoadFromFile(edtArquivo.Text, TEncoding.UTF8);
@@ -177,7 +230,6 @@ begin
     end;
   end;
 
-  // Insere ou Atualiza
   if EstadoDoCadastro = ecInserir then
     Result := oEscala.Inserir
   else
@@ -227,6 +279,13 @@ begin
     edtArquivo.Text := dlgAbrir.FileName;
     ImportarArquivoTXT(dlgAbrir.FileName);
   end;
+end;
+
+procedure TfrmCadEscalaMusical.btnLimparFiltroClick(Sender: TObject);
+begin
+  lkpPesqTonalidade.KeyValue := Null;
+  lkpPesqTipo.KeyValue       := Null;
+  FiltrarDados; // recarrega sem filtro
 end;
 
 procedure TfrmCadEscalaMusical.ImportarArquivoTXT(caminho: string);
@@ -330,6 +389,43 @@ begin
   finally
     linhas.Free;
   end;
+end;
+
+procedure TfrmCadEscalaMusical.lkpPesqTipoClick(Sender: TObject);
+begin
+  FiltrarDados;
+end;
+
+procedure TfrmCadEscalaMusical.lkpPesqTonalidadeClick(Sender: TObject);
+begin
+  FiltrarDados;
+end;
+
+procedure TfrmCadEscalaMusical.FiltrarDados;
+var
+  vSQL: string;
+begin
+  vSQL :=
+    'SELECT e.escalaId, e.nome, t.nome AS tonalidade, te.nome AS tipoEscala, ' +
+    '       e.descricao, e.caminhoArquivo, e.nomeArquivo, e.conteudoArquivo ' +
+    'FROM escalas e ' +
+    'INNER JOIN tonalidades t ON t.tonalidadeId = e.tonalidadeId ' +
+    'INNER JOIN tipoEscala te ON te.tipoEscalaId = e.tipoId ' +
+    'WHERE 1=1 ';
+
+  if not VarIsNull(lkpPesqTonalidade.KeyValue) and
+     not VarIsEmpty(lkpPesqTonalidade.KeyValue) then
+    vSQL := vSQL + ' AND e.tonalidadeId = ' + IntToStr(Integer(lkpPesqTonalidade.KeyValue));
+
+  if not VarIsNull(lkpPesqTipo.KeyValue) and
+     not VarIsEmpty(lkpPesqTipo.KeyValue) then
+    vSQL := vSQL + ' AND e.tipoId = ' + IntToStr(Integer(lkpPesqTipo.KeyValue));
+
+  vSQL := vSQL + ' ORDER BY e.nome';
+
+  qryPrincipal.Close;
+  qryPrincipal.SQL.Text := vSQL;
+  qryPrincipal.Open;
 end;
 
 end.

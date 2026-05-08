@@ -13,7 +13,7 @@ uses
   uEnum, uDmDados, RxToolEdit, RxCurrEdit, Vcl.Buttons,
   FireDAC.UI.Intf, FireDAC.Stan.Def,
   FireDAC.Stan.Pool, FireDAC.Phys, FireDAC.VCLUI.Wait, System.IniFiles,
-  System.IOUtils, Vcl.CheckLst;
+  System.IOUtils, Vcl.CheckLst, PngBitBtn;
 
 type
   TfrmTelaHeranca = class(TForm)
@@ -24,13 +24,13 @@ type
     pnlNome: TPanel;
     dbGridConsulta: TDBGrid;
     pnlBottom: TPanel;
-    btnFechar: TBitBtn;
-    btnAdicionar: TBitBtn;
-    btnEditar: TBitBtn;
-    btnRemover: TBitBtn;
+    btnFechar: TPngBitBtn;
+    btnAdicionar: TPngBitBtn;
+    btnEditar: TPngBitBtn;
+    btnRemover: TPngBitBtn;
     pnlDadosBottom: TPanel;
-    btnSalvar: TBitBtn;
-    btnCancelar: TBitBtn;
+    btnSalvar: TPngBitBtn;
+    btnCancelar: TPngBitBtn;
     pnlCadastro: TPanel;
     qryPrincipal: TFDQuery;
     dsPrincipal: TDataSource;

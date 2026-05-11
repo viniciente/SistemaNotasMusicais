@@ -22,9 +22,9 @@ Sistema de gestão de escalas musicais com suporte completo para entrada e saíd
 
 | Tecnologia | Versão | Função |
 |-----------|--------|--------|
-| **Delphi/Lazarus** | - | Linguagem Pascal - Desenvolvimento da GUI |
+| **Delphi/Pascal** | - | Linguagem Pascal |
 | **FireDAC** | - | Acesso a banco de dados com suporte multi-plataforma |
-| **SQLite/SQL Server** | - | Persistência de dados de escalas e referências |
+| **SQL Server** | - | Persistência de dados de escalas e referências |
 | **VCL (Visual Component Library)** | - | Framework de componentes visuais |
 | **Git** | - | Controle de versão |
 
@@ -43,10 +43,9 @@ Sistema de gestão de escalas musicais com suporte completo para entrada e saíd
 
 ### Pré-requisitos
 
-- Delphi XE5 ou superior (ou Lazarus com componentes compatíveis)
-- FireDAC instalado e configurado
-- Banco de dados SQLite ou SQL Server configurado
-- Arquivo `Project2.dproj` para compilação
+- Banco de dados SQL Server configurado
+- Arquivo `Project2.exe`
+- 
 
 ### Passos para Execução
 

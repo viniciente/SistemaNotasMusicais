@@ -174,11 +174,6 @@ object frmArquivos: TfrmArquivos
           end
           item
             Expanded = False
-            FieldName = 'conteudoArquivo'
-            Visible = True
-          end
-          item
-            Expanded = False
             FieldName = 'caminhoArquivo'
             Visible = True
           end>
@@ -328,13 +323,20 @@ object frmArquivos: TfrmArquivos
         DataSource = dsImport
         DrawingStyle = gdsClassic
         FixedColor = 5263440
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Style = []
+        ParentFont = False
         ReadOnly = True
         TabOrder = 2
         TitleFont.Charset = DEFAULT_CHARSET
-        TitleFont.Color = clWindowText
+        TitleFont.Color = 16735921
         TitleFont.Height = -11
         TitleFont.Name = 'Tahoma'
-        TitleFont.Style = []
+        TitleFont.Style = [fsBold]
+        OnDrawColumnCell = DBGrid1DrawColumnCell
       end
     end
   end

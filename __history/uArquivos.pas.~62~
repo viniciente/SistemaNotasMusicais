@@ -1,0 +1,646 @@
+﻿unit uArquivos;
+
+interface
+
+uses
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Data.DB, FireDAC.Stan.Intf, FireDAC.Stan.Option, FireDAC.Stan.Param,
+  FireDAC.Stan.Error, FireDAC.DatS, FireDAC.Phys.Intf, FireDAC.DApt.Intf, FireDAC.Stan.Async, FireDAC.DApt,
+  FireDAC.Comp.DataSet, FireDAC.Comp.Client, Vcl.StdCtrls, Vcl.Buttons, Vcl.Grids, Vcl.DBGrids,
+  Vcl.ExtCtrls, Vcl.ComCtrls, uDmDados, Vcl.Mask, uEnum, RxToolEdit, RxCurrEdit, FireDAC.UI.Intf, FireDAC.Stan.Def,
+  FireDAC.Stan.Pool, FireDAC.Phys, FireDAC.VCLUI.Wait, System.IniFiles,
+  System.IOUtils, Vcl.CheckLst, Vcl.DBCtrls, cCadEscalaMusical, System.StrUtils, PngBitBtn;
+
+type
+  TfrmArquivos = class(TForm)
+    pgcPrincipal: TPageControl;
+    tsConsulta: TTabSheet;
+    pnlTop: TPanel;
+    pnlNome: TPanel;
+    dbGridConsulta: TDBGrid;
+    DBGrid1: TDBGrid;
+    pnlBottom: TPanel;
+    btnFechar: TPngBitBtn;
+    tsDados: TTabSheet;
+    pnlDadosBottom: TPanel;
+    btnSalvar: TPngBitBtn;
+    btnCancelar: TPngBitBtn;
+    pnlCadastro: TPanel;
+    qryArquivos: TFDQuery;
+    dsArquivos: TDataSource;
+    btnExportar: TPngBitBtn;
+    btnImportar: TPngBitBtn;
+    dlgSalvar: TSaveDialog;
+    qryArquivosescalaId: TFDAutoIncField;
+    qryArquivosnome: TStringField;
+    qryArquivostonalidade: TStringField;
+    qryArquivostipoEscala: TStringField;
+    qryArquivoslistaNota: TStringField;
+    qryArquivosdescricao: TStringField;
+    qryArquivoscaminhoArquivo: TStringField;
+    qryArquivosnomeArquivo: TStringField;
+    qryArquivosconteudoArquivo: TStringField;
+    dlgAbrir: TOpenDialog;
+    cdsImport: TFDMemTable;
+    dsImport: TDataSource;
+    procedure FormCreate(Sender: TObject);
+    procedure FormShow(Sender: TObject);
+    procedure btnExportarClick(Sender: TObject);
+    procedure btnFecharClick(Sender: TObject);
+    procedure btnSalvarClick(Sender: TObject);
+    procedure btnCancelarClick(Sender: TObject);
+    procedure btnImportarClick(Sender: TObject);
+    procedure FormClose(Sender: TObject; var Action: TCloseAction);
+  private
+    procedure CarregarDados;
+    function ObterNomesNotas(listaNota: string): string;
+    procedure LimparEdits;
+    procedure CentralizarColunas;
+    procedure PrepararGridImport;
+    procedure LerArquivoTXT(caminho: string);
+    function ValidarESalvarLinha(
+  sNome, sTipo, sTonalidade, sNotas, sDescricao,
+  sCaminho, sNomeArq, sConteudo: string;
+  out msgErro: string): Boolean;
+    procedure CarregarConfiguracaoGrid(pGrid: TDBGrid);
+    procedure SalvarConfiguracaoGrid(pGrid: TDBGrid);
+  public
+    { Public declarations }
+    procedure AbrirImportacaoDireta;
+  end;
+
+var
+  frmArquivos: TfrmArquivos;
+
+implementation
+
+{$R *.dfm}
+
+
+procedure TfrmArquivos.FormClose(Sender: TObject; var Action: TCloseAction);
+begin
+
+  SalvarConfiguracaoGrid(dbGridConsulta);
+end;
+
+procedure TfrmArquivos.FormCreate(Sender: TObject);
+  var i: Integer;
+  fld: TStringField;
+begin
+  qryArquivos.Connection := dmDados.FDConexao;
+  pgcPrincipal.ActivePage := tsConsulta;
+
+  dbGridConsulta.Options := [dgTitles, dgIndicator, dgColumnResize,
+                             dgColLines, dgRowLines, dgTabs,
+                             dgAlwaysShowSelection, dgCancelOnExit,
+                             dgTitleClick, dgTitleHotTrack];
+
+  DBGrid1.Options := [dgTitles, dgIndicator, dgColumnResize,
+                             dgColLines, dgRowLines, dgTabs,
+                             dgAlwaysShowSelection, dgCancelOnExit,
+                             dgTitleClick, dgTitleHotTrack];
+
+  pnlTop.Font.Color := $00FF5EB1;
+  pnlBottom.Font.Color := $00FF5EB1;
+  pnlCadastro.Font.Color := $00FF5EB1;
+  pnlNome.Font.Color := $00FF5EB1;
+  pnlDadosBottom.Font.Color := $00FF5EB1;
+  pnlCadastro.Font.Color := $00FF5EB1;
+
+  for i := 0 to dbGridConsulta.Columns.Count- 1 do
+  begin
+    dbGridConsulta.Columns[i].Title.Font.Color := $00FF5EB1;
+    dbGridConsulta.Columns[i].Title.Font.Style := [fsBold];
+  end;
+
+  fld := TStringField.Create(qryArquivos);
+  fld.FieldName  := 'nomesNotas';
+  fld.FieldKind  := fkCalculated;
+  fld.DisplayLabel := 'Notas';
+  fld.Size       := 500;
+  fld.DataSet    := qryArquivos;
+
+  CentralizarColunas;
+  PrepararGridImport;
+end;
+
+procedure TfrmArquivos.CentralizarColunas;
+var
+  I: Integer;
+begin
+  for I := 0 to dbGridConsulta.Columns.Count - 1 do
+  begin
+    // Centraliza o texto das linhas
+    dbGridConsulta.Columns[I].Alignment := taCenter;
+
+    // Centraliza o texto do título
+    dbGridConsulta.Columns[I].Title.Alignment := taCenter;
+  end;
+end;
+
+procedure TfrmArquivos.FormShow(Sender: TObject);
+begin
+  CarregarDados;
+  CarregarConfiguracaoGrid(dbGridConsulta);
+end;
+
+procedure TfrmArquivos.CarregarDados;
+var i: Integer;
+begin
+  qryArquivos.Close;
+  qryArquivos.Open;
+end;
+
+function TfrmArquivos.ObterNomesNotas(listaNota: string): string;
+// Converte a string de IDs separados por v rgula em nomes das notas
+// Ex: "1,3,5" -> "D , R , Mi"
+var
+  vQuery: TFDQuery;
+  ids: TArray<string>;
+  i: Integer;
+  nomeNota: string;
+begin
+  Result := '';
+  if Trim(listaNota) = '' then Exit;
+
+  ids := listaNota.Split([',']);
+  vQuery := TFDQuery.Create(nil);
+  try
+    vQuery.Connection := dmDados.FDConexao;
+    for i := 0 to High(ids) do
+    begin
+      if Trim(ids[i]) = '' then Continue;
+      vQuery.Close;
+      vQuery.SQL.Text := 'SELECT nome FROM notas WHERE notasId = :id';
+      vQuery.ParamByName('id').AsInteger := StrToIntDef(Trim(ids[i]), 0);
+      vQuery.Open;
+      if not vQuery.IsEmpty then
+      begin
+        nomeNota := vQuery.FieldByName('nome').AsString;
+        if Result <> '' then Result := Result + ', ';
+        Result := Result + nomeNota;
+      end;
+    end;
+  finally
+    vQuery.Free;
+  end;
+end;
+
+procedure TfrmArquivos.PrepararGridImport;
+begin
+  cdsImport.Close;
+  cdsImport.FieldDefs.Clear;
+  cdsImport.FieldDefs.Add('Status',     ftString, 10);
+  cdsImport.FieldDefs.Add('Nome',       ftString, 100);
+  cdsImport.FieldDefs.Add('Tipo',       ftString, 50);
+  cdsImport.FieldDefs.Add('Tonalidade', ftString, 50);
+  cdsImport.FieldDefs.Add('Notas',      ftString, 255);
+  cdsImport.FieldDefs.Add('Descricao',  ftString, 500);
+  cdsImport.FieldDefs.Add('Erro',       ftString, 300);
+  cdsImport.CreateDataSet;
+  cdsImport.Open;
+end;
+
+function TfrmArquivos.ValidarESalvarLinha(
+  sNome, sTipo, sTonalidade, sNotas, sDescricao,
+  sCaminho, sNomeArq, sConteudo: string;
+  out msgErro: string): Boolean;
+var
+  vQuery: TFDQuery;
+  tipoId, tonalidadeId: Integer;
+  notasIds, notaNome: string;
+  notasArr: TArray<string>;
+  i: Integer;
+  oEscala: TEscalas;
+begin
+  Result  := False;
+  msgErro := '';
+  vQuery  := TFDQuery.Create(nil);
+  try
+    vQuery.Connection := dmDados.FDConexao;
+
+    // Busca tipoId
+    vQuery.SQL.Text := 'SELECT tipoEscalaId FROM tipoEscala WHERE LOWER(nome) = LOWER(:nome)';
+    vQuery.ParamByName('nome').AsString := sTipo;
+    vQuery.Open;
+    if vQuery.IsEmpty then
+    begin
+      msgErro := 'Tipo "' + sTipo + '" não encontrado no banco';
+      Exit;
+    end;
+    tipoId := vQuery.FieldByName('tipoEscalaId').AsInteger;
+
+    // Busca tonalidadeId
+    vQuery.Close;
+    vQuery.SQL.Text := 'SELECT tonalidadeId FROM tonalidades WHERE LOWER(nome) = LOWER(:nome)';
+    vQuery.ParamByName('nome').AsString := sTonalidade;
+    vQuery.Open;
+    if vQuery.IsEmpty then
+    begin
+      msgErro := 'Tonalidade "' + sTonalidade + '" não encontrada no banco';
+      Exit;
+    end;
+    tonalidadeId := vQuery.FieldByName('tonalidadeId').AsInteger;
+
+    // Verifica duplicidade
+    vQuery.Close;
+    vQuery.SQL.Text :=
+      'SELECT COUNT(*) AS total FROM escalas ' +
+      'WHERE LOWER(nome) = LOWER(:nome) AND tonalidadeId = :ton';
+    vQuery.ParamByName('nome').AsString := sNome;
+    vQuery.ParamByName('ton').AsInteger := tonalidadeId;
+    vQuery.Open;
+    if vQuery.FieldByName('total').AsInteger > 0 then
+    begin
+      msgErro := 'Escala "' + sNome + '" já cadastrada com essa tonalidade';
+      Exit;
+    end;
+
+    // Busca IDs das notas
+    notasIds := '';
+    notasArr := sNotas.Split([',']);
+    for i := 0 to High(notasArr) do
+    begin
+      notaNome := Trim(notasArr[i]);
+      vQuery.Close;
+      vQuery.SQL.Text := 'SELECT notasId FROM notas WHERE LOWER(nome) = LOWER(:nome)';
+      vQuery.ParamByName('nome').AsString := notaNome;
+      vQuery.Open;
+      if vQuery.IsEmpty then
+      begin
+        msgErro := 'Nota "' + notaNome + '" não encontrada no banco';
+        Exit;
+      end;
+      if notasIds <> '' then notasIds := notasIds + ',';
+      notasIds := notasIds + vQuery.FieldByName('notasId').AsString;
+    end;
+
+    // Salva
+    oEscala := TEscalas.Create(dmDados.FDConexao);
+    try
+      oEscala.nome            := sNome;
+      oEscala.tipoId          := tipoId;
+      oEscala.tonalidadeId    := tonalidadeId;
+      oEscala.listaNota       := notasIds;
+      oEscala.descricao       := sDescricao;
+      oEscala.caminhoArquivo  := sCaminho;
+      oEscala.nomeArquivo     := sNomeArq;
+      oEscala.conteudoArquivo := sConteudo;
+      Result := oEscala.Inserir;
+      if not Result then msgErro := 'Erro ao inserir no banco';
+    finally
+      oEscala.Free;
+    end;
+
+  finally
+    vQuery.Free;
+  end;
+end;
+
+procedure TfrmArquivos.AbrirImportacaoDireta;
+begin
+dlgAbrir.Filter   := 'Arquivo de Texto|*.txt';
+  dlgAbrir.FileName := '';
+
+  if dlgAbrir.Execute then
+  begin
+    PrepararGridImport;
+    LerArquivoTXT(dlgAbrir.FileName);
+    pgcPrincipal.ActivePage := tsDados; // Vai para a aba de dados
+  end;
+end;
+
+procedure TfrmArquivos.btnCancelarClick(Sender: TObject);
+begin
+  qryArquivos.Close;
+  qryArquivos.Open;
+
+  pgcPrincipal.ActivePage := tsConsulta;
+end;
+
+procedure TfrmArquivos.btnExportarClick(Sender: TObject);
+var
+  linhas: TStringList;
+  nomeEscala, tipoEscala, tonalidade, notasIds, nomesNotas, descricao: string;
+  linha: string;
+  posicaoAtual: TBookmark;
+begin
+  if qryArquivos.IsEmpty then
+  begin
+    ShowMessage('Não a dados para exportar!');
+    Exit;
+  end;
+
+  dlgSalvar.Title      := 'Exportar escalas para TXT';
+  dlgSalvar.Filter     := 'Arquivo de Texto|*.txt';
+  dlgSalvar.DefaultExt := 'txt';
+  dlgSalvar.FileName   := 'EscalasMusicais_' + FormatDateTime('YYYYMMDD_HHmmss', Now);
+
+  if not dlgSalvar.Execute then Exit;
+
+  linhas := TStringList.Create;
+  try
+    posicaoAtual := qryArquivos.GetBookmark;
+    try
+      qryArquivos.DisableControls;
+      qryArquivos.First;
+
+      while not qryArquivos.Eof do
+      begin
+        nomeEscala  := qryArquivos.FieldByName('nome').AsString;
+        tipoEscala  := qryArquivos.FieldByName('tipoEscala').AsString;
+        tonalidade  := qryArquivos.FieldByName('tonalidade').AsString;
+        notasIds    := qryArquivos.FieldByName('listaNota').AsString;
+        descricao   := qryArquivos.FieldByName('descricao').AsString;
+
+        // Converte IDs das notas para nomes
+        nomesNotas := ObterNomesNotas(notasIds);
+
+        // Monta a linha no formato: Nome | Tipo | Tonalidade | Notas | Descri  o
+        linha := nomeEscala  + ' | ' +
+                 tipoEscala  + ' | ' +
+                 tonalidade  + ' | ' +
+                 nomesNotas  + ' | ' +
+                 descricao;
+
+        linhas.Add(linha);
+        qryArquivos.Next;
+      end;
+
+    finally
+      // Restaura a posi  o e habilita controles
+      qryArquivos.GotoBookmark(posicaoAtual);
+      qryArquivos.FreeBookmark(posicaoAtual);
+      qryArquivos.EnableControls;
+    end;
+
+    // Grava o arquivo em UTF-8
+    linhas.SaveToFile(dlgSalvar.FileName, TEncoding.UTF8);
+
+    ShowMessage(
+      'Exportação concluida com sucesso!' + sLineBreak +
+      IntToStr(linhas.Count) + ' escala(s) exportada(s).' + sLineBreak +
+      'Arquivo: ' + dlgSalvar.FileName
+    );
+
+  finally
+    linhas.Free;
+  end;
+end;
+
+procedure TfrmArquivos.btnFecharClick(Sender: TObject);
+begin
+  Close;
+end;
+
+procedure TfrmArquivos.btnImportarClick(Sender: TObject);
+begin
+  AbrirImportacaoDireta;
+end;
+
+procedure TfrmArquivos.btnSalvarClick(Sender: TObject);
+var
+  msgErro: string;
+  salvos, erros: Integer;
+  resumoErros: TStringList;
+  msg: string;
+  i: Integer;
+begin
+  if cdsImport.IsEmpty then
+  begin
+    ShowMessage('Nenhuma linha para salvar!');
+    Exit;
+  end;
+
+  salvos      := 0;
+  erros       := 0;
+  resumoErros := TStringList.Create;
+  try
+    cdsImport.DisableControls;
+    try
+      cdsImport.First;
+      while not cdsImport.Eof do
+      begin
+        if cdsImport.FieldByName('Status').AsString = 'ERRO' then
+        begin
+          Inc(erros);
+          // Já tem erro de formato — registra no resumo
+          resumoErros.Add('• ' + cdsImport.FieldByName('Nome').AsString +
+            ': ' + cdsImport.FieldByName('Erro').AsString);
+          cdsImport.Next;
+          Continue;
+        end;
+
+      if ValidarESalvarLinha(
+        cdsImport.FieldByName('Nome').AsString,
+        cdsImport.FieldByName('Tipo').AsString,
+        cdsImport.FieldByName('Tonalidade').AsString,
+        cdsImport.FieldByName('Notas').AsString,
+        cdsImport.FieldByName('Descricao').AsString,
+        dlgAbrir.FileName,
+        ExtractFileName(dlgAbrir.FileName),
+        '',
+        msgErro) then
+        begin
+          Inc(salvos);
+          cdsImport.Edit;
+          cdsImport.FieldByName('Status').AsString := 'SALVO';
+          cdsImport.FieldByName('Erro').AsString   := '';
+          cdsImport.Post;
+        end
+        else
+        begin
+          Inc(erros);
+          // Registra no resumo com o nome da escala + motivo
+          resumoErros.Add('• ' + cdsImport.FieldByName('Nome').AsString +
+            ': ' + msgErro);
+          cdsImport.Edit;
+          cdsImport.FieldByName('Status').AsString := 'ERRO';
+          cdsImport.FieldByName('Erro').AsString   := msgErro;
+          cdsImport.Post;
+        end;
+
+        cdsImport.Next;
+      end;
+    finally
+      cdsImport.EnableControls;
+    end;
+
+    CarregarDados;
+
+    // Monta mensagem final detalhada
+    msg := 'Registro da Importação!' + #13#10 +
+               'Salvos: ' + IntToStr(salvos) + #13#10 +
+               'Erros:  ' + IntToStr(erros);
+
+    if resumoErros.Count > 0 then
+      msg := msg + #13#10 + #13#10 +
+             'Detalhes dos erros:' + #13#10 +
+             resumoErros.Text;
+
+    ShowMessage(msg);
+
+  finally
+    resumoErros.Free;
+  end;
+  pgcPrincipal.ActivePage := tsConsulta;
+end;
+
+procedure TfrmArquivos.LerArquivoTXT(caminho: string);
+var
+  linhas: TStringList;
+  partes: TArray<string>;
+  i: Integer;
+  sNome, sTipo, sTonalidade, sNotas, sDescricao, erro, status: string;
+begin
+  linhas := TStringList.Create;
+  try
+    linhas.LoadFromFile(caminho, TEncoding.UTF8);
+
+    if linhas.Count = 0 then
+    begin
+      ShowMessage('Arquivo vazio!');
+      Exit;
+    end;
+
+    for i := 0 to linhas.Count - 1 do
+    begin
+      if Trim(linhas[i]) = '' then Continue; // ignora linhas em branco
+
+      partes := linhas[i].Split(['|']);
+
+      // Linha com formato inválido
+      if Length(partes) <> 5 then
+      begin
+        cdsImport.Append;
+        cdsImport.FieldByName('Status').AsString  := 'ERRO';
+        cdsImport.FieldByName('Nome').AsString    := Trim(linhas[i]);
+        cdsImport.FieldByName('Erro').AsString    :=
+          'Formato inválido: precisa de 5 campos separados por "|"';
+        cdsImport.Post;
+        Continue;
+      end;
+
+      sNome       := Trim(partes[0]);
+      sTipo       := Trim(partes[1]);
+      sTonalidade := Trim(partes[2]);
+      sNotas      := Trim(partes[3]);
+      sDescricao  := Trim(partes[4]);
+
+      // Valida campos obrigatórios
+      erro := '';
+      if sNome = ''       then erro := 'Nome vazio';
+      if sTipo = ''       then erro := erro + IfThen(erro<>'', ' | ') + 'Tipo vazio';
+      if sTonalidade = '' then erro := erro + IfThen(erro<>'', ' | ') + 'Tonalidade vazia';
+      if sNotas = ''      then erro := erro + IfThen(erro<>'', ' | ') + 'Notas vazias';
+
+      if erro <> '' then status := 'ERRO' else status := 'OK';
+
+      cdsImport.Append;
+      cdsImport.FieldByName('Status').AsString     := status;
+      cdsImport.FieldByName('Nome').AsString       := sNome;
+      cdsImport.FieldByName('Tipo').AsString       := sTipo;
+      cdsImport.FieldByName('Tonalidade').AsString := sTonalidade;
+      cdsImport.FieldByName('Notas').AsString      := sNotas;
+      cdsImport.FieldByName('Descricao').AsString  := sDescricao;
+      cdsImport.FieldByName('Erro').AsString       := erro;
+      cdsImport.Post;
+    end;
+
+  finally
+    linhas.Free;
+  end;
+end;
+
+procedure TfrmArquivos.LimparEdits;
+var i, j: Integer;
+begin
+  for i := 0 to ComponentCount - 1 do begin
+    if (Components[i] is TLabeledEdit) then
+      TLabeledEdit(Components[i]).Text := EmptyStr
+    else if (Components[i] is TEdit) then
+      TEdit(Components[i]).Text := ''
+    else if (Components[i] is TMemo) then
+      TMemo(Components[i]).Text := ''
+    else if (Components[i] is TDBLookupComboBox) then
+      TDBLookupComboBox(Components[i]).KeyValue := null
+    else if (Components[i] is TCurrencyEdit) then
+      TCurrencyEdit(Components[i]).Value := 0
+    else if (Components[i] is TDateEdit) then
+      TDateEdit(Components[i]).Date := 0
+    else if (Components[i] is TMaskEdit) then
+      TMaskEdit(Components[i]).Text := ''
+    else if (Components[i] is TCheckListBox) then
+    begin
+      for j := 0 to TCheckListBox(Components[i]).Items.Count - 1 do
+        TCheckListBox(Components[i]).Checked[j] := False;
+    end;
+  end;
+end;
+
+procedure TfrmArquivos.SalvarConfiguracaoGrid(pGrid: TDBGrid);
+var
+  Ini: TIniFile;
+  i: Integer;
+  NomeArquivo: string;
+begin
+  // Agora o nome é fixo, salvando na pasta do executável
+  NomeArquivo := ExtractFilePath(Application.ExeName) + 'config_grids.ini';
+
+  Ini := TIniFile.Create(NomeArquivo);
+  try
+    for i := 0 to pGrid.Columns.Count - 1 do
+    begin
+      // Usamos o Self.Name (Nome da Tela) + Nome do Grid para não misturar as telas
+      Ini.WriteInteger(Self.Name + '_' + pGrid.Name + '_Width', pGrid.Columns[i].FieldName, pGrid.Columns[i].Width);
+      Ini.WriteInteger(Self.Name + '_' + pGrid.Name + '_Index', pGrid.Columns[i].FieldName, pGrid.Columns[i].Index);
+      Ini.WriteBool(Self.Name + '_' + pGrid.Name + '_Visible',  pGrid.Columns[i].FieldName, pGrid.Columns[i].Visible);
+    end;
+  finally
+    Ini.Free;
+  end;
+end;
+
+procedure TfrmArquivos.CarregarConfiguracaoGrid(pGrid: TDBGrid);
+var
+  Ini: TIniFile;
+  i, vPos: Integer;
+  NomeArquivo: string;
+  vFieldName: string;
+  vSecao: string;
+begin
+  NomeArquivo := ExtractFilePath(Application.ExeName) + 'config_grids.ini';
+
+  if not FileExists(NomeArquivo) then Exit;
+
+  vSecao := Self.Name + '_' + pGrid.Name;
+  Ini := TIniFile.Create(NomeArquivo);
+  try
+    // 1º Passo: Ajusta Largura e Visibilidade
+    for i := 0 to pGrid.Columns.Count - 1 do
+    begin
+      vFieldName := pGrid.Columns[i].FieldName;
+      pGrid.Columns[i].Width := Ini.ReadInteger(vSecao + '_Width', vFieldName, pGrid.Columns[i].Width);
+      pGrid.Columns[i].Visible := Ini.ReadBool(vSecao + '_Visible', vFieldName, pGrid.Columns[i].Visible);
+    end;
+
+    // 2º Passo: Restaura a Ordem das colunas
+    for i := 0 to pGrid.Columns.Count - 1 do
+    begin
+      for vPos := 0 to pGrid.Columns.Count - 1 do
+      begin
+        vFieldName := pGrid.Columns[vPos].FieldName;
+        if Ini.ReadInteger(vSecao + '_Index', vFieldName, -1) = i then
+        begin
+          pGrid.Columns[vPos].Index := i;
+          Break;
+        end;
+      end;
+    end;
+  finally
+    Ini.Free;
+  end;
+end;
+
+end.
+

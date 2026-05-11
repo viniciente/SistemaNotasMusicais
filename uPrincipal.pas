@@ -9,32 +9,37 @@ uses
 
 type
   TfrmPrincipal = class(TForm)
+    pnlFundo: TPanel;
+    pnlImgPiano: TPanel;
+    Image1: TImage;
     MainMenu1: TMainMenu;
     CADASTRO1: TMenuItem;
     ESCALAMUSICAL1: TMenuItem;
-    ONALIDADES1: TMenuItem;
-    NOTAS1: TMenuItem;
     N1: TMenuItem;
-    N2: TMenuItem;
-    N3: TMenuItem;
-    FECHAR1: TMenuItem;
-    N4: TMenuItem;
+    ONALIDADE1: TMenuItem;
     IPOESCALA1: TMenuItem;
+    NOTAS1: TMenuItem;
+    N2: TMenuItem;
+    FECHAR1: TMenuItem;
     ARQUIVOS1: TMenuItem;
     IMPORTAOEXPORTAO1: TMenuItem;
-    pnlFundo: TPanel;
-    PnlBtnExportar: TPanel;
-    Button2: TButton;
-    pnlImgPiano: TPanel;
-    pnlBtnImportar: TPanel;
-    Button1: TButton;
-    Image1: TImage;
+    PnlBtnImportar: TPanel;
+    lblImportTitulo: TLabel;
+    Label1: TLabel;
+    Image2: TImage;
+    PnlExportar: TPanel;
+    Label2: TLabel;
+    Label3: TLabel;
+    Image3: TImage;
     procedure FECHAR1Click(Sender: TObject);
     procedure NOTAS1Click(Sender: TObject);
-    procedure ONALIDADES1Click(Sender: TObject);
     procedure ESCALAMUSICAL1Click(Sender: TObject);
-    procedure TIPOESCALA1Click(Sender: TObject);
     procedure IMPORTAOEXPORTAO1Click(Sender: TObject);
+    procedure ONALIDADE1Click(Sender: TObject);
+    procedure IPOESCALA1Click(Sender: TObject);
+    procedure FormCreate(Sender: TObject);
+    procedure PnlBtnImportarClick(Sender: TObject);
+    procedure PnlExportarClick(Sender: TObject);
   private
     { Private declarations }
   public
@@ -65,6 +70,12 @@ begin
   Application.Terminate;
 end;
 
+procedure TfrmPrincipal.FormCreate(Sender: TObject);
+begin
+  lblImportTitulo.Font.Color := $00FF5EB1;
+  lblImportTitulo.Font.Style := [fsBold];
+end;
+
 procedure TfrmPrincipal.IMPORTAOEXPORTAO1Click(Sender: TObject);
 var
   frmArquivos: TfrmArquivos;
@@ -77,7 +88,7 @@ begin
   end;
 end;
 
-procedure TfrmPrincipal.TIPOESCALA1Click(Sender: TObject);
+procedure TfrmPrincipal.IPOESCALA1Click(Sender: TObject);
 var
   frmTipoEscala: TfrmCadTipoEscala;
 begin
@@ -101,7 +112,7 @@ begin
   end;
 end;
 
-procedure TfrmPrincipal.ONALIDADES1Click(Sender: TObject);
+procedure TfrmPrincipal.ONALIDADE1Click(Sender: TObject);
 var frmTonalidades : TfrmCadTonalidades;
 begin
   frmTonalidades := TfrmCadTonalidades.Create(Application);
@@ -109,6 +120,31 @@ begin
     frmTonalidades.ShowModal;
   finally
     frmTonalidades.Free;
+  end;
+end;
+
+procedure TfrmPrincipal.PnlBtnImportarClick(Sender: TObject);
+begin
+  // 1. Verifica se a tela já não está criada (se você não usa auto-create)
+  if not Assigned(frmArquivos) then
+    Application.CreateForm(TfrmArquivos, frmArquivos);
+
+  // 2. Exibe a tela primeiro (para o usuário ver onde os dados vão cair)
+  frmArquivos.Show;
+
+  // 3. Dispara o explorer automaticamente
+  frmArquivos.AbrirImportacaoDireta;
+end;
+
+procedure TfrmPrincipal.PnlExportarClick(Sender: TObject);
+var
+  frmArquivos: TfrmArquivos;
+begin
+  frmArquivos := TfrmArquivos.Create(Application);
+  try
+    frmArquivos.ShowModal;
+  finally
+    frmArquivos.Free;
   end;
 end;
 

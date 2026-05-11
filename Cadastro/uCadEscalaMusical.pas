@@ -48,7 +48,7 @@ type
     qryPrincipaldescricao: TStringField;
     qryPrincipalcaminhoArquivo: TStringField;
     qryPrincipalnomeArquivo: TStringField;
-    qryPrincipalconteudoArquivo: TStringField;
+    qryPrincipalnotasNomes: TWideMemoField;
     procedure btnEditarClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure FormShow(Sender: TObject);
@@ -66,6 +66,7 @@ type
     function Apagar: Boolean; override;
     procedure ImportarArquivoTXT(caminho: string);
     procedure FiltrarDados;
+    procedure NotasNomesGetText(Sender: TField; var Text: string; DisplayText: Boolean);
   end;
 
 var
@@ -76,10 +77,14 @@ implementation
 {$R *.dfm}
 
 procedure TfrmCadEscalaMusical.FormCreate(Sender: TObject);
-var i : Integer;
+var
+  fld: TStringField;
+  col: TColumn;
+  i : Integer;
 begin
   inherited;
   oEscala := TEscalas.Create(dmDados.FDConexao);
+  qryPrincipalnotasNomes.OnGetText := NotasNomesGetText;
 end;
 
 procedure TfrmCadEscalaMusical.FormShow(Sender: TObject);
@@ -91,7 +96,7 @@ begin
   qryPesqTonalidades.Open;
   qryPesqTipoEscala.Open;
 
-  qryPrincipal.Open;
+  FiltrarDados;
   CarregarNotas;
 end;
 
@@ -125,6 +130,11 @@ begin
     notaId := Integer(clbNotas.Items.Objects[i]);
     clbNotas.Checked[i] := IndexStr(IntToStr(notaId), ids) >= 0;
   end;
+end;
+
+procedure TfrmCadEscalaMusical.NotasNomesGetText(Sender: TField; var Text: string; DisplayText: Boolean);
+begin
+  Text := Sender.AsString;
 end;
 
 function TfrmCadEscalaMusical.PegarNotasMarcadas: string;
@@ -181,13 +191,12 @@ begin
     vQuery.Connection := dmDados.FDConexao;
     vQuery.SQL.Text :=
       'SELECT COUNT(*) AS total FROM escalas ' +
-      'WHERE LOWER(nome) = LOWER(:nome) ' +
+      'WHERE tipoId = :tipo ' +
       'AND tonalidadeId = :ton ' +
       'AND escalaId <> :id';
 
-    // Define os tipos explicitamente antes de atribuir os valores
-    vQuery.ParamByName('nome').DataType := ftString;
-    vQuery.ParamByName('nome').AsString := Trim(edtNome.Text);
+    vQuery.ParamByName('tipo').DataType  := ftInteger;
+    vQuery.ParamByName('tipo').AsInteger := Integer(lkpTipoEscala.KeyValue);
 
     vQuery.ParamByName('ton').DataType  := ftInteger;
     vQuery.ParamByName('ton').AsInteger := Integer(lkpTonalidade.KeyValue);
@@ -202,7 +211,7 @@ begin
 
     if vQuery.FieldByName('total').AsInteger > 0 then
     begin
-      ShowMessage('Já existe a escala "' + Trim(edtNome.Text) + '" cadastrada com essa tonalidade!');
+      ShowMessage('Já existe uma escala com esse tipo e tonalidade cadastrados!');
       Exit;
     end;
   finally
@@ -347,13 +356,13 @@ begin
       vQuery.Close;
       vQuery.SQL.Text :=
         'SELECT COUNT(*) AS total FROM escalas ' +
-        'WHERE LOWER(nome) = LOWER(:nome) AND tonalidadeId = :tonalidade';
-      vQuery.ParamByName('nome').AsString := sNome;
+        'WHERE tipoId = :tipo AND tonalidadeId = :tonalidade';
+      vQuery.ParamByName('tipo').AsInteger      := tipoId;
       vQuery.ParamByName('tonalidade').AsInteger := tonalidadeId;
       vQuery.Open;
       if vQuery.FieldByName('total').AsInteger > 0 then
       begin
-        ShowMessage('Já existe a escala "' + sNome + '" com essa tonalidade!');
+        ShowMessage('Já existe uma escala com esse tipo e tonalidade cadastrados!');
         Exit;
       end;
 
@@ -407,9 +416,16 @@ var
 begin
   vSQL :=
     'SELECT e.escalaId, e.nome, t.nome AS tonalidade, te.nome AS tipoEscala, ' +
-    '       e.descricao, e.caminhoArquivo, e.nomeArquivo, e.conteudoArquivo ' +
+    '       e.descricao, e.caminhoArquivo, e.nomeArquivo, ' +
+    '       STUFF( ' +
+    '         (SELECT '', '' + n.nome ' +
+    '            FROM notas n ' +
+    '           WHERE CHARINDEX('','' + CAST(n.notasId AS VARCHAR) + '','', ' +
+    '                           '','' + e.listaNota + '','') > 0 ' +
+    '           FOR XML PATH(''''), TYPE).value(''.'', ''NVARCHAR(MAX)''), ' +
+    '         1, 2, '''') AS notasNomes ' +
     'FROM escalas e ' +
-    'INNER JOIN tonalidades t ON t.tonalidadeId = e.tonalidadeId ' +
+    'INNER JOIN tonalidades t  ON t.tonalidadeId  = e.tonalidadeId ' +
     'INNER JOIN tipoEscala te ON te.tipoEscalaId = e.tipoId ' +
     'WHERE 1=1 ';
 

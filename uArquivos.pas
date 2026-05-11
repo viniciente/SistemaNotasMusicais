@@ -51,11 +51,13 @@ type
     procedure btnCancelarClick(Sender: TObject);
     procedure btnImportarClick(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
+    procedure DBGrid1DrawColumnCell(Sender: TObject; const Rect: TRect; DataCol: Integer; Column: TColumn;
+      State: TGridDrawState);
   private
     procedure CarregarDados;
     function ObterNomesNotas(listaNota: string): string;
     procedure LimparEdits;
-    procedure CentralizarColunas;
+    procedure CentralizarColunas(pGrid: TDBGrid);
     procedure PrepararGridImport;
     procedure LerArquivoTXT(caminho: string);
     function ValidarESalvarLinha(
@@ -63,9 +65,10 @@ type
   sCaminho, sNomeArq, sConteudo: string;
   out msgErro: string): Boolean;
     procedure CarregarConfiguracaoGrid(pGrid: TDBGrid);
-
-    procedure SalvarConfiguracaoGrid(pGrid: TDBGrid);  public
+    procedure SalvarConfiguracaoGrid(pGrid: TDBGrid);
+  public
     { Public declarations }
+    procedure AbrirImportacaoDireta;
   end;
 
 var
@@ -110,8 +113,13 @@ begin
   begin
     dbGridConsulta.Columns[i].Title.Font.Color := $00FF5EB1;
     dbGridConsulta.Columns[i].Title.Font.Style := [fsBold];
-    //DBGrid1.Columns[i].Title.Font.Color := $00FF5EB1
   end;
+
+//  for i := 0 to DBGrid1.Columns.Count- 1 do
+//  begin
+//    DBGrid1.Columns[i].Title.Font.Color := $00FF5EB1;
+//    DBGrid1.Columns[i].Title.Font.Style := [fsBold];
+//  end;
 
   fld := TStringField.Create(qryArquivos);
   fld.FieldName  := 'nomesNotas';
@@ -120,22 +128,34 @@ begin
   fld.Size       := 500;
   fld.DataSet    := qryArquivos;
 
-  CentralizarColunas;
+ CentralizarColunas(dbGridConsulta);
+ CentralizarColunas(DBgrid1);
   PrepararGridImport;
 end;
 
-procedure TfrmArquivos.CentralizarColunas;
+procedure TfrmArquivos.CentralizarColunas(pGrid: TDBGrid);
 var
   I: Integer;
 begin
-  for I := 0 to dbGridConsulta.Columns.Count - 1 do
-  begin
-    // Centraliza o texto das linhas
-    dbGridConsulta.Columns[I].Alignment := taCenter;
+  // Verificamos se o grid foi atribuído para evitar erros
+  if not Assigned(pGrid) then Exit;
 
-    // Centraliza o texto do título
-    dbGridConsulta.Columns[I].Title.Alignment := taCenter;
+  for I := 0 to pGrid.Columns.Count - 1 do
+  begin
+    // Centraliza o texto das linhas (conteúdo)
+    pGrid.Columns[I].Alignment := taCenter;
+
+    // Centraliza o texto do título (cabeçalho)
+    pGrid.Columns[I].Title.Alignment := taCenter;
   end;
+end;
+
+procedure TfrmArquivos.DBGrid1DrawColumnCell(Sender: TObject; const Rect: TRect; DataCol: Integer; Column: TColumn;
+  State: TGridDrawState);
+var I: Integer;
+begin
+  for I := 0 to DBGrid1.Columns.Count - 1 do
+    DBGrid1.Columns[I].Title.Alignment := taCenter;
 end;
 
 procedure TfrmArquivos.FormShow(Sender: TObject);
@@ -145,6 +165,7 @@ begin
 end;
 
 procedure TfrmArquivos.CarregarDados;
+var i: Integer;
 begin
   qryArquivos.Close;
   qryArquivos.Open;
@@ -295,6 +316,20 @@ begin
     vQuery.Free;
   end;
 end;
+
+procedure TfrmArquivos.AbrirImportacaoDireta;
+begin
+dlgAbrir.Filter   := 'Arquivo de Texto|*.txt';
+  dlgAbrir.FileName := '';
+
+  if dlgAbrir.Execute then
+  begin
+    PrepararGridImport;
+    LerArquivoTXT(dlgAbrir.FileName);
+    pgcPrincipal.ActivePage := tsDados; // Vai para a aba de dados
+  end;
+end;
+
 procedure TfrmArquivos.btnCancelarClick(Sender: TObject);
 begin
   qryArquivos.Close;
@@ -380,15 +415,7 @@ end;
 
 procedure TfrmArquivos.btnImportarClick(Sender: TObject);
 begin
-  dlgAbrir.Filter   := 'Arquivo de Texto|*.txt';
-  dlgAbrir.FileName := '';
-
-  if dlgAbrir.Execute then
-  begin
-    PrepararGridImport;
-    LerArquivoTXT(dlgAbrir.FileName);
-    pgcPrincipal.ActivePage := tsDados;
-  end;
+  AbrirImportacaoDireta;
 end;
 
 procedure TfrmArquivos.btnSalvarClick(Sender: TObject);
@@ -397,6 +424,7 @@ var
   salvos, erros: Integer;
   resumoErros: TStringList;
   msg: string;
+  i: Integer;
 begin
   if cdsImport.IsEmpty then
   begin
@@ -406,7 +434,7 @@ begin
 
   salvos      := 0;
   erros       := 0;
-  resumoErros := TStringList.Create;  // ← adiciona
+  resumoErros := TStringList.Create;
   try
     cdsImport.DisableControls;
     try

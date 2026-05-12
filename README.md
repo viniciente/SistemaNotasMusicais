@@ -2,7 +2,7 @@
 
 ## 🎵 Objetivo
 
-Sistema de gestão de escalas musicais com suporte completo para entrada e saída de dados em arquivos TXT. Este projeto implementa um desafio de processamento de dados musicais, permitindo catalogar, importar e exportar escalas musicais com suas tonalidades e notas correspondentes.
+Sistema de gestão de escalas musicais com suporte completo para entrada e saída de dados em arquivos TXT. Este projeto implementa um desafio de processamento de dados musicais, permitindo catalogação, importação e exportação de escalas musicais com validação completa.
 
 **Desafio:** Sistema de Notas Musicais | **Entrada:** TXT | **Saída:** TXT
 
@@ -22,7 +22,7 @@ Sistema de gestão de escalas musicais com suporte completo para entrada e saíd
 
 | Tecnologia | Versão | Função |
 |-----------|--------|--------|
-| **Delphi/Pascal** | - | Linguagem Pascal |
+| **Delphi/Pascal** | - | Linguagem de programação |
 | **FireDAC** | - | Acesso a banco de dados com suporte multi-plataforma |
 | **SQL Server** | - | Persistência de dados de escalas e referências |
 | **VCL (Visual Component Library)** | - | Framework de componentes visuais |
@@ -43,33 +43,216 @@ Sistema de gestão de escalas musicais com suporte completo para entrada e saíd
 
 ### Pré-requisitos
 
-- Banco de dados SQL Server configurado
-- Arquivo `Project2.exe`
-- 
+- **Delphi** instalado (versão 10.0 ou superior recomendada)
+- **SQL Server** configurado e acessível
+- Arquivo `Project2.dproj` (projeto Delphi)
+- Arquivo de configuração `config.ini` (gerado automaticamente na primeira execução)
 
 ### Passos para Execução
 
-1. **Abra o projeto no Delphi:**
-   ```bash
-   delphi Project2.dproj
-   ```
+#### 1️⃣ **Abra o projeto no Delphi**
 
-2. **Configure a conexão do banco de dados:**
-   - Acesse `DataModule/dmDados.pas`
-   - Configure as credenciais de conexão FireDAC
+```bash
+delphi Project2.dproj
+```
 
-3. **Compile o projeto:**
-   - Pressione `Ctrl+Shift+F9` (Build All) no Delphi
-   - Ou acesse Menu → Project → Build Project
+#### 2️⃣ **Inicialização da Conexão com o Banco de Dados**
 
-4. **Execute o aplicativo:**
-   - Pressione `F9` ou clique no botão Run
-   - A tela principal (`uPrincipal`) será exibida
+Quando o aplicativo é iniciado, o **DataModule** (`uDmDados.pas`) executa automaticamente dois procedimentos essenciais:
 
-5. **Popule o banco com dados iniciais:**
-   - Acesse **Cadastro → Notas** para criar as notas musicais
-   - Acesse **Cadastro → Tonalidades** para adicionar tonalidades
-   - Acesse **Cadastro → Tipo Escala** para definir os tipos
+**A. `ConfigurarConexaoDinamicamente` (executado primeiro)**
+
+Este procedimento configura dinamicamente os parâmetros de conexão:
+
+```pascal
+procedure TdmDados.ConfigurarConexaoDinamicamente;
+var
+  LIni: TIniFile;
+  CaminhoArquivo: string;
+begin
+  // 1. Define o caminho do arquivo config.ini (mesma pasta do executável)
+  CaminhoArquivo := ExtractFilePath(ParamStr(0)) + 'config.ini';
+  
+  LIni := TIniFile.Create(CaminhoArquivo);
+  try
+    // 2. Se o arquivo NÃO existe, cria com valores padrão
+    if not FileExists(CaminhoArquivo) then
+    begin
+      LIni.WriteString('BANCO', 'Servidor', 'DC-TR-06-VM\SERVERCURSO');
+      LIni.WriteString('BANCO', 'NomeBanco', 'NotasMusicais');
+      LIni.WriteString('BANCO', 'AutenticacaoWindows', 'Yes');
+    end;
+    
+    // 3. Lê os parâmetros do arquivo config.ini
+    FDConexao.Params.Values['Server']   := LIni.ReadString('BANCO', 'Servidor', 'localhost');
+    FDConexao.Params.Values['Database'] := LIni.ReadString('BANCO', 'NomeBanco', 'NotasMusicais');
+    FDConexao.Params.Values['OSAuthent'] := LIni.ReadString('BANCO', 'AutenticacaoWindows', 'Yes');
+    
+    FDConexao.LoginPrompt := False;
+  finally
+    LIni.Free;
+  end;
+end;
+```
+
+**O que este procedimento faz:**
+- ✅ Busca o arquivo `config.ini` na pasta do executável
+- ✅ Se não existir, cria um com valores padrão
+- ✅ Lê servidor, banco de dados e tipo de autenticação do `config.ini`
+- ✅ Configura a conexão FireDAC dinamicamente
+
+**Arquivo `config.ini` (gerado automaticamente):**
+```ini
+[BANCO]
+Servidor=DC-TR-06-VM\SERVERCURSO
+NomeBanco=NotasMusicais
+AutenticacaoWindows=Yes
+```
+
+**Para alterar servidor ou banco, edite este arquivo.**
+
+---
+
+**B. `ConfigurarBancoInicial` (executado logo após)**
+
+Este procedimento prepara o banco de dados:
+
+```pascal
+procedure TdmDados.ConfigurarBancoInicial;
+var
+  BancoOriginal: string;
+begin
+  try
+    BancoOriginal := FDConexao.Params.Database;
+    
+    // 1. Conecta ao banco 'master' temporariamente
+    FDConexao.Params.Database := 'master';
+    FDConexao.Connected := True;
+    
+    // 2. Cria o banco NotasMusicais se não existir
+    FDConexao.ExecSQL('IF NOT EXISTS (SELECT * FROM sys.databases WHERE name = ' + 
+                      QuotedStr(BancoOriginal) + ') CREATE DATABASE ' + BancoOriginal);
+    
+    // 3. Desconecta e reconecta no banco correto
+    FDConexao.Connected := False;
+    FDConexao.Params.Database := BancoOriginal;
+    FDConexao.Connected := True;
+    
+    // 4. Cria as tabelas se não existirem:
+    
+    // Tabela: NOTAS (12 notas musicais)
+    FDConexao.ExecSQL('IF NOT EXISTS (SELECT * FROM sys.objects WHERE name = ''notas'') 
+      CREATE TABLE notas (
+        notasId int identity (1,1) primary key,
+        nome varchar(50) not null unique
+      );');
+    
+    // Tabela: TIPOESCALA (tipos de escalas disponíveis)
+    FDConexao.ExecSQL('IF NOT EXISTS (SELECT * FROM sys.objects WHERE name = ''tipoEscala'')
+      CREATE TABLE tipoEscala (
+        tipoEscalaId int identity (1,1) primary key,
+        nome Varchar(30) not null unique
+      );');
+    
+    // Tabela: TONALIDADES (tonalidades de cada nota)
+    FDConexao.ExecSQL('IF NOT EXISTS (SELECT * FROM sys.objects WHERE name = ''tonalidades'')
+      CREATE TABLE tonalidades (
+        tonalidadeId int identity (1,1) primary key,
+        notaId int not null,
+        nome varchar(50) not null unique,
+        constraint FK_Tonalidade_Nota foreign key (notaId) references notas(notasId)
+      );');
+    
+    // Tabela: ESCALAS (escalas musicais cadastradas)
+    FDConexao.ExecSQL('IF NOT EXISTS (SELECT * FROM sys.objects WHERE name = ''escalas'')
+      CREATE TABLE escalas (
+        escalaId int identity (1,1) primary key,
+        nome varchar(100) not null,
+        tonalidadeId int not null,
+        tipoId int not null,
+        listaNota varchar(255) not null,
+        descricao varchar(500),
+        constraint FK_Escalas_Tonalidade foreign key (tonalidadeId) references tonalidades(tonalidadeId),
+        constraint FK_Escalas_TipoEscala foreign key (tipoId) references tipoEscala(tipoEscalaId)
+      );');
+    
+    // 5. Insere dados iniciais (notas, tipos, tonalidades)
+    
+    // 12 notas chromáticas
+    FDConexao.ExecSQL('IF NOT EXISTS (SELECT TOP 1 1 FROM notas)
+      INSERT INTO notas (nome) VALUES 
+        (''Dó''), (''Dó#''), (''Ré''), (''Ré#''), (''Mi''), (''Fá''), 
+        (''Fá#''), (''Sol''), (''Sol#''), (''Lá''), (''Lá#''), (''Si'');');
+    
+    // 8 tipos de escalas
+    FDConexao.ExecSQL('IF NOT EXISTS (SELECT TOP 1 1 FROM tipoEscala)
+      INSERT INTO tipoEscala (nome) VALUES 
+        (''Maior''), (''Menor Natural''), (''Menor Harmônica''), (''Menor Melódica''),
+        (''Pentatônica Maior''), (''Pentatônica Menor''), (''Blues''), (''Cromática'');');
+    
+    // Tonalidades de cada nota
+    FDConexao.ExecSQL('IF NOT EXISTS (SELECT TOP 1 1 FROM tonalidades)
+      INSERT INTO tonalidades (notaId, nome) SELECT notasId, nome + '' Maior'' FROM notas;');
+    
+  except
+    on E: Exception do
+      ShowMessage('Erro ao configurar banco de dados: ' + E.Message);
+  end;
+end;
+```
+
+**O que este procedimento faz:**
+- ✅ Cria o banco de dados `NotasMusicais` se não existir
+- ✅ Cria 4 tabelas essenciais: `notas`, `tipoEscala`, `tonalidades`, `escalas`
+- ✅ Insere dados iniciais (12 notas musicais, 8 tipos de escalas)
+- ✅ Configura chaves estrangeiras para integridade referencial
+
+**Estrutura de tabelas criadas:**
+
+| Tabela | Colunas | Função |
+|--------|---------|--------|
+| `notas` | notasId, nome | Armazena as 12 notas cromáticas (Dó, Ré, Mi...) |
+| `tipoEscala` | tipoEscalaId, nome | Tipos de escalas (Maior, Menor, Pentatônica, Blues, etc.) |
+| `tonalidades` | tonalidadeId, notaId, nome | Tonalidades musicais (associadas a cada nota) |
+| `escalas` | escalaId, nome, tonalidadeId, tipoId, listaNota, descricao | Escalas cadastradas pelo usuário |
+
+---
+
+#### 3️⃣ **Compile o projeto**
+
+No Delphi:
+
+```bash
+Ctrl + Shift + F9  # Build All
+```
+
+Ou via menu:
+```
+Menu → Project → Build Project
+```
+
+#### 4️⃣ **Execute o aplicativo**
+
+```bash
+F9  # Run
+```
+
+Ou clique no botão **Run** (▶) na toolbar do Delphi.
+
+**Na primeira execução:**
+- ✅ O arquivo `config.ini` será criado na pasta do executável
+- ✅ O banco de dados `NotasMusicais` será criado no SQL Server
+- ✅ As 4 tabelas serão criadas automaticamente
+- ✅ Dados iniciais serão inseridos
+
+#### 5️⃣ **Popule o banco com mais dados (Opcional)**
+
+Se desejado, crie tonalidades e tipos adicionais:
+
+- Acesse **Cadastro → Notas** para visualizar/criar notas musicais
+- Acesse **Cadastro → Tonalidades** para adicionar tonalidades
+- Acesse **Cadastro → Tipo Escala** para definir novos tipos
+- Acesse **Arquivos → Importar/Exportar** para carregar escalas de arquivo TXT
 
 ---
 
@@ -99,8 +282,8 @@ Nome | Tipo | Tonalidade | Notas | Descricao
 
 ```txt
 Escala Maior em Dó | Maior | Dó | Dó, Ré, Mi, Fá, Sol, Lá, Si | Escala diatônica maior
-Escala Menor em Lá | Menor | Lá | Lá, Si, Dó, Ré, Mi, Fá, Sol | Escala relativa menor
-Pentatônica Maior | Pentatônica | Sol | Sol, Lá, Si, Ré, Mi | Escala pentatônica sem 4ª e 7ª
+Escala Menor em Lá | Menor Natural | Lá | Lá, Si, Dó, Ré, Mi, Fá, Sol | Escala relativa menor
+Pentatônica Maior | Pentatônica Maior | Sol | Sol, Lá, Si, Ré, Mi | Escala pentatônica sem 4ª e 7ª
 ```
 
 ### ✅ Validações Realizadas
@@ -121,7 +304,6 @@ O sistema valida cada linha durante a importação:
 1. **Acesse a Importação:**
    - Menu: **Arquivos → Importar/Exportar**
    - Ou clique no botão **"Importar"** na tela principal
-   - Ou use o atalho **Importação Direta** (painel específico)
 
 2. **Selecione o arquivo TXT:**
    - O sistema abre um diálogo de seleção de arquivos
@@ -167,16 +349,16 @@ O sistema valida cada linha durante a importação:
 
 **Arquivo de entrada:** `escalas_entrada.txt`
 ```txt
-Escala Maior em Dó | Maior | Dó | Dó, Ré, Mi, Fá, Sol, Lá, Si | Fundamental
-Escala Menor Harmônica | Menor | Lá | Lá, Si, Dó, Ré, Mi, Fá, Sol# | Com 7ª aumentada
-Modo Dórico | Modo | Ré | Ré, Mi, Fá, Sol, Lá, Si, Dó | Segundo modo
+Escala Maior em Dó | Maior | Dó Maior | Dó, Ré, Mi, Fá, Sol, Lá, Si | Fundamental
+Escala Menor Harmônica | Menor Harmônica | Lá Maior | Lá, Si, Dó, Ré, Mi, Fá, Sol# | Com 7ª aumentada
+Modo Dórico | Menor Natural | Ré Maior | Ré, Mi, Fá, Sol, Lá, Si, Dó | Segundo modo
 ```
 
-**Arquivo de saída após exportação:** `EscalasMusicais_20260511_173000.txt`
+**Arquivo de saída após exportação:** `EscalasMusicais_20260512_173000.txt`
 ```txt
-Escala Maior em Dó | Maior | Dó | Dó, Ré, Mi, Fá, Sol, Lá, Si | Fundamental
-Escala Menor Harmônica | Menor | Lá | Lá, Si, Dó, Ré, Mi, Fá, Sol# | Com 7ª aumentada
-Modo Dórico | Modo | Ré | Ré, Mi, Fá, Sol, Lá, Si, Dó | Segundo modo
+Escala Maior em Dó | Maior | Dó Maior | Dó, Ré, Mi, Fá, Sol, Lá, Si | Fundamental
+Escala Menor Harmônica | Menor Harmônica | Lá Maior | Lá, Si, Dó, Ré, Mi, Fá, Sol# | Com 7ª aumentada
+Modo Dórico | Menor Natural | Ré Maior | Ré, Mi, Fá, Sol, Lá, Si, Dó | Segundo modo
 ```
 
 ---
@@ -203,10 +385,10 @@ Modo Dórico | Modo | Ré | Ré, Mi, Fá, Sol, Lá, Si, Dó | Segundo modo
 │   TEscalas, TNota, TTonalidade          │
 ├─────────────────────────────────────────┤
 │   Acesso a Dados (FireDAC)              │
-│   dmDados (DataModule)                  │
+│   uDmDados (DataModule)                 │
 ├─────────────────────────────────────────┤
 │   Banco de Dados                        │
-│   SQLite / SQL Server                   │
+│   SQL Server                            │
 └─────────────────────────────────────────┘
 ```
 
@@ -227,20 +409,16 @@ Modo Dórico | Modo | Ré | Ré, Mi, Fá, Sol, Lá, Si, Dó | Segundo modo
 
 #### Validação em Duas Fases
 
-1. **Fase 1 - Formatação (LerArquivoTXT):**
-   ```pascal
-   - Verifica 5 campos separados por |
+1. **Fase 1 - Formatação:**
+   - Verifica 5 campos separados por `|`
    - Detecta campos vazios obrigatórios
    - Status: OK ou ERRO (formatação)
-   ```
 
-2. **Fase 2 - Negócio (ValidarESalvarLinha):**
-   ```pascal
+2. **Fase 2 - Negócio:**
    - Busca IDs no banco (Tipo, Tonalidade, Notas)
    - Valida duplicidade de escalas
    - Insere com transaction implícita
    - Status: ERRO (validação) ou SALVO (sucesso)
-   ```
 
 **Justificativa:** Permite feedback claro ao usuário, possibilita correção de erros antes da persistência.
 
@@ -254,11 +432,8 @@ CREATE TABLE escalas (
   nome            VARCHAR(100) NOT NULL,
   tonalidadeId    INTEGER NOT NULL FOREIGN KEY,
   tipoId          INTEGER NOT NULL FOREIGN KEY,
-  listaNota       TEXT NOT NULL,  -- IDs separadas por vírgula (ex: "1,3,5,7")
-  descricao       TEXT,
-  caminhoArquivo  TEXT,           -- Para rastreabilidade
-  nomeArquivo     TEXT,           -- Nome do arquivo de origem
-  conteudoArquivo TEXT,           -- Conteúdo raw do arquivo
+  listaNota       VARCHAR(255) NOT NULL,  -- IDs separadas por vírgula (ex: "1,3,5,7")
+  descricao       VARCHAR(500),
   FOREIGN KEY (tonalidadeId) REFERENCES tonalidades(tonalidadeId),
   FOREIGN KEY (tipoId) REFERENCES tipoEscala(tipoEscalaId)
 );
@@ -269,7 +444,7 @@ CREATE TABLE escalas (
 **Justificativa:**
 - ✅ Rápido: Evita JOINs complexos na consulta
 - ✅ Flexível: Permite notas em qualquer ordem
-- ✅ Rastreável: Campo `caminhoArquivo` mostra origem
+- ✅ Simples: Fácil de parsear na importação
 - ❌ Menos normalizado, mas aceitável para este contexto
 
 ### 5. **Persistência de Configuração da Interface**
@@ -277,33 +452,29 @@ CREATE TABLE escalas (
 #### Arquivo INI para Grid Layout
 
 ```pascal
-NomeArquivo: config_grids.ini (pasta do executável)
+NomeArquivo: config.ini (pasta do executável)
 
 Formato:
-[frmArquivos_dbGridConsulta_Width]
-nome=120
-tipoEscala=100
-...
-
-[frmArquivos_dbGridConsulta_Index]
-nome=0
-...
+[BANCO]
+Servidor=DC-TR-06-VM\SERVERCURSO
+NomeBanco=NotasMusicais
+AutenticacaoWindows=Yes
 ```
 
-**Decisão:** Usar arquivo INI em vez de banco de dados para configurações de UI
+**Decisão:** Usar arquivo INI para configurações de conexão
 
 **Justificativa:**
 - ✅ Leve e rápido
-- ✅ Não requer tabela adicional
+- ✅ Não requer tabela adicional no banco
 - ✅ Fácil debug (legível)
-- ✅ Permite per-usuario (futuro)
+- ✅ Permite alterar sem compilar
 
 ### 6. **Gerenciamento de Conexão**
 
 #### Uso de DataModule Centralizado
 
 ```pascal
-// dmDados.pas - Singleton pattern
+// uDmDados.pas - Singleton pattern
 dmDados.FDConexao  // Conexão única reutilizada
 ```
 
@@ -312,7 +483,27 @@ dmDados.FDConexao  // Conexão única reutilizada
 - ✅ Compartilhamento seguro de recursos
 - ✅ Fácil manutenção da string de conexão
 
-### 7. **Codificação de Caracteres**
+### 7. **Inicialização Automática do Banco**
+
+#### Procedimentos executados no DataModuleCreate
+
+```pascal
+procedure TdmDados.DataModuleCreate(Sender: TObject);
+begin
+  ConfigurarConexaoDinamicamente;  // 1º: Lê config.ini
+  ConfigurarBancoInicial;          // 2º: Cria banco e tabelas
+end;
+```
+
+**Decisão:** Automatizar criação de banco e tabelas
+
+**Justificativa:**
+- ✅ Primeira execução não requer setup manual
+- ✅ Escalável para múltiplos ambientes
+- ✅ Sem dependência de scripts SQL externo
+- ✅ Melhor experiência do usuário
+
+### 8. **Codificação de Caracteres**
 
 #### UTF-8 em Todos os Arquivos
 
@@ -325,18 +516,6 @@ linhas.SaveToFile(arquivo, TEncoding.UTF8);    // Exportação
 - Suporta acentuação portuguesa/espanhola (Dó, Ré, Mi, Fá, Sol, Lá, Si)
 - Universal para sistemas operacionais
 - Evita problemas com caracteres especiais
-
-### 8. **Componentes Visuais Customizados**
-
-#### Grid com Localização de Dados
-
-```pascal
-procedure CentralizarColunas(pGrid: TDBGrid);
-procedure CarregarConfiguracaoGrid(pGrid: TDBGrid);
-procedure SalvarConfiguracaoGrid(pGrid: TDBGrid);
-```
-
-**Benefício:** Interface consistente e agradável, com estado persistente.
 
 ### 9. **Tratamento de Erros**
 
@@ -355,17 +534,6 @@ ShowMessage('Salvos: 8 | Erros: 2');
 ```
 
 **Vantagem:** Usuário sabe exatamente o que falhou.
-
-### 10. **Performance**
-
-#### Otimizações Aplicadas
-
-| Otimização | Local | Benefício |
-|-----------|-------|-----------|
-| `DisableControls` | Loop de salvamento | Evita redraw de grids |
-| `Bookmark` | Exportação | Mantém posição original |
-| Query reutilizada | ValidarESalvarLinha | Evita criar múltiplas queries |
-| Índices no banco | escalas(nome, tonalidadeId) | Busca rápida de duplicidade |
 
 ---
 
@@ -388,62 +556,78 @@ SistemaNotasMusicais/
 │   └── uEnum.pas                  # Enumerações
 │
 ├── DataModule/                     # Camada de acesso a dados
-│   └── dmDados.pas                # Conexão FireDAC centralizada
+│   ├── uDmDados.pas               # Conexão FireDAC + inicialização
+│   └── uDmDados.dfm               # Definições do DataModule
 │
 ├── Cadastro/                       # Formulários de cadastro
-│   ├── uCadNotas.pas
-│   ├── uCadTonalidades.pas
-│   ├── uCadEscalaMusical.pas
-│   └── uCadTipoEscala.pas
+│   ├── uCadNotas.pas / .dfm
+│   ├── uCadTonalidades.pas / .dfm
+│   ├── uCadEscalaMusical.pas / .dfm
+│   └── uCadTipoEscala.pas / .dfm
 │
 ├── Win32/                          # Arquivos compilados
 ├── Img/                            # Imagens e recursos
 ├── README.md                       # Este arquivo
-└── config_grids.ini               # Configurações salvas (gerado em runtime)
+└── config.ini                      # Configurações (gerado em runtime)
 ```
 
 ---
 
 ## 🔄 Fluxo de Dados
 
+### Inicialização da Aplicação
+
+```
+Aplicação Inicia
+     ↓
+DataModule é Criado (DataModuleCreate)
+     ↓
+ConfigurarConexaoDinamicamente()
+├─ Lê arquivo config.ini
+└─ Configura parâmetros FireDAC
+     ↓
+ConfigurarBancoInicial()
+├─ Cria banco NotasMusicais (se não existir)
+├─ Cria tabelas: notas, tipoEscala, tonalidades, escalas
+└─ Insere dados iniciais
+     ↓
+Aplicação Pronta para Usar
+```
+
 ### Importação
 
 ```
-Usuário seleciona .txt
-         ↓
-  LerArquivoTXT()
-         ↓
-  Parse: 5 campos, validação básica
-         ↓
-  Carrega grid com Status OK/ERRO
-         ↓
-Usuário clica "Salvar"
-         ↓
-  ValidarESalvarLinha() para cada linha
-         ↓
-  Busca IDs (Tipo, Tonalidade, Notas)
-         ↓
-  Verifica duplicidade
-         ↓
-  TEscalas.Inserir() → Banco
-         ↓
-  Relatório final
+Usuário seleciona arquivo .txt
+     ↓
+LerArquivoTXT()
+├─ Parse: 5 campos, validação básica
+└─ Carrega grid com Status OK/ERRO
+     ↓
+Usuário revisa e clica "Salvar"
+     ↓
+Para cada linha com Status OK:
+├─ ValidarESalvarLinha()
+├─ Busca IDs (Tipo, Tonalidade, Notas)
+├─ Verifica duplicidade
+└─ TEscalas.Inserir() → Banco
+     ↓
+Relatório final: Salvos ✅ | Erros ❌
 ```
 
 ### Exportação
 
 ```
 Usuário clica "Exportar"
-         ↓
-  qryArquivos.Open() → Lê todas as escalas
-         ↓
-  Loop: Para cada escala
-         ├─ ObterNomesNotas() → Converte IDs em nomes
-         └─ Formata: Nome | Tipo | Tonalidade | Notas | Descrição
-         ↓
-  Salva em UTF-8
-         ↓
-  Mensagem: Confirmação + caminho
+     ↓
+qryArquivos.Open() → Lê todas as escalas
+     ↓
+Para cada escala:
+├─ ObterNomesNotas() → Converte IDs em nomes
+└─ Formata: Nome | Tipo | Tonalidade | Notas | Descrição
+     ↓
+Salva em UTF-8
+     ↓
+Mensagem: Confirmação + caminho do arquivo
 ```
 
 ---
@@ -455,9 +639,10 @@ Usuário clica "Exportar"
 | Arquivo vazio | Validação na importação | Mensagem "Arquivo vazio!" |
 | Tipo não existente | Validação de negócio | Status ERRO + motivo |
 | Nota inválida | Query sem retorno | Status ERRO + nome da nota |
-| Duplicidade | COUNT(*) no banco | Status ERRO + mensagem clara |
+| Duplicidade de escala | COUNT(*) no banco | Status ERRO + mensagem clara |
 | Encoding diferente | Carregamento UTF-8 | Caracteres corrompidos (avisar usuário) |
 | Campo obrigatório vazio | Trim() + validação | Status ERRO no grid |
+| Servidor SQL indisponível | Exception no DataModuleCreate | Mensagem de erro ao iniciar |
 
 ---
 
@@ -482,7 +667,6 @@ Usuário clica "Exportar"
 │ tonalidadeId (FK)    │
 │ tipoId (FK)          │
 │ descricao            │
-│ caminhoArquivo       │
 └──────────────────────┘
         ↑       ↑
         │       └────────────────┐
@@ -491,8 +675,9 @@ Usuário clica "Exportar"
 │  TONALIDADES     │  │ TIPOESCALA       │
 ├──────────────────┤  ├──────────────────┤
 │ tonalidadeId (PK)│  │ tipoEscalaId (PK)│
-│ nome             │  │ nome             │
-└──────────────────┘  └──────────────────┘
+│ notaId (FK)      │  │ nome             │
+│ nome             │  └──────────────────┘
+└──────────────────┘
 ```
 
 ---
@@ -503,23 +688,33 @@ Usuário clica "Exportar"
 - [ ] **Modo escuro**: Opção visual na interface
 - [ ] **Export em CSV**: Formato adicional
 - [ ] **Banco de dados em nuvem**: Sync automático
-- [ ] **Busca/Filtro de escalas**: Grid dinâmico
+- [ ] **Busca/Filtro de escalas**: Grid dinâmico com filtros
 - [ ] **Histórico de versões**: Tracking de mudanças
 - [ ] **API REST**: Integração com mobile
 - [ ] **Testes unitários**: QA automatizado
+- [ ] **Relatórios em PDF**: Exportar com formatação
 
 ---
 
 ## 📞 Suporte e Dúvidas
 
 Para dúvidas sobre o formato de importação ou problemas técnicos, consulte:
-- Arquivo: `uArquivos.pas` (funções `LerArquivoTXT`, `ValidarESalvarLinha`)
-- Classe: `Classes/cCadEscalaMusical.pas` (persistência)
-- DataModule: Configurar conexão em `dmDados`
+
+- **DataModule**: `DataModule/uDmDados.pas` 
+  - `ConfigurarConexaoDinamicamente()` - Configuração de conexão
+  - `ConfigurarBancoInicial()` - Inicialização do banco
+  
+- **Importação/Exportação**: `uArquivos.pas`
+  - Funções `LerArquivoTXT()`, `ValidarESalvarLinha()`
+  
+- **Classe de Escalas**: `Classes/cCadEscalaMusical.pas`
+  - Persistência e CRUD de escalas
+  
+- **Configuração**: Edite `config.ini` na pasta do executável
 
 ---
 
-**Última atualização:** 11/05/2026  
-**Versão:** 1.0  
+**Última atualização:** 12/05/2026  
+**Versão:** 1.1  
 **Autor:** viniciente  
 **Licença:** MIT (Recomendado)

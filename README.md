@@ -22,11 +22,11 @@ Sistema de gestão de escalas musicais com suporte completo para entrada e saíd
 
 | Tecnologia | Versão | Função |
 |-----------|--------|--------|
-| **Delphi/Pascal** | - | Linguagem de programação |
-| **FireDAC** | - | Acesso a banco de dados com suporte multi-plataforma |
-| **SQL Server** | - | Persistência de dados de escalas e referências |
+| **Delphi/Pascal** | 1.2 | Linguagem de programação |
+| **FireDAC** | 1.2 | Acesso a banco de dados com suporte multi-plataforma |
+| **SQL Server** | 1.2 | Persistência de dados de escalas e referências |
 | **VCL (Visual Component Library)** | - | Framework de componentes visuais |
-| **Git** | - | Controle de versão |
+| **Git** | 1.2 | Controle de versão |
 
 ### Bibliotecas Utilizadas
 
@@ -101,8 +101,6 @@ AutenticacaoWindows=No
 
 **⚠️ Notas importantes:**
 - Certifique-se de que o SQL Server está **ligado e acessível**
-- O servidor deve permitir **conexões TCP/IP** (ativar em Sql Server Configuration Manager)
-- Verifique o **firewall** se conectar a outro computador
 - Salve o arquivo após editar
 
 #### 3️⃣ **Execute o sistema**

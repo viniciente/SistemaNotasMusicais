@@ -25,7 +25,7 @@ Sistema de gestão de escalas musicais com suporte completo para entrada e saíd
 | **Delphi/Pascal** | 1.2 | Linguagem de programação |
 | **FireDAC** | 1.2 | Acesso a banco de dados com suporte multi-plataforma |
 | **SQL Server** | 1.2 | Persistência de dados de escalas e referências |
-| **VCL (Visual Component Library)** | - | Framework de componentes visuais |
+| **VCL (Visual Component Library)** | 1.2 | Framework de componentes visuais |
 | **Git** | 1.2 | Controle de versão |
 
 ### Bibliotecas Utilizadas
@@ -141,32 +141,6 @@ Quando você abre `Project2.exe`, o sistema executa **automaticamente** dois pro
 
 ### **Procedimento 1: `ConfigurarConexaoDinamicamente`**
 
-```pascal
-procedure TdmDados.ConfigurarConexaoDinamicamente;
-var
-  LIni: TIniFile;
-  CaminhoArquivo: string;
-begin
-  // 1. Procura pelo arquivo config.ini na mesma pasta do executável
-  CaminhoArquivo := ExtractFilePath(ParamStr(0)) + 'config.ini';
-  
-  LIni := TIniFile.Create(CaminhoArquivo);
-  try
-    // 2. Lê os parâmetros do arquivo config.ini
-    FDConexao.Params.Values['Server'] := 
-      LIni.ReadString('BANCO', 'Servidor', 'localhost');
-    FDConexao.Params.Values['Database'] := 
-      LIni.ReadString('BANCO', 'NomeBanco', 'NotasMusicais');
-    FDConexao.Params.Values['OSAuthent'] := 
-      LIni.ReadString('BANCO', 'AutenticacaoWindows', 'Yes');
-    
-    FDConexao.LoginPrompt := False;
-  finally
-    LIni.Free;
-  end;
-end;
-```
-
 **O que acontece:**
 - 🔍 Busca o arquivo `config.ini` na pasta do executável
 - 📖 Lê as informações do servidor e banco de dados
@@ -175,90 +149,6 @@ end;
 ---
 
 ### **Procedimento 2: `ConfigurarBancoInicial`**
-
-```pascal
-procedure TdmDados.ConfigurarBancoInicial;
-var
-  BancoOriginal: string;
-begin
-  try
-    BancoOriginal := FDConexao.Params.Database;
-    
-    // 1. Conecta temporariamente ao banco 'master'
-    FDConexao.Params.Database := 'master';
-    FDConexao.Connected := True;
-    
-    // 2. Cria o banco NotasMusicais se não existir
-    FDConexao.ExecSQL('IF NOT EXISTS (SELECT * FROM sys.databases WHERE name = ' + 
-                      QuotedStr(BancoOriginal) + ') CREATE DATABASE ' + BancoOriginal);
-    
-    // 3. Reconecta no banco correto
-    FDConexao.Connected := False;
-    FDConexao.Params.Database := BancoOriginal;
-    FDConexao.Connected := True;
-    
-    // 4. Cria as 4 tabelas se não existirem:
-    
-    // TABELA 1: notas (12 notas musicais)
-    FDConexao.ExecSQL('IF NOT EXISTS (SELECT * FROM sys.objects WHERE name = ''notas'') 
-      CREATE TABLE notas (
-        notasId int identity (1,1) primary key,
-        nome varchar(50) not null unique
-      );');
-    
-    // TABELA 2: tipoEscala (tipos de escalas)
-    FDConexao.ExecSQL('IF NOT EXISTS (SELECT * FROM sys.objects WHERE name = ''tipoEscala'')
-      CREATE TABLE tipoEscala (
-        tipoEscalaId int identity (1,1) primary key,
-        nome Varchar(30) not null unique
-      );');
-    
-    // TABELA 3: tonalidades (tonalidades de cada nota)
-    FDConexao.ExecSQL('IF NOT EXISTS (SELECT * FROM sys.objects WHERE name = ''tonalidades'')
-      CREATE TABLE tonalidades (
-        tonalidadeId int identity (1,1) primary key,
-        notaId int not null,
-        nome varchar(50) not null unique,
-        constraint FK_Tonalidade_Nota foreign key (notaId) references notas(notasId)
-      );');
-    
-    // TABELA 4: escalas (escalas cadastradas)
-    FDConexao.ExecSQL('IF NOT EXISTS (SELECT * FROM sys.objects WHERE name = ''escalas'')
-      CREATE TABLE escalas (
-        escalaId int identity (1,1) primary key,
-        nome varchar(100) not null,
-        tonalidadeId int not null,
-        tipoId int not null,
-        listaNota varchar(255) not null,
-        descricao varchar(500),
-        constraint FK_Escalas_Tonalidade foreign key (tonalidadeId) references tonalidades(tonalidadeId),
-        constraint FK_Escalas_TipoEscala foreign key (tipoId) references tipoEscala(tipoEscalaId)
-      );');
-    
-    // 5. Insere dados iniciais (apenas se não existirem):
-    
-    // 12 notas chromáticas
-    FDConexao.ExecSQL('IF NOT EXISTS (SELECT TOP 1 1 FROM notas)
-      INSERT INTO notas (nome) VALUES 
-        (''Dó''), (''Dó#''), (''Ré''), (''Ré#''), (''Mi''), (''Fá''), 
-        (''Fá#''), (''Sol''), (''Sol#''), (''Lá''), (''Lá#''), (''Si'');');
-    
-    // 8 tipos de escalas
-    FDConexao.ExecSQL('IF NOT EXISTS (SELECT TOP 1 1 FROM tipoEscala)
-      INSERT INTO tipoEscala (nome) VALUES 
-        (''Maior''), (''Menor Natural''), (''Menor Harmônica''), (''Menor Melódica''),
-        (''Pentatônica Maior''), (''Pentatônica Menor''), (''Blues''), (''Cromática'');');
-    
-    // Tonalidades de cada nota
-    FDConexao.ExecSQL('IF NOT EXISTS (SELECT TOP 1 1 FROM tonalidades)
-      INSERT INTO tonalidades (notaId, nome) SELECT notasId, nome + '' Maior'' FROM notas;');
-    
-  except
-    on E: Exception do
-      ShowMessage('Erro ao configurar banco de dados: ' + E.Message);
-  end;
-end;
-```
 
 **O que acontece:**
 - ✅ Cria o banco de dados `NotasMusicais` (se não existir)
@@ -410,7 +300,6 @@ Escala Menor Harmônica | Menor Harmônica | Lá Maior | Lá, Si, Dó, Ré, Mi, 
 #### Formato de Arquivo: Delimitador Simples (`|`)
 
 **Vantagens:**
-- ✅ Legível por humanos
 - ✅ Compatível com Excel/LibreOffice
 - ✅ Sem dependência de bibliotecas externas
 - ✅ Encoding UTF-8 universal
@@ -516,21 +405,7 @@ end;
 - ✅ Sem dependência de scripts SQL externo
 - ✅ Melhor experiência do usuário
 
-### 8. **Codificação de Caracteres**
-
-#### UTF-8 em Todos os Arquivos
-
-```pascal
-linhas.LoadFromFile(caminho, TEncoding.UTF8);  // Importação
-linhas.SaveToFile(arquivo, TEncoding.UTF8);    // Exportação
-```
-
-**Justificativa:** 
-- Suporta acentuação portuguesa/espanhola (Dó, Ré, Mi, Fá, Sol, Lá, Si)
-- Universal para sistemas operacionais
-- Evita problemas com caracteres especiais
-
-### 9. **Tratamento de Erros**
+### 8. **Tratamento de Erros**
 
 #### Validação Granular com Feedback Detalhado
 
@@ -697,46 +572,6 @@ Mensagem: Confirmação + caminho do arquivo
 
 ---
 
-## 🚀 Melhorias Futuras Sugeridas
-
-- [ ] **Validação avançada**: Detectar progressões não-diatônicas
-- [ ] **Modo escuro**: Opção visual na interface
-- [ ] **Export em CSV**: Formato adicional
-- [ ] **Banco de dados em nuvem**: Sync automático
-- [ ] **Busca/Filtro de escalas**: Grid dinâmico com filtros
-- [ ] **Histórico de versões**: Tracking de mudanças
-- [ ] **API REST**: Integração com mobile
-- [ ] **Testes unitários**: QA automatizado
-- [ ] **Relatórios em PDF**: Exportar com formatação
-
----
-
-## 📞 Suporte e Dúvidas
-
-### Problema: Não consegue conectar ao SQL Server
-
-**Solução:**
-1. Verifique se SQL Server está rodando
-2. Confirme o nome exato do servidor em **Sql Server Configuration Manager**
-3. Edite `config.ini` com o servidor correto
-4. Tente novamente
-
-### Problema: "Erro ao configurar banco de dados"
-
-**Solução:**
-1. Confirme que tem permissão para criar bancos
-2. Verifique firewall
-3. Teste a conexão com **SQL Server Management Studio**
-
-### Dúvidas sobre formato de importação
-
-- Consulte a seção **"Como Importar/Exportar Dados"**
-- Use os exemplos fornecidos como modelo
-- Certifique-se do encoding UTF-8
-
----
-
 **Última atualização:** 12/05/2026  
 **Versão:** 1.2  
 **Autor:** viniciente  
-**Licença:** MIT (Recomendado)

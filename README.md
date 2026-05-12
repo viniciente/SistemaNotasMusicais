@@ -43,26 +43,105 @@ Sistema de gestão de escalas musicais com suporte completo para entrada e saíd
 
 ### Pré-requisitos
 
-- **Delphi** instalado (versão 10.0 ou superior recomendada)
-- **SQL Server** configurado e acessível
-- Arquivo `Project2.dproj` (projeto Delphi)
-- Arquivo de configuração `config.ini` (gerado automaticamente na primeira execução)
+- **SQL Server** configurado e acessível na rede
+- Arquivo executável: `Project2.exe`
+- Arquivo de configuração: `config.ini` (deve estar na mesma pasta do `.exe`)
 
-### Passos para Execução
+### ⚡ Passos Rápidos (Usuário Final)
 
-#### 1️⃣ **Abra o projeto no Delphi**
+#### 1️⃣ **Localize os arquivos na pasta de instalação**
 
-```bash
-delphi Project2.dproj
+Na pasta onde está `Project2.exe`, você encontrará:
+```
+SistemaNotasMusicais/
+├── Project2.exe          ← Executável do sistema
+└── config.ini            ← Arquivo de configuração
 ```
 
-#### 2️⃣ **Inicialização da Conexão com o Banco de Dados**
+#### 2️⃣ **Edite o arquivo `config.ini`**
 
-Quando o aplicativo é iniciado, o **DataModule** (`uDmDados.pas`) executa automaticamente dois procedimentos essenciais:
+Abra o arquivo `config.ini` com um **editor de texto** (Bloco de Notas, VS Code, etc.):
 
-**A. `ConfigurarConexaoDinamicamente` (executado primeiro)**
+```ini
+[BANCO]
+Servidor=SEU_SERVIDOR\INSTANCIA
+NomeBanco=NotasMusicais
+AutenticacaoWindows=Yes
+```
 
-Este procedimento configura dinamicamente os parâmetros de conexão:
+**Altere os seguintes parâmetros:**
+
+| Parâmetro | Descrição | Exemplo |
+|-----------|-----------|---------|
+| **Servidor** | Nome do servidor SQL + instância | `localhost\SQLEXPRESS` ou `192.168.1.100\SERVERCURSO` |
+| **NomeBanco** | Nome do banco de dados (pode manter padrão) | `NotasMusicais` |
+| **AutenticacaoWindows** | Usar autenticação do Windows | `Yes` (para Windows) ou `No` (para SQL Server login) |
+
+**Exemplos de configuração:**
+
+```ini
+# Opção 1: SQL Server Express Local
+[BANCO]
+Servidor=localhost\SQLEXPRESS
+NomeBanco=NotasMusicais
+AutenticacaoWindows=Yes
+
+# Opção 2: SQL Server em outro computador
+[BANCO]
+Servidor=192.168.1.100\INSTANCIA
+NomeBanco=NotasMusicais
+AutenticacaoWindows=Yes
+
+# Opção 3: SQL Server com autenticação de usuário/senha
+[BANCO]
+Servidor=SERVIDOR\INSTANCIA
+NomeBanco=NotasMusicais
+AutenticacaoWindows=No
+```
+
+**⚠️ Notas importantes:**
+- Certifique-se de que o SQL Server está **ligado e acessível**
+- O servidor deve permitir **conexões TCP/IP** (ativar em Sql Server Configuration Manager)
+- Verifique o **firewall** se conectar a outro computador
+- Salve o arquivo após editar
+
+#### 3️⃣ **Execute o sistema**
+
+Após configurar, simplesmente **clique duas vezes** em `Project2.exe`:
+
+```
+Duplo-clique em Project2.exe
+         ↓
+Aplicação verifica config.ini
+         ↓
+Conecta ao SQL Server
+         ↓
+Cria banco e tabelas (se não existirem)
+         ↓
+Sistema pronto para usar! ✅
+```
+
+**Na primeira execução:**
+- ✅ O banco de dados `NotasMusicais` será criado automaticamente
+- ✅ As 4 tabelas serão criadas: `notas`, `tipoEscala`, `tonalidades`, `escalas`
+- ✅ Dados iniciais serão inseridos (12 notas, 8 tipos de escalas)
+
+#### 4️⃣ **Comece a usar o sistema**
+
+Quando a tela principal abrir:
+
+- **Cadastro → Notas** - Visualize as 12 notas musicais criadas
+- **Cadastro → Tonalidades** - Veja tonalidades musicais
+- **Cadastro → Tipo Escala** - Veja 8 tipos de escalas pré-carregados
+- **Arquivos → Importar/Exportar** - Importe escalas do arquivo TXT ou exporte as cadastradas
+
+---
+
+## 🏗️ Como Funciona a Inicialização Automática
+
+Quando você abre `Project2.exe`, o sistema executa **automaticamente** dois procedimentos:
+
+### **Procedimento 1: `ConfigurarConexaoDinamicamente`**
 
 ```pascal
 procedure TdmDados.ConfigurarConexaoDinamicamente;
@@ -70,23 +149,18 @@ var
   LIni: TIniFile;
   CaminhoArquivo: string;
 begin
-  // 1. Define o caminho do arquivo config.ini (mesma pasta do executável)
+  // 1. Procura pelo arquivo config.ini na mesma pasta do executável
   CaminhoArquivo := ExtractFilePath(ParamStr(0)) + 'config.ini';
   
   LIni := TIniFile.Create(CaminhoArquivo);
   try
-    // 2. Se o arquivo NÃO existe, cria com valores padrão
-    if not FileExists(CaminhoArquivo) then
-    begin
-      LIni.WriteString('BANCO', 'Servidor', 'DC-TR-06-VM\SERVERCURSO');
-      LIni.WriteString('BANCO', 'NomeBanco', 'NotasMusicais');
-      LIni.WriteString('BANCO', 'AutenticacaoWindows', 'Yes');
-    end;
-    
-    // 3. Lê os parâmetros do arquivo config.ini
-    FDConexao.Params.Values['Server']   := LIni.ReadString('BANCO', 'Servidor', 'localhost');
-    FDConexao.Params.Values['Database'] := LIni.ReadString('BANCO', 'NomeBanco', 'NotasMusicais');
-    FDConexao.Params.Values['OSAuthent'] := LIni.ReadString('BANCO', 'AutenticacaoWindows', 'Yes');
+    // 2. Lê os parâmetros do arquivo config.ini
+    FDConexao.Params.Values['Server'] := 
+      LIni.ReadString('BANCO', 'Servidor', 'localhost');
+    FDConexao.Params.Values['Database'] := 
+      LIni.ReadString('BANCO', 'NomeBanco', 'NotasMusicais');
+    FDConexao.Params.Values['OSAuthent'] := 
+      LIni.ReadString('BANCO', 'AutenticacaoWindows', 'Yes');
     
     FDConexao.LoginPrompt := False;
   finally
@@ -95,27 +169,14 @@ begin
 end;
 ```
 
-**O que este procedimento faz:**
-- ✅ Busca o arquivo `config.ini` na pasta do executável
-- ✅ Se não existir, cria um com valores padrão
-- ✅ Lê servidor, banco de dados e tipo de autenticação do `config.ini`
-- ✅ Configura a conexão FireDAC dinamicamente
-
-**Arquivo `config.ini` (gerado automaticamente):**
-```ini
-[BANCO]
-Servidor=DC-TR-06-VM\SERVERCURSO
-NomeBanco=NotasMusicais
-AutenticacaoWindows=Yes
-```
-
-**Para alterar servidor ou banco, edite este arquivo.**
+**O que acontece:**
+- 🔍 Busca o arquivo `config.ini` na pasta do executável
+- 📖 Lê as informações do servidor e banco de dados
+- 🔌 Configura a conexão FireDAC automaticamente
 
 ---
 
-**B. `ConfigurarBancoInicial` (executado logo após)**
-
-Este procedimento prepara o banco de dados:
+### **Procedimento 2: `ConfigurarBancoInicial`**
 
 ```pascal
 procedure TdmDados.ConfigurarBancoInicial;
@@ -125,7 +186,7 @@ begin
   try
     BancoOriginal := FDConexao.Params.Database;
     
-    // 1. Conecta ao banco 'master' temporariamente
+    // 1. Conecta temporariamente ao banco 'master'
     FDConexao.Params.Database := 'master';
     FDConexao.Connected := True;
     
@@ -133,28 +194,28 @@ begin
     FDConexao.ExecSQL('IF NOT EXISTS (SELECT * FROM sys.databases WHERE name = ' + 
                       QuotedStr(BancoOriginal) + ') CREATE DATABASE ' + BancoOriginal);
     
-    // 3. Desconecta e reconecta no banco correto
+    // 3. Reconecta no banco correto
     FDConexao.Connected := False;
     FDConexao.Params.Database := BancoOriginal;
     FDConexao.Connected := True;
     
-    // 4. Cria as tabelas se não existirem:
+    // 4. Cria as 4 tabelas se não existirem:
     
-    // Tabela: NOTAS (12 notas musicais)
+    // TABELA 1: notas (12 notas musicais)
     FDConexao.ExecSQL('IF NOT EXISTS (SELECT * FROM sys.objects WHERE name = ''notas'') 
       CREATE TABLE notas (
         notasId int identity (1,1) primary key,
         nome varchar(50) not null unique
       );');
     
-    // Tabela: TIPOESCALA (tipos de escalas disponíveis)
+    // TABELA 2: tipoEscala (tipos de escalas)
     FDConexao.ExecSQL('IF NOT EXISTS (SELECT * FROM sys.objects WHERE name = ''tipoEscala'')
       CREATE TABLE tipoEscala (
         tipoEscalaId int identity (1,1) primary key,
         nome Varchar(30) not null unique
       );');
     
-    // Tabela: TONALIDADES (tonalidades de cada nota)
+    // TABELA 3: tonalidades (tonalidades de cada nota)
     FDConexao.ExecSQL('IF NOT EXISTS (SELECT * FROM sys.objects WHERE name = ''tonalidades'')
       CREATE TABLE tonalidades (
         tonalidadeId int identity (1,1) primary key,
@@ -163,7 +224,7 @@ begin
         constraint FK_Tonalidade_Nota foreign key (notaId) references notas(notasId)
       );');
     
-    // Tabela: ESCALAS (escalas musicais cadastradas)
+    // TABELA 4: escalas (escalas cadastradas)
     FDConexao.ExecSQL('IF NOT EXISTS (SELECT * FROM sys.objects WHERE name = ''escalas'')
       CREATE TABLE escalas (
         escalaId int identity (1,1) primary key,
@@ -176,7 +237,7 @@ begin
         constraint FK_Escalas_TipoEscala foreign key (tipoId) references tipoEscala(tipoEscalaId)
       );');
     
-    // 5. Insere dados iniciais (notas, tipos, tonalidades)
+    // 5. Insere dados iniciais (apenas se não existirem):
     
     // 12 notas chromáticas
     FDConexao.ExecSQL('IF NOT EXISTS (SELECT TOP 1 1 FROM notas)
@@ -201,58 +262,11 @@ begin
 end;
 ```
 
-**O que este procedimento faz:**
-- ✅ Cria o banco de dados `NotasMusicais` se não existir
-- ✅ Cria 4 tabelas essenciais: `notas`, `tipoEscala`, `tonalidades`, `escalas`
-- ✅ Insere dados iniciais (12 notas musicais, 8 tipos de escalas)
-- ✅ Configura chaves estrangeiras para integridade referencial
-
-**Estrutura de tabelas criadas:**
-
-| Tabela | Colunas | Função |
-|--------|---------|--------|
-| `notas` | notasId, nome | Armazena as 12 notas cromáticas (Dó, Ré, Mi...) |
-| `tipoEscala` | tipoEscalaId, nome | Tipos de escalas (Maior, Menor, Pentatônica, Blues, etc.) |
-| `tonalidades` | tonalidadeId, notaId, nome | Tonalidades musicais (associadas a cada nota) |
-| `escalas` | escalaId, nome, tonalidadeId, tipoId, listaNota, descricao | Escalas cadastradas pelo usuário |
-
----
-
-#### 3️⃣ **Compile o projeto**
-
-No Delphi:
-
-```bash
-Ctrl + Shift + F9  # Build All
-```
-
-Ou via menu:
-```
-Menu → Project → Build Project
-```
-
-#### 4️⃣ **Execute o aplicativo**
-
-```bash
-F9  # Run
-```
-
-Ou clique no botão **Run** (▶) na toolbar do Delphi.
-
-**Na primeira execução:**
-- ✅ O arquivo `config.ini` será criado na pasta do executável
-- ✅ O banco de dados `NotasMusicais` será criado no SQL Server
-- ✅ As 4 tabelas serão criadas automaticamente
-- ✅ Dados iniciais serão inseridos
-
-#### 5️⃣ **Popule o banco com mais dados (Opcional)**
-
-Se desejado, crie tonalidades e tipos adicionais:
-
-- Acesse **Cadastro → Notas** para visualizar/criar notas musicais
-- Acesse **Cadastro → Tonalidades** para adicionar tonalidades
-- Acesse **Cadastro → Tipo Escala** para definir novos tipos
-- Acesse **Arquivos → Importar/Exportar** para carregar escalas de arquivo TXT
+**O que acontece:**
+- ✅ Cria o banco de dados `NotasMusicais` (se não existir)
+- ✅ Cria 4 tabelas automaticamente
+- ✅ Insere dados iniciais (notas e tipos de escalas)
+- ⚠️ Se houver erro, mostra mensagem
 
 ---
 
@@ -273,17 +287,20 @@ Nome | Tipo | Tonalidade | Notas | Descricao
 | Campo | Tipo | Tamanho | Obrigatório | Descrição |
 |-------|------|---------|-------------|-----------|
 | **Nome** | String | 100 | ✅ Sim | Nome da escala musical (ex: "Escala Diatônica") |
-| **Tipo** | String | 50 | ✅ Sim | Tipo de escala (ex: "Maior", "Menor", "Pentatônica") |
-| **Tonalidade** | String | 50 | ✅ Sim | Tonalidade base (ex: "Dó", "Ré", "Mi") |
-| **Notas** | String | 255 | ✅ Sim | Notas separadas por vírgula (ex: "Dó, Ré, Mi, Fá, Sol") |
+| **Tipo** | String | 50 | ✅ Sim | Tipo de escala (ex: "Maior", "Menor Natural", "Pentatônica Maior") |
+| **Tonalidade** | String | 50 | ✅ Sim | Tonalidade base (ex: "Dó Maior", "Lá Maior") |
+| **Notas** | String | 255 | ✅ Sim | Notas separadas por vírgula (ex: "Dó, Ré, Mi, Fá, Sol, Lá, Si") |
 | **Descricao** | String | 500 | ❌ Não | Descrição opcional da escala |
 
 #### Exemplos de Arquivo Válido
 
+Crie um arquivo chamado `escalas.txt`:
+
 ```txt
-Escala Maior em Dó | Maior | Dó | Dó, Ré, Mi, Fá, Sol, Lá, Si | Escala diatônica maior
-Escala Menor em Lá | Menor Natural | Lá | Lá, Si, Dó, Ré, Mi, Fá, Sol | Escala relativa menor
-Pentatônica Maior | Pentatônica Maior | Sol | Sol, Lá, Si, Ré, Mi | Escala pentatônica sem 4ª e 7ª
+Escala Maior em Dó | Maior | Dó Maior | Dó, Ré, Mi, Fá, Sol, Lá, Si | Escala diatônica maior
+Escala Menor em Lá | Menor Natural | Lá Maior | Lá, Si, Dó, Ré, Mi, Fá, Sol | Escala relativa menor
+Pentatônica Maior em Sol | Pentatônica Maior | Sol Maior | Sol, Lá, Si, Ré, Mi | Sem 4ª e 7ª
+Escala Blues em Mi | Blues | Mi Maior | Mi, Sol, Lá, Si, Ré, Mi | Com blue note
 ```
 
 ### ✅ Validações Realizadas
@@ -351,14 +368,12 @@ O sistema valida cada linha durante a importação:
 ```txt
 Escala Maior em Dó | Maior | Dó Maior | Dó, Ré, Mi, Fá, Sol, Lá, Si | Fundamental
 Escala Menor Harmônica | Menor Harmônica | Lá Maior | Lá, Si, Dó, Ré, Mi, Fá, Sol# | Com 7ª aumentada
-Modo Dórico | Menor Natural | Ré Maior | Ré, Mi, Fá, Sol, Lá, Si, Dó | Segundo modo
 ```
 
 **Arquivo de saída após exportação:** `EscalasMusicais_20260512_173000.txt`
 ```txt
 Escala Maior em Dó | Maior | Dó Maior | Dó, Ré, Mi, Fá, Sol, Lá, Si | Fundamental
 Escala Menor Harmônica | Menor Harmônica | Lá Maior | Lá, Si, Dó, Ré, Mi, Fá, Sol# | Com 7ª aumentada
-Modo Dórico | Menor Natural | Ré Maior | Ré, Mi, Fá, Sol, Lá, Si, Dó | Segundo modo
 ```
 
 ---
@@ -447,12 +462,12 @@ CREATE TABLE escalas (
 - ✅ Simples: Fácil de parsear na importação
 - ❌ Menos normalizado, mas aceitável para este contexto
 
-### 5. **Persistência de Configuração da Interface**
+### 5. **Persistência de Configuração**
 
-#### Arquivo INI para Grid Layout
+#### Arquivo INI para Conexão de Banco
 
 ```pascal
-NomeArquivo: config.ini (pasta do executável)
+NomeArquivo: config.ini (mesma pasta do executável)
 
 Formato:
 [BANCO]
@@ -541,8 +556,11 @@ ShowMessage('Salvos: 8 | Erros: 2');
 
 ```
 SistemaNotasMusicais/
-├── Project2.dpr                    # Arquivo principal do projeto
-├── Project2.dproj                  # Projeto Delphi
+├── Project2.exe                    # Executável (abrir para usar)
+├── Project2.dproj                  # Projeto Delphi (apenas para desenvolvimento)
+├── config.ini                      # Configurações de conexão (EDITAR PARA SEU AMBIENTE)
+├── README.md                       # Este arquivo
+│
 ├── uPrincipal.pas / .dfm          # Tela principal
 ├── uArquivos.pas / .dfm           # Gestão de import/export
 ├── TelaHeranca.pas / .dfm         # Base para formulários
@@ -566,32 +584,30 @@ SistemaNotasMusicais/
 │   └── uCadTipoEscala.pas / .dfm
 │
 ├── Win32/                          # Arquivos compilados
-├── Img/                            # Imagens e recursos
-├── README.md                       # Este arquivo
-└── config.ini                      # Configurações (gerado em runtime)
+└── Img/                            # Imagens e recursos
 ```
 
 ---
 
 ## 🔄 Fluxo de Dados
 
-### Inicialização da Aplicação
+### Inicialização da Aplicação (Automática)
 
 ```
-Aplicação Inicia
+Usuário clica em Project2.exe
      ↓
-DataModule é Criado (DataModuleCreate)
+Aplicação verifica config.ini
      ↓
 ConfigurarConexaoDinamicamente()
 ├─ Lê arquivo config.ini
-└─ Configura parâmetros FireDAC
+└─ Configura parâmetros de conexão
      ↓
 ConfigurarBancoInicial()
 ├─ Cria banco NotasMusicais (se não existir)
-├─ Cria tabelas: notas, tipoEscala, tonalidades, escalas
+├─ Cria 4 tabelas
 └─ Insere dados iniciais
      ↓
-Aplicação Pronta para Usar
+Sistema Pronto para Usar! ✅
 ```
 
 ### Importação
@@ -636,13 +652,14 @@ Mensagem: Confirmação + caminho do arquivo
 
 | Situação | Tratamento | Resultado |
 |----------|-----------|-----------|
+| config.ini não encontrado | Cria com valores padrão | Tenta conectar em localhost\SQLEXPRESS |
+| Servidor SQL indisponível | Exception no DataModuleCreate | Mostra mensagem de erro |
 | Arquivo vazio | Validação na importação | Mensagem "Arquivo vazio!" |
 | Tipo não existente | Validação de negócio | Status ERRO + motivo |
 | Nota inválida | Query sem retorno | Status ERRO + nome da nota |
 | Duplicidade de escala | COUNT(*) no banco | Status ERRO + mensagem clara |
 | Encoding diferente | Carregamento UTF-8 | Caracteres corrompidos (avisar usuário) |
 | Campo obrigatório vazio | Trim() + validação | Status ERRO no grid |
-| Servidor SQL indisponível | Exception no DataModuleCreate | Mensagem de erro ao iniciar |
 
 ---
 
@@ -698,23 +715,30 @@ Mensagem: Confirmação + caminho do arquivo
 
 ## 📞 Suporte e Dúvidas
 
-Para dúvidas sobre o formato de importação ou problemas técnicos, consulte:
+### Problema: Não consegue conectar ao SQL Server
 
-- **DataModule**: `DataModule/uDmDados.pas` 
-  - `ConfigurarConexaoDinamicamente()` - Configuração de conexão
-  - `ConfigurarBancoInicial()` - Inicialização do banco
-  
-- **Importação/Exportação**: `uArquivos.pas`
-  - Funções `LerArquivoTXT()`, `ValidarESalvarLinha()`
-  
-- **Classe de Escalas**: `Classes/cCadEscalaMusical.pas`
-  - Persistência e CRUD de escalas
-  
-- **Configuração**: Edite `config.ini` na pasta do executável
+**Solução:**
+1. Verifique se SQL Server está rodando
+2. Confirme o nome exato do servidor em **Sql Server Configuration Manager**
+3. Edite `config.ini` com o servidor correto
+4. Tente novamente
+
+### Problema: "Erro ao configurar banco de dados"
+
+**Solução:**
+1. Confirme que tem permissão para criar bancos
+2. Verifique firewall
+3. Teste a conexão com **SQL Server Management Studio**
+
+### Dúvidas sobre formato de importação
+
+- Consulte a seção **"Como Importar/Exportar Dados"**
+- Use os exemplos fornecidos como modelo
+- Certifique-se do encoding UTF-8
 
 ---
 
 **Última atualização:** 12/05/2026  
-**Versão:** 1.1  
+**Versão:** 1.2  
 **Autor:** viniciente  
 **Licença:** MIT (Recomendado)

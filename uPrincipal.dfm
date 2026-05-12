@@ -25,7 +25,6 @@ object frmPrincipal: TfrmPrincipal
     Color = clWhite
     ParentBackground = False
     TabOrder = 0
-    ExplicitLeft = -8
     DesignSize = (
       1266
       513)
@@ -178235,6 +178234,7 @@ object frmPrincipal: TfrmPrincipal
           00CC1101982302304704608E08C01C1180392200734400E68800CC110198F33F
           94CD96AE19D0D2070000000049454E44AE426082}
         ShowHint = False
+        OnClick = Image2Click
       end
     end
     object PnlExportar: TPanel
@@ -178352,6 +178352,7 @@ object frmPrincipal: TfrmPrincipal
           5E14A5BA30A1148F0A507354809AA302D41C15A0E6A800354705A8392A40CDF9
           07726959BD3D6ACB490000000049454E44AE426082}
         ShowHint = False
+        OnClick = Image3Click
       end
     end
   end

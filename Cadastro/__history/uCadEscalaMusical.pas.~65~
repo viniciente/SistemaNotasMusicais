@@ -28,9 +28,6 @@ type
     qryNotas: TFDQuery;
     qryTipoEscala: TFDQuery;
     qryTonalidades: TFDQuery;
-    btnImportar: TButton;
-    edtArquivo: TEdit;
-    lblArquivo: TLabel;
     dlgAbrir: TOpenDialog;
     lkpPesqTipo: TDBLookupComboBox;
     lkpPesqTonalidade: TDBLookupComboBox;
@@ -48,7 +45,7 @@ type
     qryPrincipaldescricao: TStringField;
     qryPrincipalcaminhoArquivo: TStringField;
     qryPrincipalnomeArquivo: TStringField;
-    qryPrincipalconteudoArquivo: TStringField;
+    qryPrincipalnotasNomes: TWideMemoField;
     procedure btnEditarClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure FormShow(Sender: TObject);
@@ -66,6 +63,7 @@ type
     function Apagar: Boolean; override;
     procedure ImportarArquivoTXT(caminho: string);
     procedure FiltrarDados;
+    procedure NotasNomesGetText(Sender: TField; var Text: string; DisplayText: Boolean);
   end;
 
 var
@@ -76,10 +74,14 @@ implementation
 {$R *.dfm}
 
 procedure TfrmCadEscalaMusical.FormCreate(Sender: TObject);
-var i : Integer;
+var
+  fld: TStringField;
+  col: TColumn;
+  i : Integer;
 begin
   inherited;
   oEscala := TEscalas.Create(dmDados.FDConexao);
+  qryPrincipalnotasNomes.OnGetText := NotasNomesGetText;
 end;
 
 procedure TfrmCadEscalaMusical.FormShow(Sender: TObject);
@@ -91,7 +93,7 @@ begin
   qryPesqTonalidades.Open;
   qryPesqTipoEscala.Open;
 
-  qryPrincipal.Open;
+  FiltrarDados;
   CarregarNotas;
 end;
 
@@ -125,6 +127,11 @@ begin
     notaId := Integer(clbNotas.Items.Objects[i]);
     clbNotas.Checked[i] := IndexStr(IntToStr(notaId), ids) >= 0;
   end;
+end;
+
+procedure TfrmCadEscalaMusical.NotasNomesGetText(Sender: TField; var Text: string; DisplayText: Boolean);
+begin
+  Text := Sender.AsString;
 end;
 
 function TfrmCadEscalaMusical.PegarNotasMarcadas: string;
@@ -215,20 +222,6 @@ begin
   oEscala.listaNota    := PegarNotasMarcadas;
   oEscala.descricao    := Trim(edtDescricao.Text);
 
-  // Dados do arquivo
-  if edtArquivo.Text <> '' then
-  begin
-    oEscala.nomeArquivo    := ExtractFileName(edtArquivo.Text);
-    oEscala.caminhoArquivo := edtArquivo.Text;
-    linhas := TStringList.Create;
-    try
-      linhas.LoadFromFile(edtArquivo.Text, TEncoding.UTF8);
-      oEscala.conteudoArquivo := linhas.Text;
-    finally
-      linhas.Free;
-    end;
-  end;
-
   if EstadoDoCadastro = ecInserir then
     Result := oEscala.Inserir
   else
@@ -255,10 +248,6 @@ begin
     lkpTonalidade.KeyValue := oEscala.tonalidadeId;
     lkpTipoEscala.KeyValue := oEscala.tipoId;
     MarcarNotasSalvas(oEscala.listaNota);
-    if oEscala.caminhoArquivo <> '' then
-      edtArquivo.Text := oEscala.caminhoArquivo
-    else
-      edtArquivo.Text := '';
   end
   else begin
     btnCancelar.Click;
@@ -266,18 +255,6 @@ begin
   end;
 
   inherited
-end;
-
-procedure TfrmCadEscalaMusical.btnImportarClick(Sender: TObject);
-begin
-  dlgAbrir.Filter := 'Arquivo de Texto|*.txt';
-  dlgAbrir.FileName := '';
-
-  if dlgAbrir.Execute then
-  begin
-    edtArquivo.Text := dlgAbrir.FileName;
-    ImportarArquivoTXT(dlgAbrir.FileName);
-  end;
 end;
 
 procedure TfrmCadEscalaMusical.btnLimparFiltroClick(Sender: TObject);
@@ -377,9 +354,6 @@ begin
       lkpTipoEscala.KeyValue := tipoId;
       MarcarNotasSalvas(notasIds);
 
-      // Guarda o caminho para usar no Gravar
-      edtArquivo.Text := caminho;
-
       ShowMessage('Arquivo lido com sucesso! Confira os campos e clique em Salvar.');
 
     finally
@@ -406,9 +380,16 @@ var
 begin
   vSQL :=
     'SELECT e.escalaId, e.nome, t.nome AS tonalidade, te.nome AS tipoEscala, ' +
-    '       e.descricao, e.caminhoArquivo, e.nomeArquivo, e.conteudoArquivo ' +
+    '       e.descricao, e.caminhoArquivo, e.nomeArquivo, ' +
+    '       STUFF( ' +
+    '         (SELECT '', '' + n.nome ' +
+    '            FROM notas n ' +
+    '           WHERE CHARINDEX('','' + CAST(n.notasId AS VARCHAR) + '','', ' +
+    '                           '','' + e.listaNota + '','') > 0 ' +
+    '           FOR XML PATH(''''), TYPE).value(''.'', ''NVARCHAR(MAX)''), ' +
+    '         1, 2, '''') AS notasNomes ' +
     'FROM escalas e ' +
-    'INNER JOIN tonalidades t ON t.tonalidadeId = e.tonalidadeId ' +
+    'INNER JOIN tonalidades t  ON t.tonalidadeId  = e.tonalidadeId ' +
     'INNER JOIN tipoEscala te ON te.tipoEscalaId = e.tipoId ' +
     'WHERE 1=1 ';
 

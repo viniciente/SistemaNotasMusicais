@@ -51,11 +51,14 @@ type
     procedure btnCancelarClick(Sender: TObject);
     procedure btnImportarClick(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
+    procedure DBGrid1DrawColumnCell(Sender: TObject; const Rect: TRect; DataCol: Integer; Column: TColumn;
+      State: TGridDrawState);
+    procedure dbGridConsultaDblClick(Sender: TObject);
   private
     procedure CarregarDados;
     function ObterNomesNotas(listaNota: string): string;
     procedure LimparEdits;
-    procedure CentralizarColunas;
+    procedure CentralizarColunas(pGrid: TDBGrid);
     procedure PrepararGridImport;
     procedure LerArquivoTXT(caminho: string);
     function ValidarESalvarLinha(
@@ -113,6 +116,12 @@ begin
     dbGridConsulta.Columns[i].Title.Font.Style := [fsBold];
   end;
 
+//  for i := 0 to DBGrid1.Columns.Count- 1 do
+//  begin
+//    DBGrid1.Columns[i].Title.Font.Color := $00FF5EB1;
+//    DBGrid1.Columns[i].Title.Font.Style := [fsBold];
+//  end;
+
   fld := TStringField.Create(qryArquivos);
   fld.FieldName  := 'nomesNotas';
   fld.FieldKind  := fkCalculated;
@@ -120,21 +129,74 @@ begin
   fld.Size       := 500;
   fld.DataSet    := qryArquivos;
 
-  CentralizarColunas;
+ CentralizarColunas(dbGridConsulta);
+ CentralizarColunas(DBgrid1);
   PrepararGridImport;
 end;
 
-procedure TfrmArquivos.CentralizarColunas;
+procedure TfrmArquivos.CentralizarColunas(pGrid: TDBGrid);
 var
   I: Integer;
 begin
-  for I := 0 to dbGridConsulta.Columns.Count - 1 do
-  begin
-    // Centraliza o texto das linhas
-    dbGridConsulta.Columns[I].Alignment := taCenter;
+  // Verificamos se o grid foi atribuído para evitar erros
+  if not Assigned(pGrid) then Exit;
 
-    // Centraliza o texto do título
-    dbGridConsulta.Columns[I].Title.Alignment := taCenter;
+  for I := 0 to pGrid.Columns.Count - 1 do
+  begin
+    // Centraliza o texto das linhas (conteúdo)
+    pGrid.Columns[I].Alignment := taCenter;
+
+    // Centraliza o texto do título (cabeçalho)
+    pGrid.Columns[I].Title.Alignment := taCenter;
+  end;
+end;
+
+procedure TfrmArquivos.DBGrid1DrawColumnCell(Sender: TObject; const Rect: TRect; DataCol: Integer; Column: TColumn;
+  State: TGridDrawState);
+var I: Integer;
+begin
+  for I := 0 to DBGrid1.Columns.Count - 1 do
+    DBGrid1.Columns[I].Title.Alignment := taCenter;
+end;
+
+procedure TfrmArquivos.dbGridConsultaDblClick(Sender: TObject);
+var
+  dlgSalvar : TSaveDialog;
+  linhas    : TStringList;
+  nomeEscala, tipoEscala, tonalidade, notas, descricao: string;
+  conteudo  : string;
+begin
+  if qryArquivos.IsEmpty then Exit;
+
+  if MessageDlg('Deseja exportar essa escala?', mtConfirmation, [mbYes, mbNo], 0) <> mrYes then
+    Exit;
+
+  nomeEscala := qryArquivos.FieldByName('nome').AsString;
+  tipoEscala := qryArquivos.FieldByName('tipoEscala').AsString;
+  tonalidade := qryArquivos.FieldByName('tonalidade').AsString;
+  notas      := ObterNomesNotas(qryArquivos.FieldByName('listaNota').AsString);
+  descricao  := qryArquivos.FieldByName('descricao').AsString;
+
+  conteudo := nomeEscala + ' | ' + tipoEscala + ' | ' +
+              tonalidade + ' | ' + notas      + ' | ' + descricao;
+
+  dlgSalvar := TSaveDialog.Create(nil);
+  linhas    := TStringList.Create;
+  try
+    dlgSalvar.Title      := 'Exportar escala';
+    dlgSalvar.Filter     := 'Arquivo de Texto|*.txt';
+    dlgSalvar.DefaultExt := 'txt';
+    dlgSalvar.FileName   := nomeEscala;
+
+    if dlgSalvar.Execute then
+    begin
+      linhas.Add(conteudo);
+      linhas.SaveToFile(dlgSalvar.FileName, TEncoding.UTF8);
+      ShowMessage('Escala "' + nomeEscala + '" exportada com sucesso!');
+    end;
+  finally
+    dlgSalvar.Free;
+    linhas.Free;
   end;
 end;
 
@@ -147,12 +209,8 @@ end;
 procedure TfrmArquivos.CarregarDados;
 var i: Integer;
 begin
-
   qryArquivos.Close;
   qryArquivos.Open;
-
-  DBGrid1.Columns[i].Title.Font.Color := $00FF5EB1;
-
 end;
 
 function TfrmArquivos.ObterNomesNotas(listaNota: string): string;

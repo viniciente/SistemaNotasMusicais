@@ -28,9 +28,6 @@ type
     qryNotas: TFDQuery;
     qryTipoEscala: TFDQuery;
     qryTonalidades: TFDQuery;
-    btnImportar: TButton;
-    edtArquivo: TEdit;
-    lblArquivo: TLabel;
     dlgAbrir: TOpenDialog;
     lkpPesqTipo: TDBLookupComboBox;
     lkpPesqTonalidade: TDBLookupComboBox;
@@ -48,7 +45,7 @@ type
     qryPrincipaldescricao: TStringField;
     qryPrincipalcaminhoArquivo: TStringField;
     qryPrincipalnomeArquivo: TStringField;
-    qryPrincipalconteudoArquivo: TStringField;
+    qryPrincipalnotasNomes: TWideMemoField;
     procedure btnEditarClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure FormShow(Sender: TObject);
@@ -66,6 +63,7 @@ type
     function Apagar: Boolean; override;
     procedure ImportarArquivoTXT(caminho: string);
     procedure FiltrarDados;
+    procedure NotasNomesGetText(Sender: TField; var Text: string; DisplayText: Boolean);
   end;
 
 var
@@ -83,18 +81,7 @@ var
 begin
   inherited;
   oEscala := TEscalas.Create(dmDados.FDConexao);
-
-    // Campo que vai receber os nomes das notas vindos do SQL
-  fld := TStringField.Create(qryPrincipal);
-  fld.FieldName := 'notasNomes';
-  fld.Size      := 500;
-  fld.DataSet   := qryPrincipal;
-
-  // Coluna no grid apontando para esse campo
-  col               := dbGridConsulta.Columns.Add;
-  col.FieldName     := 'notasNomes';
-  col.Title.Caption := 'Notas';
-  col.Width         := 200;
+  qryPrincipalnotasNomes.OnGetText := NotasNomesGetText;
 end;
 
 procedure TfrmCadEscalaMusical.FormShow(Sender: TObject);
@@ -140,6 +127,11 @@ begin
     notaId := Integer(clbNotas.Items.Objects[i]);
     clbNotas.Checked[i] := IndexStr(IntToStr(notaId), ids) >= 0;
   end;
+end;
+
+procedure TfrmCadEscalaMusical.NotasNomesGetText(Sender: TField; var Text: string; DisplayText: Boolean);
+begin
+  Text := Sender.AsString;
 end;
 
 function TfrmCadEscalaMusical.PegarNotasMarcadas: string;
@@ -419,9 +411,9 @@ procedure TfrmCadEscalaMusical.FiltrarDados;
 var
   vSQL: string;
 begin
-    vSQL :=
+  vSQL :=
     'SELECT e.escalaId, e.nome, t.nome AS tonalidade, te.nome AS tipoEscala, ' +
-    '       e.descricao, e.caminhoArquivo, e.nomeArquivo, e.conteudoArquivo, ' +
+    '       e.descricao, e.caminhoArquivo, e.nomeArquivo, ' +
     '       STUFF( ' +
     '         (SELECT '', '' + n.nome ' +
     '            FROM notas n ' +

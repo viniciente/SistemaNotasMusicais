@@ -1,7 +1,6 @@
 inherited frmCadEscalaMusical: TfrmCadEscalaMusical
   Caption = 'CADASTRO DE ESCALA MUSICAL'
   ClientHeight = 375
-  OnShow = FormShow
   ExplicitHeight = 414
   PixelsPerInch = 96
   TextHeight = 13
@@ -9,6 +8,9 @@ inherited frmCadEscalaMusical: TfrmCadEscalaMusical
     Height = 375
     ExplicitHeight = 375
     inherited tsConsulta: TTabSheet
+      ExplicitLeft = 4
+      ExplicitTop = 24
+      ExplicitWidth = 681
       ExplicitHeight = 347
       inherited pnlTop: TPanel
         Height = 65
@@ -131,17 +133,17 @@ inherited frmCadEscalaMusical: TfrmCadEscalaMusical
           end
           item
             Expanded = False
+            FieldName = 'caminhoArquivo'
+            Visible = True
+          end
+          item
+            Expanded = False
             FieldName = 'nomeArquivo'
             Visible = True
           end
           item
             Expanded = False
-            FieldName = 'conteudoArquivo'
-            Visible = True
-          end
-          item
-            Expanded = False
-            FieldName = 'caminhoArquivo'
+            FieldName = 'notasNomes'
             Visible = True
           end>
       end
@@ -151,6 +153,9 @@ inherited frmCadEscalaMusical: TfrmCadEscalaMusical
       end
     end
     inherited tsDados: TTabSheet
+      ExplicitLeft = 4
+      ExplicitTop = 24
+      ExplicitWidth = 681
       ExplicitHeight = 347
       object lblCodigo: TLabel [0]
         Left = 3
@@ -230,19 +235,6 @@ inherited frmCadEscalaMusical: TfrmCadEscalaMusical
         Font.Style = [fsBold]
         ParentFont = False
       end
-      object lblArquivo: TLabel [6]
-        Left = 84
-        Top = 260
-        Width = 150
-        Height = 16
-        Caption = 'Arquivo de Importa'#231#227'o'
-        Font.Charset = DEFAULT_CHARSET
-        Font.Color = clWindowText
-        Font.Height = -13
-        Font.Name = 'Tahoma'
-        Font.Style = [fsBold]
-        ParentFont = False
-      end
       inherited pnlDadosBottom: TPanel
         Top = 306
         ExplicitTop = 306
@@ -287,8 +279,10 @@ inherited frmCadEscalaMusical: TfrmCadEscalaMusical
         Left = 3
         Top = 108
         Width = 543
-        Height = 21
-        Anchors = [akLeft, akTop, akRight, akBottom]
+        Height = 192
+        Anchors = []
+        AutoSelect = False
+        ReadOnly = True
         TabOrder = 7
       end
       object clbNotas: TCheckListBox
@@ -299,83 +293,66 @@ inherited frmCadEscalaMusical: TfrmCadEscalaMusical
         ItemHeight = 13
         TabOrder = 6
       end
-      object btnImportar: TButton
-        Left = 3
-        Top = 276
-        Width = 75
-        Height = 25
-        Caption = 'Importar TXT'
-        TabOrder = 8
-        OnClick = btnImportarClick
-      end
-      object edtArquivo: TEdit
-        Left = 84
-        Top = 278
-        Width = 197
-        Height = 21
-        ReadOnly = True
-        TabOrder = 9
-      end
     end
   end
   inherited qryPrincipal: TFDQuery
     SQL.Strings = (
-      '    SELECT e.escalaId,'
-      '           e.nome,'
-      '           t.nome AS tonalidade,'
-      '           te.nome AS tipoEscala,'
-      '           e.descricao,'
-      '           e.caminhoArquivo,'
-      '           e.nomeArquivo,'
-      '           e.conteudoArquivo'
-      '    FROM escalas e'
-      '    INNER JOIN tonalidades t ON t.tonalidadeId = e.tonalidadeId'
-      '    INNER JOIN tipoEscala te ON te.tipoEscalaId = e.tipoId'
-      '    ORDER BY e.nome')
+      
+        'SELECT e.escalaId, e.nome, t.nome AS tonalidade, te.nome AS tipo' +
+        'Escala,'
+      
+        '       e.descricao, e.caminhoArquivo, e.nomeArquivo, e.conteudoA' +
+        'rquivo,'
+      '       STUFF('
+      '         (SELECT '#39', '#39' + n.nome'
+      '            FROM notas n'
+      
+        '           WHERE CHARINDEX('#39','#39' + CAST(n.notasId AS VARCHAR) + '#39',' +
+        #39','
+      '                           '#39','#39' + e.listaNota + '#39','#39') > 0'
+      '           FOR XML PATH('#39#39'), TYPE).value('#39'.'#39', '#39'NVARCHAR(MAX)'#39'),'
+      '         1, 2, '#39#39') AS notasNomes'
+      'FROM escalas e'
+      'INNER JOIN tonalidades t  ON t.tonalidadeId  = e.tonalidadeId'
+      'INNER JOIN tipoEscala te ON te.tipoEscalaId = e.tipoId'
+      'ORDER BY e.nome')
     Left = 597
     object qryPrincipalescalaId: TFDAutoIncField
       FieldName = 'escalaId'
-      Origin = 'escalaId'
-      ProviderFlags = [pfInWhere, pfInKey]
       ReadOnly = True
     end
     object qryPrincipalnome: TStringField
       FieldName = 'nome'
-      Origin = 'nome'
       Required = True
       Size = 100
     end
     object qryPrincipaltonalidade: TStringField
       FieldName = 'tonalidade'
-      Origin = 'tonalidade'
       Required = True
       Size = 50
     end
     object qryPrincipaltipoEscala: TStringField
       FieldName = 'tipoEscala'
-      Origin = 'tipoEscala'
       Required = True
       Size = 30
     end
     object qryPrincipaldescricao: TStringField
       FieldName = 'descricao'
-      Origin = 'descricao'
       Size = 500
     end
     object qryPrincipalcaminhoArquivo: TStringField
       FieldName = 'caminhoArquivo'
-      Origin = 'caminhoArquivo'
       Size = 500
     end
     object qryPrincipalnomeArquivo: TStringField
       FieldName = 'nomeArquivo'
-      Origin = 'nomeArquivo'
       Size = 255
     end
-    object qryPrincipalconteudoArquivo: TStringField
-      FieldName = 'conteudoArquivo'
-      Origin = 'conteudoArquivo'
-      Size = 500
+    object qryPrincipalnotasNomes: TWideMemoField
+      FieldName = 'notasNomes'
+      ReadOnly = True
+      BlobType = ftWideMemo
+      Size = 2147483647
     end
   end
   object qryTonalidades: TFDQuery

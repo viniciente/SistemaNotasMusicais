@@ -53,6 +53,7 @@ type
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure DBGrid1DrawColumnCell(Sender: TObject; const Rect: TRect; DataCol: Integer; Column: TColumn;
       State: TGridDrawState);
+    procedure dbGridConsultaDblClick(Sender: TObject);
   private
     procedure CarregarDados;
     function ObterNomesNotas(listaNota: string): string;
@@ -156,6 +157,47 @@ var I: Integer;
 begin
   for I := 0 to DBGrid1.Columns.Count - 1 do
     DBGrid1.Columns[I].Title.Alignment := taCenter;
+end;
+
+procedure TfrmArquivos.dbGridConsultaDblClick(Sender: TObject);
+var
+  dlgSalvar : TSaveDialog;
+  linhas    : TStringList;
+  nomeEscala, tipoEscala, tonalidade, notas, descricao: string;
+  conteudo  : string;
+begin
+  if qryArquivos.IsEmpty then Exit;
+
+  if MessageDlg('Deseja exportar essa escala?', mtConfirmation, [mbYes, mbNo], 0) <> mrYes then
+    Exit;
+
+  nomeEscala := qryArquivos.FieldByName('nome').AsString;
+  tipoEscala := qryArquivos.FieldByName('tipoEscala').AsString;
+  tonalidade := qryArquivos.FieldByName('tonalidade').AsString;
+  notas      := ObterNomesNotas(qryArquivos.FieldByName('listaNota').AsString);
+  descricao  := qryArquivos.FieldByName('descricao').AsString;
+
+  conteudo := nomeEscala + ' | ' + tipoEscala + ' | ' +
+              tonalidade + ' | ' + notas      + ' | ' + descricao;
+
+  dlgSalvar := TSaveDialog.Create(nil);
+  linhas    := TStringList.Create;
+  try
+    dlgSalvar.Title      := 'Exportar escala';
+    dlgSalvar.Filter     := 'Arquivo de Texto|*.txt';
+    dlgSalvar.DefaultExt := 'txt';
+    dlgSalvar.FileName   := nomeEscala;
+
+    if dlgSalvar.Execute then
+    begin
+      linhas.Add(conteudo);
+      linhas.SaveToFile(dlgSalvar.FileName, TEncoding.UTF8);
+      ShowMessage('Escala "' + nomeEscala + '" exportada com sucesso!');
+    end;
+  finally
+    dlgSalvar.Free;
+    linhas.Free;
+  end;
 end;
 
 procedure TfrmArquivos.FormShow(Sender: TObject);

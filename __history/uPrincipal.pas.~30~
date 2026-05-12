@@ -40,6 +40,7 @@ type
     procedure FormCreate(Sender: TObject);
     procedure PnlBtnImportarClick(Sender: TObject);
     procedure PnlExportarClick(Sender: TObject);
+    procedure Panel1Click(Sender: TObject);
     procedure Image2Click(Sender: TObject);
     procedure Image3Click(Sender: TObject);
   private

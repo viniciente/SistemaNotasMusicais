@@ -10,11 +10,7 @@ uses
 type
   TfrmPrincipal = class(TForm)
     pnlFundo: TPanel;
-    PnlBtnExportar: TPanel;
-    Button2: TButton;
     pnlImgPiano: TPanel;
-    pnlBtnImportar: TPanel;
-    Panel1: TPanel;
     Image1: TImage;
     MainMenu1: TMainMenu;
     CADASTRO1: TMenuItem;
@@ -27,15 +23,25 @@ type
     FECHAR1: TMenuItem;
     ARQUIVOS1: TMenuItem;
     IMPORTAOEXPORTAO1: TMenuItem;
+    PnlBtnImportar: TPanel;
+    lblImportTitulo: TLabel;
+    Label1: TLabel;
+    Image2: TImage;
+    PnlExportar: TPanel;
+    Label2: TLabel;
+    Label3: TLabel;
+    Image3: TImage;
+    Panel1: TPanel;
     procedure FECHAR1Click(Sender: TObject);
     procedure NOTAS1Click(Sender: TObject);
-    procedure ONALIDADES1Click(Sender: TObject);
     procedure ESCALAMUSICAL1Click(Sender: TObject);
-    procedure TIPOESCALA1Click(Sender: TObject);
     procedure IMPORTAOEXPORTAO1Click(Sender: TObject);
     procedure ONALIDADE1Click(Sender: TObject);
     procedure IPOESCALA1Click(Sender: TObject);
-    procedure N2Click(Sender: TObject);
+    procedure FormCreate(Sender: TObject);
+    procedure PnlBtnImportarClick(Sender: TObject);
+    procedure PnlExportarClick(Sender: TObject);
+    procedure Panel1Click(Sender: TObject);
   private
     { Private declarations }
   public
@@ -64,6 +70,12 @@ end;
 procedure TfrmPrincipal.FECHAR1Click(Sender: TObject);
 begin
   Application.Terminate;
+end;
+
+procedure TfrmPrincipal.FormCreate(Sender: TObject);
+begin
+  lblImportTitulo.Font.Color := $00FF5EB1;
+  lblImportTitulo.Font.Style := [fsBold];
 end;
 
 procedure TfrmPrincipal.IMPORTAOEXPORTAO1Click(Sender: TObject);
@@ -112,4 +124,43 @@ begin
     frmTonalidades.Free;
   end;
 end;
+
+procedure TfrmPrincipal.Panel1Click(Sender: TObject);
+begin
+  // 1. Verifica se a tela já não está criada (se você não usa auto-create)
+  if not Assigned(frmArquivos) then
+    Application.CreateForm(TfrmArquivos, frmArquivos);
+
+  // 2. Exibe a tela primeiro (para o usuário ver onde os dados vão cair)
+  frmArquivos.Show;
+
+  // 3. Dispara o explorer automaticamente
+  frmArquivos.AbrirImportacaoDireta;
+end;
+
+procedure TfrmPrincipal.PnlBtnImportarClick(Sender: TObject);
+begin
+  // 1. Verifica se a tela já não está criada (se você não usa auto-create)
+  if not Assigned(frmArquivos) then
+    Application.CreateForm(TfrmArquivos, frmArquivos);
+
+  // 2. Exibe a tela primeiro (para o usuário ver onde os dados vão cair)
+  frmArquivos.Show;
+
+  // 3. Dispara o explorer automaticamente
+  frmArquivos.AbrirImportacaoDireta;
+end;
+
+procedure TfrmPrincipal.PnlExportarClick(Sender: TObject);
+var
+  frmArquivos: TfrmArquivos;
+begin
+  frmArquivos := TfrmArquivos.Create(Application);
+  try
+    frmArquivos.ShowModal;
+  finally
+    frmArquivos.Free;
+  end;
+end;
+
 end.

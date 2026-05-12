@@ -106,6 +106,7 @@ inherited frmCadEscalaMusical: TfrmCadEscalaMusical
       inherited dbGridConsulta: TDBGrid
         Top = 65
         Height = 241
+        OnDblClick = dbGridConsultaDblClick
         Columns = <
           item
             Expanded = False
@@ -236,19 +237,6 @@ inherited frmCadEscalaMusical: TfrmCadEscalaMusical
         Font.Style = [fsBold]
         ParentFont = False
       end
-      object lblArquivo: TLabel [6]
-        Left = 84
-        Top = 260
-        Width = 150
-        Height = 16
-        Caption = 'Arquivo de Importa'#231#227'o'
-        Font.Charset = DEFAULT_CHARSET
-        Font.Color = clWindowText
-        Font.Height = -13
-        Font.Name = 'Tahoma'
-        Font.Style = [fsBold]
-        ParentFont = False
-      end
       inherited pnlDadosBottom: TPanel
         Top = 306
         ExplicitTop = 306
@@ -288,15 +276,6 @@ inherited frmCadEscalaMusical: TfrmCadEscalaMusical
         ListSource = dsTipoEscala
         TabOrder = 4
       end
-      object edtDescricao: TEdit
-        AlignWithMargins = True
-        Left = 3
-        Top = 108
-        Width = 543
-        Height = 21
-        Anchors = [akLeft, akTop, akRight, akBottom]
-        TabOrder = 7
-      end
       object clbNotas: TCheckListBox
         Left = 557
         Top = 61
@@ -305,22 +284,16 @@ inherited frmCadEscalaMusical: TfrmCadEscalaMusical
         ItemHeight = 13
         TabOrder = 6
       end
-      object btnImportar: TButton
+      object edtDescricao: TEdit
+        AlignWithMargins = True
         Left = 3
-        Top = 276
-        Width = 75
-        Height = 25
-        Caption = 'Importar TXT'
-        TabOrder = 8
-        OnClick = btnImportarClick
-      end
-      object edtArquivo: TEdit
-        Left = 84
-        Top = 278
-        Width = 197
-        Height = 21
-        ReadOnly = True
-        TabOrder = 9
+        Top = 108
+        Width = 543
+        Height = 192
+        Anchors = []
+        AutoSelect = False
+        AutoSize = False
+        TabOrder = 7
       end
     end
   end

@@ -18,7 +18,6 @@ type
     edtNome: TEdit;
     lkpTonalidade: TDBLookupComboBox;
     lkpTipoEscala: TDBLookupComboBox;
-    edtDescricao: TEdit;
     lblCodigo: TLabel;
     lblNome: TLabel;
     lblTonalidade: TLabel;
@@ -28,9 +27,6 @@ type
     qryNotas: TFDQuery;
     qryTipoEscala: TFDQuery;
     qryTonalidades: TFDQuery;
-    btnImportar: TButton;
-    edtArquivo: TEdit;
-    lblArquivo: TLabel;
     dlgAbrir: TOpenDialog;
     lkpPesqTipo: TDBLookupComboBox;
     lkpPesqTonalidade: TDBLookupComboBox;
@@ -49,13 +45,14 @@ type
     qryPrincipalcaminhoArquivo: TStringField;
     qryPrincipalnomeArquivo: TStringField;
     qryPrincipalnotasNomes: TWideMemoField;
+    edtDescricao: TEdit;
     procedure btnEditarClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure FormShow(Sender: TObject);
-    procedure btnImportarClick(Sender: TObject);
     procedure lkpPesqTonalidadeClick(Sender: TObject);
     procedure lkpPesqTipoClick(Sender: TObject);
     procedure btnLimparFiltroClick(Sender: TObject);
+    procedure dbGridConsultaDblClick(Sender: TObject);
 
   private
     oEscala: TEscalas;
@@ -115,6 +112,47 @@ begin
       TObject(qryNotas.FieldByName('notasId').AsInteger)
     );
     qryNotas.Next;
+  end;
+end;
+
+procedure TfrmCadEscalaMusical.dbGridConsultaDblClick(Sender: TObject);
+var
+  dlgSalvar : TSaveDialog;
+  linhas    : TStringList;
+  nomeEscala, tipoEscala, tonalidade, notas, descricao: string;
+  conteudo  : string;
+begin
+  if qryPrincipal.IsEmpty then Exit;
+
+  if MessageDlg('Deseja exportar essa escala?', mtConfirmation, [mbYes, mbNo], 0) <> mrYes then
+    Exit;
+
+  nomeEscala := qryPrincipal.FieldByName('nome').AsString;
+  tipoEscala := qryPrincipal.FieldByName('tipoEscala').AsString;
+  tonalidade := qryPrincipal.FieldByName('tonalidade').AsString;
+  notas      := qryPrincipalnotasNomes.AsString;
+  descricao  := qryPrincipal.FieldByName('descricao').AsString;
+
+  conteudo := nomeEscala + ' | ' + tipoEscala + ' | ' +
+              tonalidade + ' | ' + notas      + ' | ' + descricao;
+
+  dlgSalvar := TSaveDialog.Create(nil);
+  linhas    := TStringList.Create;
+  try
+    dlgSalvar.Title      := 'Exportar escala';
+    dlgSalvar.Filter     := 'Arquivo de Texto|*.txt';
+    dlgSalvar.DefaultExt := 'txt';
+    dlgSalvar.FileName   := nomeEscala;
+
+    if dlgSalvar.Execute then
+    begin
+      linhas.Add(conteudo);
+      linhas.SaveToFile(dlgSalvar.FileName, TEncoding.UTF8);
+      ShowMessage('Escala "' + nomeEscala + '" exportada com sucesso!');
+    end;
+  finally
+    dlgSalvar.Free;
+    linhas.Free;
   end;
 end;
 
@@ -225,20 +263,6 @@ begin
   oEscala.listaNota    := PegarNotasMarcadas;
   oEscala.descricao    := Trim(edtDescricao.Text);
 
-  // Dados do arquivo
-  if edtArquivo.Text <> '' then
-  begin
-    oEscala.nomeArquivo    := ExtractFileName(edtArquivo.Text);
-    oEscala.caminhoArquivo := edtArquivo.Text;
-    linhas := TStringList.Create;
-    try
-      linhas.LoadFromFile(edtArquivo.Text, TEncoding.UTF8);
-      oEscala.conteudoArquivo := linhas.Text;
-    finally
-      linhas.Free;
-    end;
-  end;
-
   if EstadoDoCadastro = ecInserir then
     Result := oEscala.Inserir
   else
@@ -265,10 +289,6 @@ begin
     lkpTonalidade.KeyValue := oEscala.tonalidadeId;
     lkpTipoEscala.KeyValue := oEscala.tipoId;
     MarcarNotasSalvas(oEscala.listaNota);
-    if oEscala.caminhoArquivo <> '' then
-      edtArquivo.Text := oEscala.caminhoArquivo
-    else
-      edtArquivo.Text := '';
   end
   else begin
     btnCancelar.Click;
@@ -276,18 +296,6 @@ begin
   end;
 
   inherited
-end;
-
-procedure TfrmCadEscalaMusical.btnImportarClick(Sender: TObject);
-begin
-  dlgAbrir.Filter := 'Arquivo de Texto|*.txt';
-  dlgAbrir.FileName := '';
-
-  if dlgAbrir.Execute then
-  begin
-    edtArquivo.Text := dlgAbrir.FileName;
-    ImportarArquivoTXT(dlgAbrir.FileName);
-  end;
 end;
 
 procedure TfrmCadEscalaMusical.btnLimparFiltroClick(Sender: TObject);
@@ -386,9 +394,6 @@ begin
       lkpTonalidade.KeyValue := tonalidadeId;
       lkpTipoEscala.KeyValue := tipoId;
       MarcarNotasSalvas(notasIds);
-
-      // Guarda o caminho para usar no Gravar
-      edtArquivo.Text := caminho;
 
       ShowMessage('Arquivo lido com sucesso! Confira os campos e clique em Salvar.');
 

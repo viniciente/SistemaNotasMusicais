@@ -9,9 +9,6 @@ inherited frmCadEscalaMusical: TfrmCadEscalaMusical
     ActivePage = tsConsulta
     ExplicitHeight = 375
     inherited tsConsulta: TTabSheet
-      ExplicitLeft = 4
-      ExplicitTop = 24
-      ExplicitWidth = 681
       ExplicitHeight = 347
       inherited pnlTop: TPanel
         Height = 65
@@ -180,9 +177,6 @@ inherited frmCadEscalaMusical: TfrmCadEscalaMusical
       end
     end
     inherited tsDados: TTabSheet
-      ExplicitLeft = 4
-      ExplicitTop = 24
-      ExplicitWidth = 681
       ExplicitHeight = 347
       object lblCodigo: TLabel [0]
         Left = 3
@@ -383,7 +377,6 @@ inherited frmCadEscalaMusical: TfrmCadEscalaMusical
     end
   end
   object qryTonalidades: TFDQuery
-    Active = True
     Connection = dmDados.FDConexao
     SQL.Strings = (
       'SELECT tonalidadeId,'
@@ -405,7 +398,6 @@ inherited frmCadEscalaMusical: TfrmCadEscalaMusical
     end
   end
   object qryTipoEscala: TFDQuery
-    Active = True
     Connection = dmDados.FDConexao
     SQL.Strings = (
       'SELECT tipoEscalaId,'
@@ -450,7 +442,6 @@ inherited frmCadEscalaMusical: TfrmCadEscalaMusical
     Top = 192
   end
   object qryPesqTonalidades: TFDQuery
-    Active = True
     Connection = dmDados.FDConexao
     SQL.Strings = (
       'SELECT tonalidadeId,'
@@ -461,7 +452,6 @@ inherited frmCadEscalaMusical: TfrmCadEscalaMusical
     Top = 232
   end
   object qryPesqTipoEscala: TFDQuery
-    Active = True
     Connection = dmDados.FDConexao
     SQL.Strings = (
       'SELECT tipoEscalaId,'

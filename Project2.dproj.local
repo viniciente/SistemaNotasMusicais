@@ -53,12 +53,12 @@
     <Transaction>2026/05/07 10:21:23.000.715,=C:\Users\devmv\Documents\SistemaNotasMusicais\Unit1.pas</Transaction>
     <Transaction>2026/05/07 10:22:01.000.236,C:\Users\devmv\Documents\SistemaNotasMusicais\Unit1.pas=C:\Users\devmv\Documents\SistemaNotasMusicais\uArquivos.pas</Transaction>
     <Transaction>2026/05/07 10:22:01.000.236,C:\Users\devmv\Documents\SistemaNotasMusicais\Unit1.dfm=C:\Users\devmv\Documents\SistemaNotasMusicais\uArquivos.dfm</Transaction>
-    <Transaction>2026/05/14 09:11:15.319,=C:\Users\devmv\Documents\SistemaNotasMusicais\Unit1.pas</Transaction>
-    <Transaction>2026/05/14 09:11:37.974,C:\Users\devmv\Documents\SistemaNotasMusicais\Classes\uDlgAutoCadastro.pas=C:\Users\devmv\Documents\SistemaNotasMusicais\Unit1.pas</Transaction>
-    <Transaction>2026/05/14 09:13:29.946,C:\Users\devmv\Documents\SistemaNotasMusicais\Classes\uDlgAutoCadastro.pas=</Transaction>
-    <Transaction>2026/05/14 09:13:34.758,=C:\Users\devmv\Documents\SistemaNotasMusicais\Unit1.pas</Transaction>
-    <Transaction>2026/05/14 09:13:51.649,C:\Users\devmv\Documents\SistemaNotasMusicais\Cadastro\uDlgAutoCadastro.pas=C:\Users\devmv\Documents\SistemaNotasMusicais\Unit1.pas</Transaction>
-    <Transaction>2026/05/14 09:13:51.649,C:\Users\devmv\Documents\SistemaNotasMusicais\Cadastro\uDlgAutoCadastro.dfm=C:\Users\devmv\Documents\SistemaNotasMusicais\Unit1.dfm</Transaction>
-    <Transaction>2026/05/14 09:20:30.299,C:\Users\devmv\Documents\SistemaNotasMusicais\Cadastro\uDlgAutoCadastro.pas=</Transaction>
+    <Transaction>2026/05/14 09:11:15.000.319,=C:\Users\devmv\Documents\SistemaNotasMusicais\Unit1.pas</Transaction>
+    <Transaction>2026/05/14 09:11:37.000.974,C:\Users\devmv\Documents\SistemaNotasMusicais\Classes\uDlgAutoCadastro.pas=C:\Users\devmv\Documents\SistemaNotasMusicais\Unit1.pas</Transaction>
+    <Transaction>2026/05/14 09:13:29.000.946,C:\Users\devmv\Documents\SistemaNotasMusicais\Classes\uDlgAutoCadastro.pas=</Transaction>
+    <Transaction>2026/05/14 09:13:34.000.758,=C:\Users\devmv\Documents\SistemaNotasMusicais\Unit1.pas</Transaction>
+    <Transaction>2026/05/14 09:13:51.000.649,C:\Users\devmv\Documents\SistemaNotasMusicais\Cadastro\uDlgAutoCadastro.pas=C:\Users\devmv\Documents\SistemaNotasMusicais\Unit1.pas</Transaction>
+    <Transaction>2026/05/14 09:13:51.000.649,C:\Users\devmv\Documents\SistemaNotasMusicais\Cadastro\uDlgAutoCadastro.dfm=C:\Users\devmv\Documents\SistemaNotasMusicais\Unit1.dfm</Transaction>
+    <Transaction>2026/05/14 09:20:30.000.299,C:\Users\devmv\Documents\SistemaNotasMusicais\Cadastro\uDlgAutoCadastro.pas=</Transaction>
   </Transactions>
 </BorlandProject>

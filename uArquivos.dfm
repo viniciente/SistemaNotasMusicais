@@ -22,11 +22,15 @@ object frmArquivos: TfrmArquivos
     Top = 0
     Width = 713
     Height = 387
-    ActivePage = tsConsulta
+    ActivePage = tsDados
     Align = alClient
     TabOrder = 0
     object tsConsulta: TTabSheet
       Caption = 'CONSULTA'
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       object pnlTop: TPanel
         Left = 0
         Top = 0
@@ -224,6 +228,10 @@ object frmArquivos: TfrmArquivos
     object tsDados: TTabSheet
       Caption = 'DADOS'
       ImageIndex = 1
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       object pnlDadosBottom: TPanel
         Left = 0
         Top = 318
@@ -296,6 +304,15 @@ object frmArquivos: TfrmArquivos
             6530FDFDE485786BA168A145B6A5023758FAA25EC41654C1CE77823F967B35D9
             FB9072C4E8F1859041C6597E11E66BC39FF222BB4E9021EFF74E36264BF1EB93
             62E952CDD70A2F0000000049454E44AE426082}
+        end
+        object btnAutoCadastro: TPngBitBtn
+          Left = 408
+          Top = 6
+          Width = 81
+          Height = 25
+          Caption = 'Auto-Cadastro'
+          TabOrder = 2
+          OnClick = btnAutoCadastroClick
         end
       end
       object pnlCadastro: TPanel

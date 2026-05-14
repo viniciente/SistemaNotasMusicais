@@ -1,0 +1,17 @@
+object dmDados: TdmDados
+  OldCreateOrder = False
+  OnCreate = DataModuleCreate
+  Height = 203
+  Width = 365
+  object FDConexao: TFDConnection
+    Params.Strings = (
+      'Server=DC-TR-06-VM\SERVERCURSO'
+      'Database=NotasMusicais'
+      'OSAuthent=Yes'
+      'User_Name=DOMTEC\devmv'
+      'DriverID=MSSQL')
+    LoginPrompt = False
+    Left = 56
+    Top = 24
+  end
+end

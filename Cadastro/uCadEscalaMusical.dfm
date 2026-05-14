@@ -17,7 +17,7 @@ inherited frmCadEscalaMusical: TfrmCadEscalaMusical
         Height = 65
         ExplicitHeight = 65
         object lblFiltroTonalidade: TLabel [0]
-          Left = 0
+          Left = 59
           Top = 23
           Width = 76
           Height = 16
@@ -30,7 +30,7 @@ inherited frmCadEscalaMusical: TfrmCadEscalaMusical
           ParentFont = False
         end
         object lblFiltroTipoEscala: TLabel [1]
-          Left = 138
+          Left = 197
           Top = 23
           Width = 70
           Height = 16
@@ -42,20 +42,45 @@ inherited frmCadEscalaMusical: TfrmCadEscalaMusical
           Font.Style = [fsBold]
           ParentFont = False
         end
+        object lblFiltro: TLabel [2]
+          Left = 11
+          Top = 38
+          Width = 44
+          Height = 32
+          Caption = 'Filtros:'#13#10
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -13
+          Font.Name = 'Tahoma'
+          Font.Style = [fsBold]
+          ParentFont = False
+        end
         inherited btnAdicionar: TPngBitBtn
-          Top = 36
-          ExplicitTop = 36
+          Left = 426
+          Top = 38
+          Width = 88
+          ExplicitLeft = 426
+          ExplicitTop = 38
+          ExplicitWidth = 88
         end
         inherited btnRemover: TPngBitBtn
-          Top = 36
-          ExplicitTop = 36
+          Left = 517
+          Top = 38
+          Width = 79
+          ExplicitLeft = 517
+          ExplicitTop = 38
+          ExplicitWidth = 79
         end
         inherited btnEditar: TPngBitBtn
-          Top = 36
-          ExplicitTop = 36
+          Left = 598
+          Top = 38
+          Width = 80
+          ExplicitLeft = 598
+          ExplicitTop = 38
+          ExplicitWidth = 80
         end
         object lkpPesqTipo: TDBLookupComboBox
-          Left = 138
+          Left = 197
           Top = 40
           Width = 125
           Height = 21
@@ -66,7 +91,7 @@ inherited frmCadEscalaMusical: TfrmCadEscalaMusical
           OnClick = lkpPesqTipoClick
         end
         object lkpPesqTonalidade: TDBLookupComboBox
-          Left = 0
+          Left = 59
           Top = 40
           Width = 125
           Height = 21
@@ -77,9 +102,9 @@ inherited frmCadEscalaMusical: TfrmCadEscalaMusical
           OnClick = lkpPesqTonalidadeClick
         end
         object btnLimparFiltro: TPngBitBtn
-          Left = 272
+          Left = 333
           Top = 40
-          Width = 75
+          Width = 59
           Height = 21
           Caption = 'Limpar'
           TabOrder = 6

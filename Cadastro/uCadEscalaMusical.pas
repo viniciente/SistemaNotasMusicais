@@ -46,6 +46,7 @@ type
     qryPrincipalnomeArquivo: TStringField;
     qryPrincipalnotasNomes: TWideMemoField;
     edtDescricao: TEdit;
+    lblFiltro: TLabel;
     procedure btnEditarClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure FormShow(Sender: TObject);
@@ -204,7 +205,6 @@ begin
     Exit;
   end;
 
-  // ← TROCA = Null por VarIsNull
   if VarIsNull(lkpTonalidade.KeyValue) or VarIsEmpty(lkpTonalidade.KeyValue) then
   begin
     ShowMessage('Selecione uma tonalidade!');
@@ -302,7 +302,11 @@ procedure TfrmCadEscalaMusical.btnLimparFiltroClick(Sender: TObject);
 begin
   lkpPesqTonalidade.KeyValue := Null;
   lkpPesqTipo.KeyValue       := Null;
-  FiltrarDados; // recarrega sem filtro
+
+  lblFiltroTonalidade.Font.Color := clBlack;
+  lblFiltroTipoEscala.Font.Color := clBlack;
+
+  FiltrarDados;
 end;
 
 procedure TfrmCadEscalaMusical.ImportarArquivoTXT(caminho: string);
@@ -388,7 +392,6 @@ begin
         notasIds := notasIds + vQuery.FieldByName('notasId').AsString;
       end;
 
-      // ✅ Só preenche os campos — quem salva é o botão Salvar
       edtNome.Text           := sNome;
       edtDescricao.Text      := sDescricao;
       lkpTonalidade.KeyValue := tonalidadeId;
@@ -436,11 +439,29 @@ begin
 
   if not VarIsNull(lkpPesqTonalidade.KeyValue) and
      not VarIsEmpty(lkpPesqTonalidade.KeyValue) then
+  begin
     vSQL := vSQL + ' AND e.tonalidadeId = ' + IntToStr(Integer(lkpPesqTonalidade.KeyValue));
+    lblFiltroTonalidade.Font.Color := $00FF5EB1; // Pink - indica filtro ativo
+    lblFiltroTonalidade.Font.Style := lblFiltroTonalidade.Font.Style + [fsBold];
+  end
+  else
+  begin
+    lblFiltroTonalidade.Font.Color := clBlack;
+    lblFiltroTonalidade.Font.Style := lblFiltroTonalidade.Font.Style - [fsBold];
+  end;
 
   if not VarIsNull(lkpPesqTipo.KeyValue) and
      not VarIsEmpty(lkpPesqTipo.KeyValue) then
+  begin
     vSQL := vSQL + ' AND e.tipoId = ' + IntToStr(Integer(lkpPesqTipo.KeyValue));
+    lblFiltroTipoEscala.Font.Color := $00FF5EB1; // Pink - indica filtro ativo
+    lblFiltroTipoEscala.Font.Style := lblFiltroTipoEscala.Font.Style + [fsBold];
+  end
+  else
+  begin
+    lblFiltroTipoEscala.Font.Color := clBlack;
+    lblFiltroTipoEscala.Font.Style := lblFiltroTipoEscala.Font.Style - [fsBold];
+  end;
 
   vSQL := vSQL + ' ORDER BY e.nome';
 

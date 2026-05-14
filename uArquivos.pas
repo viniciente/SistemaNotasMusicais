@@ -386,10 +386,11 @@ var
   nomeEscala, tipoEscala, tonalidade, notasIds, nomesNotas, descricao: string;
   linha: string;
   posicaoAtual: TBookmark;
+  quantidadeExportada: Integer;
 begin
   if qryArquivos.IsEmpty then
   begin
-    ShowMessage('Não a dados para exportar!');
+    ShowMessage('Não há dados para exportar!');
     Exit;
   end;
 
@@ -406,6 +407,7 @@ begin
     try
       qryArquivos.DisableControls;
       qryArquivos.First;
+      quantidadeExportada := 0;
 
       while not qryArquivos.Eof do
       begin
@@ -418,7 +420,7 @@ begin
         // Converte IDs das notas para nomes
         nomesNotas := ObterNomesNotas(notasIds);
 
-        // Monta a linha no formato: Nome | Tipo | Tonalidade | Notas | Descri  o
+        // Monta a linha no formato: Nome | Tipo | Tonalidade | Notas | Descrição
         linha := nomeEscala  + ' | ' +
                  tipoEscala  + ' | ' +
                  tonalidade  + ' | ' +
@@ -426,24 +428,30 @@ begin
                  descricao;
 
         linhas.Add(linha);
+        Inc(quantidadeExportada);
         qryArquivos.Next;
       end;
 
     finally
-      // Restaura a posi  o e habilita controles
+      // Restaura a posição e habilita controles
       qryArquivos.GotoBookmark(posicaoAtual);
       qryArquivos.FreeBookmark(posicaoAtual);
       qryArquivos.EnableControls;
     end;
 
     // Grava o arquivo em UTF-8
-    linhas.SaveToFile(dlgSalvar.FileName, TEncoding.UTF8);
+    try
+      linhas.SaveToFile(dlgSalvar.FileName, TEncoding.UTF8);
 
-    ShowMessage(
-      'Exportação concluida com sucesso!' + sLineBreak +
-      IntToStr(linhas.Count) + ' escala(s) exportada(s).' + sLineBreak +
-      'Arquivo: ' + dlgSalvar.FileName
-    );
+      ShowMessage(
+        'Exportação concluída com sucesso!' + sLineBreak +
+        IntToStr(quantidadeExportada) + ' escala(s) exportada(s).' + sLineBreak +
+        'Arquivo: ' + dlgSalvar.FileName
+      );
+    except
+      on E: Exception do
+        ShowMessage('Erro ao salvar arquivo: ' + E.Message);
+    end;
 
   finally
     linhas.Free;
@@ -467,6 +475,7 @@ var
   resumoErros: TStringList;
   msg: string;
   i: Integer;
+  vTrans: TFDTransaction;
 begin
   if cdsImport.IsEmpty then
   begin
@@ -477,73 +486,106 @@ begin
   salvos      := 0;
   erros       := 0;
   resumoErros := TStringList.Create;
+  vTrans := TFDTransaction.Create(nil);
+
   try
-    cdsImport.DisableControls;
+    vTrans.Connection := dmDados.FDConexao;
+    dmDados.FDConexao.Transaction := vTrans;
+
     try
-      cdsImport.First;
-      while not cdsImport.Eof do
-      begin
-        if cdsImport.FieldByName('Status').AsString = 'ERRO' then
+      vTrans.StartTransaction;
+
+      cdsImport.DisableControls;
+      try
+        cdsImport.First;
+        while not cdsImport.Eof do
         begin
-          Inc(erros);
-          // Já tem erro de formato — registra no resumo
-          resumoErros.Add('• ' + cdsImport.FieldByName('Nome').AsString +
-            ': ' + cdsImport.FieldByName('Erro').AsString);
+          if cdsImport.FieldByName('Status').AsString = 'ERRO' then
+          begin
+            Inc(erros);
+            resumoErros.Add('• ' + cdsImport.FieldByName('Nome').AsString +
+              ': ' + cdsImport.FieldByName('Erro').AsString);
+            cdsImport.Next;
+            Continue;
+          end;
+
+          if ValidarESalvarLinha(
+            cdsImport.FieldByName('Nome').AsString,
+            cdsImport.FieldByName('Tipo').AsString,
+            cdsImport.FieldByName('Tonalidade').AsString,
+            cdsImport.FieldByName('Notas').AsString,
+            cdsImport.FieldByName('Descricao').AsString,
+            dlgAbrir.FileName,
+            ExtractFileName(dlgAbrir.FileName),
+            '',
+            msgErro) then
+          begin
+            Inc(salvos);
+            cdsImport.Edit;
+            cdsImport.FieldByName('Status').AsString := 'SALVO';
+            cdsImport.FieldByName('Erro').AsString   := '';
+            cdsImport.Post;
+          end
+          else
+          begin
+            Inc(erros);
+            resumoErros.Add('• ' + cdsImport.FieldByName('Nome').AsString +
+              ': ' + msgErro);
+            cdsImport.Edit;
+            cdsImport.FieldByName('Status').AsString := 'ERRO';
+            cdsImport.FieldByName('Erro').AsString   := msgErro;
+            cdsImport.Post;
+          end;
+
           cdsImport.Next;
-          Continue;
         end;
-
-      if ValidarESalvarLinha(
-        cdsImport.FieldByName('Nome').AsString,
-        cdsImport.FieldByName('Tipo').AsString,
-        cdsImport.FieldByName('Tonalidade').AsString,
-        cdsImport.FieldByName('Notas').AsString,
-        cdsImport.FieldByName('Descricao').AsString,
-        dlgAbrir.FileName,
-        ExtractFileName(dlgAbrir.FileName),
-        '',
-        msgErro) then
-        begin
-          Inc(salvos);
-          cdsImport.Edit;
-          cdsImport.FieldByName('Status').AsString := 'SALVO';
-          cdsImport.FieldByName('Erro').AsString   := '';
-          cdsImport.Post;
-        end
-        else
-        begin
-          Inc(erros);
-          // Registra no resumo com o nome da escala + motivo
-          resumoErros.Add('• ' + cdsImport.FieldByName('Nome').AsString +
-            ': ' + msgErro);
-          cdsImport.Edit;
-          cdsImport.FieldByName('Status').AsString := 'ERRO';
-          cdsImport.FieldByName('Erro').AsString   := msgErro;
-          cdsImport.Post;
-        end;
-
-        cdsImport.Next;
+      finally
+        cdsImport.EnableControls;
       end;
-    finally
-      cdsImport.EnableControls;
+
+      // Se houver erros, perguntar se quer continuar mesmo assim
+      if erros > 0 then
+      begin
+        if MessageDlg(
+          'Foram encontrados ' + IntToStr(erros) + ' erro(s) durante a importação.' + sLineBreak +
+          'Deseja continuar e salvar apenas os dados válidos?' + sLineBreak + sLineBreak +
+          'Válidos: ' + IntToStr(salvos) + sLineBreak +
+          'Inválidos: ' + IntToStr(erros),
+          mtConfirmation, [mbYes, mbNo], 0) <> mrYes then
+        begin
+          vTrans.Rollback;
+          ShowMessage('Importação cancelada. Nenhum dado foi salvo.');
+          Exit;
+        end;
+      end;
+
+      vTrans.Commit;
+      CarregarDados;
+
+      // Monta mensagem final detalhada
+      msg := 'Registro da Importação!' + #13#10 +
+             'Salvos: ' + IntToStr(salvos) + #13#10 +
+             'Erros:  ' + IntToStr(erros);
+
+      if resumoErros.Count > 0 then
+        msg := msg + #13#10 + #13#10 +
+               'Detalhes dos erros:' + #13#10 +
+               resumoErros.Text;
+
+      ShowMessage(msg);
+
+    except
+      on E: Exception do
+      begin
+        vTrans.Rollback;
+        ShowMessage('Erro durante importação: ' + E.Message + sLineBreak +
+                    'A transação foi revertida - nenhum dado foi salvo.');
+      end;
     end;
-
-    CarregarDados;
-
-    // Monta mensagem final detalhada
-    msg := 'Registro da Importação!' + #13#10 +
-               'Salvos: ' + IntToStr(salvos) + #13#10 +
-               'Erros:  ' + IntToStr(erros);
-
-    if resumoErros.Count > 0 then
-      msg := msg + #13#10 + #13#10 +
-             'Detalhes dos erros:' + #13#10 +
-             resumoErros.Text;
-
-    ShowMessage(msg);
 
   finally
     resumoErros.Free;
+    vTrans.Free;
   end;
   pgcPrincipal.ActivePage := tsConsulta;
 end;

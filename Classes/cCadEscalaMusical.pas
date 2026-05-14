@@ -2,7 +2,7 @@ unit cCadEscalaMusical;
 
 interface
 
-uses FireDAC.Comp.Client, System.SysUtils, Data.DB;
+uses FireDAC.Comp.Client, System.SysUtils, Data.DB, Vcl.Dialogs;
 
 type
   TEscalas = class
@@ -45,23 +45,32 @@ end;
 function TEscalas.Inserir: Boolean;
 var vQuery: TFDQuery;
 begin
+  Result := False;
   vQuery := TFDQuery.Create(nil);
   try
-    vQuery.Connection := FDConexao;
-    vQuery.SQL.Text :=
-      'INSERT INTO escalas (nome, tonalidadeId, tipoId, listaNota, descricao, ' +
-      '                     caminhoArquivo, nomeArquivo, conteudoArquivo) ' +
-      'VALUES (:nome, :tonalidade, :tipo, :lista, :desc, :caminho, :nomeArq, :conteudo)';
-    vQuery.ParamByName('nome').AsString      := F_nome;
-    vQuery.ParamByName('tonalidade').AsInteger := F_tonalidadeId;
-    vQuery.ParamByName('tipo').AsInteger     := F_tipoId;
-    vQuery.ParamByName('lista').AsString     := F_listaNota;
-    vQuery.ParamByName('desc').AsString      := F_descricao;
-    vQuery.ParamByName('caminho').AsString   := F_caminhoArquivo;
-    vQuery.ParamByName('nomeArq').AsString   := F_nomeArquivo;
-    vQuery.ParamByName('conteudo').AsString  := F_conteudoArquivo;
-    vQuery.ExecSQL;
-    Result := True;
+    try
+      vQuery.Connection := FDConexao;
+      vQuery.SQL.Text :=
+        'INSERT INTO escalas (nome, tonalidadeId, tipoId, listaNota, descricao, ' +
+        '                     caminhoArquivo, nomeArquivo, conteudoArquivo) ' +
+        'VALUES (:nome, :tonalidade, :tipo, :lista, :desc, :caminho, :nomeArq, :conteudo)';
+      vQuery.ParamByName('nome').AsString      := Copy(F_nome, 1, 100);
+      vQuery.ParamByName('tonalidade').AsInteger := F_tonalidadeId;
+      vQuery.ParamByName('tipo').AsInteger     := F_tipoId;
+      vQuery.ParamByName('lista').AsString     := F_listaNota;
+      vQuery.ParamByName('desc').AsString      := Copy(F_descricao, 1, 500);
+      vQuery.ParamByName('caminho').AsString   := F_caminhoArquivo;
+      vQuery.ParamByName('nomeArq').AsString   := Copy(F_nomeArquivo, 1, 255);
+      vQuery.ParamByName('conteudo').AsString  := F_conteudoArquivo;
+      vQuery.ExecSQL;
+      Result := True;
+    except
+      on E: Exception do
+      begin
+        ShowMessage('Erro ao inserir escala: ' + E.Message);
+        Result := False;
+      end;
+    end;
   finally
     vQuery.Free;
   end;
@@ -70,20 +79,29 @@ end;
 function TEscalas.Atualizar: Boolean;
 var vQuery: TFDQuery;
 begin
+  Result := False;
   vQuery := TFDQuery.Create(nil);
   try
-    vQuery.Connection := FDConexao;
-    vQuery.SQL.Text := 'UPDATE escalas SET nome = :nome, tonalidadeId = :tonalidade, ' +
-                       'tipoId = :tipo, listaNota = :lista, descricao = :desc ' +
-                       'WHERE escalaId = :id';
-    vQuery.ParamByName('nome').AsString := F_nome;
-    vQuery.ParamByName('tonalidade').AsInteger := F_tonalidadeId;
-    vQuery.ParamByName('tipo').AsInteger := F_tipoId;
-    vQuery.ParamByName('lista').AsString := F_listaNota;
-    vQuery.ParamByName('desc').AsString := F_descricao;
-    vQuery.ParamByName('id').AsInteger := F_escalaId;
-    vQuery.ExecSQL;
-    Result := True;
+    try
+      vQuery.Connection := FDConexao;
+      vQuery.SQL.Text := 'UPDATE escalas SET nome = :nome, tonalidadeId = :tonalidade, ' +
+                         'tipoId = :tipo, listaNota = :lista, descricao = :desc ' +
+                         'WHERE escalaId = :id';
+      vQuery.ParamByName('nome').AsString := Copy(F_nome, 1, 100);
+      vQuery.ParamByName('tonalidade').AsInteger := F_tonalidadeId;
+      vQuery.ParamByName('tipo').AsInteger := F_tipoId;
+      vQuery.ParamByName('lista').AsString := F_listaNota;
+      vQuery.ParamByName('desc').AsString := Copy(F_descricao, 1, 500);
+      vQuery.ParamByName('id').AsInteger := F_escalaId;
+      vQuery.ExecSQL;
+      Result := True;
+    except
+      on E: Exception do
+      begin
+        ShowMessage('Erro ao atualizar escala: ' + E.Message);
+        Result := False;
+      end;
+    end;
   finally
     vQuery.Free;
   end;
@@ -92,13 +110,22 @@ end;
 function TEscalas.Apagar: Boolean;
 var vQuery: TFDQuery;
 begin
+  Result := False;
   vQuery := TFDQuery.Create(nil);
   try
-    vQuery.Connection := FDConexao;
-    vQuery.SQL.Text := 'DELETE FROM escalas WHERE escalaId = :id';
-    vQuery.ParamByName('id').AsInteger := F_escalaId;
-    vQuery.ExecSQL;
-    Result := True;
+    try
+      vQuery.Connection := FDConexao;
+      vQuery.SQL.Text := 'DELETE FROM escalas WHERE escalaId = :id';
+      vQuery.ParamByName('id').AsInteger := F_escalaId;
+      vQuery.ExecSQL;
+      Result := True;
+    except
+      on E: Exception do
+      begin
+        ShowMessage('Erro ao deletar escala: ' + E.Message);
+        Result := False;
+      end;
+    end;
   finally
     vQuery.Free;
   end;
@@ -110,21 +137,29 @@ begin
   Result := False;
   vQuery := TFDQuery.Create(nil);
   try
-    vQuery.Connection := FDConexao;
-    vQuery.SQL.Text := 'SELECT * FROM escalas WHERE escalaId = :id';
-    vQuery.ParamByName('id').AsInteger := id;
-    vQuery.Open;
-    if not vQuery.IsEmpty then
-    begin
-      F_escalaId        := vQuery.FieldByName('escalaId').AsInteger;
-      F_nome            := vQuery.FieldByName('nome').AsString;
-      F_tonalidadeId    := vQuery.FieldByName('tonalidadeId').AsInteger;
-      F_tipoId          := vQuery.FieldByName('tipoId').AsInteger;
-      F_listaNota       := vQuery.FieldByName('listaNota').AsString;
-      F_descricao       := vQuery.FieldByName('descricao').AsString;
-      F_caminhoArquivo  := vQuery.FieldByName('caminhoArquivo').AsString;
-      F_nomeArquivo     := vQuery.FieldByName('nomeArquivo').AsString;
-      Result := True;
+    try
+      vQuery.Connection := FDConexao;
+      vQuery.SQL.Text := 'SELECT * FROM escalas WHERE escalaId = :id';
+      vQuery.ParamByName('id').AsInteger := id;
+      vQuery.Open;
+      if not vQuery.IsEmpty then
+      begin
+        F_escalaId        := vQuery.FieldByName('escalaId').AsInteger;
+        F_nome            := vQuery.FieldByName('nome').AsString;
+        F_tonalidadeId    := vQuery.FieldByName('tonalidadeId').AsInteger;
+        F_tipoId          := vQuery.FieldByName('tipoId').AsInteger;
+        F_listaNota       := vQuery.FieldByName('listaNota').AsString;
+        F_descricao       := vQuery.FieldByName('descricao').AsString;
+        F_caminhoArquivo  := vQuery.FieldByName('caminhoArquivo').AsString;
+        F_nomeArquivo     := vQuery.FieldByName('nomeArquivo').AsString;
+        Result := True;
+      end;
+    except
+      on E: Exception do
+      begin
+        ShowMessage('Erro ao selecionar escala: ' + E.Message);
+        Result := False;
+      end;
     end;
   finally
     vQuery.Free;

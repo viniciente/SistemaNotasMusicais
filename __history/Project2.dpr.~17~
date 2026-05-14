@@ -1,0 +1,28 @@
+program Project2;
+
+uses
+  Vcl.Forms,
+  TelaHeranca in 'TelaHeranca.pas' {frmTelaHeranca},
+  uCadNotas in 'Cadastro\uCadNotas.pas' {frmCadNotas},
+  uDmDados in 'DataModule\uDmDados.pas' {dmDados: TDataModule},
+  cCadNotas in 'Classes\cCadNotas.pas',
+  uEnum in 'Classes\uEnum.pas',
+  cFuncao in 'Classes\cFuncao.pas',
+  uPrincipal in 'uPrincipal.pas' {frmPrincipal},
+  uCadTonalidades in 'Cadastro\uCadTonalidades.pas' {frmCadTonalidades},
+  cCadTonalidades in 'Classes\cCadTonalidades.pas',
+  uCadEscalaMusical in 'Cadastro\uCadEscalaMusical.pas' {frmCadEscalaMusical},
+  cCadEscalaMusical in 'Classes\cCadEscalaMusical.pas',
+  uCadTipoEscala in 'Cadastro\uCadTipoEscala.pas' {frmCadTipoEscala},
+  cCadTipoEscala in 'Classes\cCadTipoEscala.pas',
+  uArquivos in 'uArquivos.pas' {frmArquivos};
+
+{$R *.res}
+
+begin
+  Application.Initialize;
+  Application.MainFormOnTaskbar := True;
+  Application.CreateForm(TdmDados, dmDados);
+  Application.CreateForm(TfrmPrincipal, frmPrincipal);
+  Application.Run;
+end.

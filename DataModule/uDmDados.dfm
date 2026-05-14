@@ -10,6 +10,7 @@ object dmDados: TdmDados
       'OSAuthent=Yes'
       'User_Name=DOMTEC\devmv'
       'DriverID=MSSQL')
+    Connected = True
     LoginPrompt = False
     Left = 56
     Top = 24

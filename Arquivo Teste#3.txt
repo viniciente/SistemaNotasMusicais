@@ -1,0 +1,3 @@
+﻿nome da escala | tipo de escala | tonalidade | notas | descrição
+Maior Natural | Maior | Dó Maior | Dó, Ré, Mi, Fá, Sol, Lá, Si | A escala maior natural é a base da música ocidental, transmitindo uma sensação alegre e brilhante.
+Pentatônica Maior | Pentatônica Menor | Sol Maior | Sol, Lá, Si, Ré, Mi | Escala de cinco notas extremamente versátil, muito popular no rock, blues e música country.

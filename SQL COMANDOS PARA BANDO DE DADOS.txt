@@ -1,0 +1,47 @@
+SQL COMANDOS PARA BANDO DE DADOS "NotasMusicais"
+
+create database NotasMusicais
+
+use NotasMusicais
+
+create table notas (
+	notasId int identity (1,1) primary key,
+	nome varchar(50) not null unique
+);
+
+create table tipoEscala (
+	tipoEscalaId int identity (1,1) primary key,
+	nome Varchar(30) not null unique
+);
+
+create table tonalidades (
+    tonalidadeId int identity (1,1) primary key,
+    notaId int not null, -- FK para a tabela Notas
+    nome varchar(50) not null unique, 
+    
+    constraint FK_Tonalidade_Nota foreign key (notaId) references notas(notasId)
+);
+
+create table escalas (
+    escalaId int identity (1,1) primary key,
+    nome varchar(100) not null,
+    tonalidadeId int not null, 
+    tipoId int not null,       
+    listaNota varchar(255) not null,
+    descricao varchar(max),
+
+    constraint FK_Escalas_Tonalidade foreign key (tonalidadeId) references tonalidades(tonalidadeId),
+    constraint FK_Escalas_TipoEscala foreign key (tipoId) references tipoEscala(tipoEscalaId)
+);
+
+        ALTER TABLE escalas ADD 
+        caminhoArquivo VARCHAR(500) NULL, 
+        nomeArquivo VARCHAR(255) NULL,
+        conteudoArquivo VARCHAR(500) NULL;
+
+        INSERT INTO notas (nome) VALUES (''Dó''), (''Dó#''), (''Ré''), (''Ré#''), 
+        (''Mi''), (''Fá''), (''Fá#''), (''Sol''), (''Sol#''), (''Lá''), (''Lá#''), (''Si'');
+
+        INSERT INTO tipoEscala (nome) VALUES (''Maior''), (''Menor Natural''), 
+        (''Menor Harmônica''), (''Menor Mel dica''), (''Pentatônica Maior''), 
+        (''Pentatônica Menor''), (''Blues''), (''Cromática'');

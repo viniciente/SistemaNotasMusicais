@@ -16,6 +16,7 @@ type
   private
     procedure ConfigurarBancoInicial;
     procedure ConfigurarConexaoDinamicamente;
+    procedure CriarBancoSeNaoExistir;
     { Private declarations }
   public
     { Public declarations }
@@ -37,6 +38,8 @@ begin
     // Define o caminho: mesma pasta do executável + nome config.ini
     CaminhoArquivo := ExtractFilePath(ParamStr(0)) + 'config.ini';
 
+    FDConexao.Params.DriverID := 'MSSQL';
+
     LIni := TIniFile.Create(CaminhoArquivo);
     try
       // Se o arquivo NÃO existir, vamos escrever os valores padrão nele
@@ -54,6 +57,7 @@ begin
       FDConexao.Params.Values['Database'] := LIni.ReadString('BANCO', 'NomeBanco', 'NotasMusicais');
       FDConexao.Params.Values['OSAuthent'] := LIni.ReadString('BANCO', 'AutenticacaoWindows', 'Yes');
 
+      FDConexao.Params.Values['ConnectionTimeout'] := '15';
       FDConexao.LoginPrompt := False;
     finally
       LIni.Free;
@@ -184,6 +188,41 @@ begin
       end;
     end;
   until MaxTentativas = 0;
+end;
+
+procedure TdmDados.CriarBancoSeNaoExistir;
+var
+  LNomeBanco: string;
+begin
+  LNomeBanco := FDConexao.Params.Values['Database'];
+  FDConexao.Params.Values['Database'] := 'master';
+
+  try
+    FDConexao.Connected := True;
+  except
+    on E: Exception do
+      raise Exception.CreateFmt(
+        'Não foi possível conectar ao servidor "%s".' + sLineBreak + sLineBreak +
+        'Verifique:' + sLineBreak +
+        '  - O endereço do servidor no config.ini' + sLineBreak +
+        '  - Se o SQL Server está rodando' + sLineBreak +
+        '  - Se o firewall libera a porta 1433' + sLineBreak +
+        '  - Se o SQL Server aceita conexões remotas' + sLineBreak + sLineBreak +
+        'Detalhe técnico: %s',
+        [FDConexao.Params.Values['Server'], E.Message]
+      );
+  end;
+
+  FDConexao.ExecSQL(
+    'IF NOT EXISTS (' +
+    '  SELECT * FROM sys.databases WHERE name = ' + QuotedStr(LNomeBanco) +
+    ') ' +
+    'BEGIN CREATE DATABASE [' + LNomeBanco + '] END'
+  );
+
+  FDConexao.Connected := False;
+  FDConexao.Params.Values['Database'] := LNomeBanco;
+  FDConexao.Connected := True;
 end;
 
 procedure TdmDados.DataModuleCreate(Sender: TObject);

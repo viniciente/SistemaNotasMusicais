@@ -306,11 +306,6 @@ Escala Menor Harmônica | Menor Harmônica | Lá Maior | Lá, Si, Dó, Ré, Mi, 
 - ✅ Sem dependência de bibliotecas externas
 - ✅ Encoding UTF-8 universal
 
-**Alternativas Consideradas (mas rejeitadas):**
-- ❌ **JSON**: Mais complexo, maior overhead para dados simples
-- ❌ **XML**: Verboso, difícil leitura manual
-- ❌ **CSV**: Problemático com dados contendo vírgulas nas notas
-
 #### Validação em Duas Fases
 
 1. **Fase 1 - Formatação:**

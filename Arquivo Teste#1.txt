@@ -1,0 +1,4 @@
+﻿nome da escala | tipo de escala | tonalidade | notas | descrição
+Maior Natural | Maior | Dó Maior | Dó, Ré, Mi, Fá, Sol, Lá, Si | A escala maior natural é a base da música ocidental, transmitindo uma sensação alegre e brilhante.
+Menor Harmônica | Menor | Lá Menor | Lá, Si, Dó, Ré, Mi, Fá, Sol# | Caracterizada pelo sétimo grau aumentado, criando uma sonoridade exótica e tensa.
+Menor Natural | Menor | Lá Menor | Lá, Si, Dó, Ré, Mi, Fá, Sol | A escala menor natural possui uma sonoridade mais melancólica e é a relativa de Dó Maior.

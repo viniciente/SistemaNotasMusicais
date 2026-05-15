@@ -97,6 +97,8 @@ AutenticacaoWindows=Yes
 Servidor=SERVIDOR\INSTANCIA
 NomeBanco=NotasMusicais
 AutenticacaoWindows=No
+Usuario= (Seu Usuario)
+Senha= (sua senha)
 ```
 
 **⚠️ Notas importantes:**

@@ -1,0 +1,2 @@
+nome da escala | tipo de escala | tonalidade | notas | descrição
+Pentatônica Maior | Pentatônica Menor | Sol Maior | Sol, Lá, Si, Ré, Mi | Escala de cinco notas extremamente versátil, muito popular no rock, blues e música country.

@@ -25,7 +25,7 @@ type
     dbGridConsulta: TDBGrid;
     pnlBottom: TPanel;
     btnFechar: TPngBitBtn;
-    btnAdicionar: TBitBtn;
+    btnAdicionar: TPngBitBtn;
     btnEditar: TPngBitBtn;
     btnRemover: TPngBitBtn;
     pnlDadosBottom: TPanel;
@@ -41,11 +41,14 @@ type
     procedure btnEditarClick(Sender: TObject);
     procedure btnRemoverClick(Sender: TObject);
     procedure btnFecharClick(Sender: TObject);
+    procedure FormShow(Sender: TObject);
   private
     FEstado : TEstadoDoCadastro;
     procedure CentralizarColunas;
     procedure ControlarIndiceTab(pgcPrincipal: TPageControl; Indice: Integer);
     procedure LimparEdits;
+    procedure CarregarConfiguracaoGrid(pGrid: TDBGrid);
+    procedure SalvarConfiguracaoGrid(pGrid: TDBGrid);
   public
     { Public declarations }
     function Apagar: Boolean; virtual;
@@ -154,6 +157,11 @@ begin
   CentralizarColunas;
 end;
 
+procedure TfrmTelaHeranca.FormShow(Sender: TObject);
+begin
+  CarregarConfiguracaoGrid(dbGridConsulta);
+end;
+
 procedure TfrmTelaHeranca.CentralizarColunas;
 var
   I: Integer;
@@ -197,6 +205,70 @@ begin
       for j := 0 to TCheckListBox(Components[i]).Items.Count - 1 do
         TCheckListBox(Components[i]).Checked[j] := False;
     end;
+  end;
+end;
+
+procedure TfrmTelaHeranca.SalvarConfiguracaoGrid(pGrid: TDBGrid);
+var
+  Ini: TIniFile;
+  i: Integer;
+  NomeArquivo: string;
+begin
+  // Agora o nome é fixo, salvando na pasta do executável
+  NomeArquivo := ExtractFilePath(Application.ExeName) + 'config_grids.ini';
+
+  Ini := TIniFile.Create(NomeArquivo);
+  try
+    for i := 0 to pGrid.Columns.Count - 1 do
+    begin
+      // Usamos o Self.Name (Nome da Tela) + Nome do Grid para não misturar as telas
+      Ini.WriteInteger(Self.Name + '_' + pGrid.Name + '_Width', pGrid.Columns[i].FieldName, pGrid.Columns[i].Width);
+      Ini.WriteInteger(Self.Name + '_' + pGrid.Name + '_Index', pGrid.Columns[i].FieldName, pGrid.Columns[i].Index);
+      Ini.WriteBool(Self.Name + '_' + pGrid.Name + '_Visible',  pGrid.Columns[i].FieldName, pGrid.Columns[i].Visible);
+    end;
+  finally
+    Ini.Free;
+  end;
+end;
+
+procedure TfrmTelaHeranca.CarregarConfiguracaoGrid(pGrid: TDBGrid);
+var
+  Ini: TIniFile;
+  i, vPos: Integer;
+  NomeArquivo: string;
+  vFieldName: string;
+  vSecao: string;
+begin
+  NomeArquivo := ExtractFilePath(Application.ExeName) + 'config_grids.ini';
+
+  if not FileExists(NomeArquivo) then Exit;
+
+  vSecao := Self.Name + '_' + pGrid.Name;
+  Ini := TIniFile.Create(NomeArquivo);
+  try
+    // 1º Passo: Ajusta Largura e Visibilidade
+    for i := 0 to pGrid.Columns.Count - 1 do
+    begin
+      vFieldName := pGrid.Columns[i].FieldName;
+      pGrid.Columns[i].Width := Ini.ReadInteger(vSecao + '_Width', vFieldName, pGrid.Columns[i].Width);
+      pGrid.Columns[i].Visible := Ini.ReadBool(vSecao + '_Visible', vFieldName, pGrid.Columns[i].Visible);
+    end;
+
+    // 2º Passo: Restaura a Ordem das colunas
+    for i := 0 to pGrid.Columns.Count - 1 do
+    begin
+      for vPos := 0 to pGrid.Columns.Count - 1 do
+      begin
+        vFieldName := pGrid.Columns[vPos].FieldName;
+        if Ini.ReadInteger(vSecao + '_Index', vFieldName, -1) = i then
+        begin
+          pGrid.Columns[vPos].Index := i;
+          Break;
+        end;
+      end;
+    end;
+  finally
+    Ini.Free;
   end;
 end;
 

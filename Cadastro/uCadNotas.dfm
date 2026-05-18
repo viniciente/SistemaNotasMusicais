@@ -7,6 +7,7 @@ inherited frmCadNotas: TfrmCadNotas
   TextHeight = 13
   inherited pgcPrincipal: TPageControl
     Width = 681
+    ActivePage = tsConsulta
     ExplicitWidth = 681
     inherited tsConsulta: TTabSheet
       ExplicitWidth = 673
@@ -108,7 +109,6 @@ inherited frmCadNotas: TfrmCadNotas
     end
   end
   inherited qryPrincipal: TFDQuery
-    Active = True
     SQL.Strings = (
       'SELECT notasId,'
       '             nome'

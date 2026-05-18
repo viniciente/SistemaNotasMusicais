@@ -132,6 +132,8 @@ end;
 procedure TfrmTelaHeranca.FormCreate(Sender: TObject);
 var i: Integer;
 begin
+
+  qryPrincipal.Open;
   pgcPrincipal.ActivePage := tsConsulta;
 
   qryPrincipal.Connection := DmDados.FDConexao;

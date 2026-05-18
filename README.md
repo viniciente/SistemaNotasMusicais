@@ -47,7 +47,7 @@ Sistema de gestão de escalas musicais com suporte completo para entrada e saíd
 - Arquivo executável: `Project2.exe`
 - Arquivo de configuração: `config.ini` (deve estar na mesma pasta do `.exe`)
 
-### ⚡ Passos Rápidos (Usuário Final)
+### ⚡ Passos Rápidos
 
 #### 1️⃣ **Localize os arquivos na pasta de instalação**
 
@@ -120,6 +120,12 @@ Cria banco e tabelas (se não existirem)
          ↓
 Sistema pronto para usar! ✅
 ```
+**⚠️ Observação:**
+- Caso não funcione do primeiro modo, baixe o programa, extraia tudo, abra com seu Delphi RAD em "Open Project"
+- Na Pasta "DataModulo", vá em "uDmDados.pas"
+- Selecione o "FDConexao", abra o "Object Inspector"
+- Vá em "Params" e edite colocando as informações do seu SQL SERVER
+- Apos esses passos é so usar apertar F9, que o sitema fará o resto
 
 **Na primeira execução:**
 - ✅ O banco de dados `NotasMusicais` será criado automaticamente
@@ -305,11 +311,6 @@ Escala Menor Harmônica | Menor Harmônica | Lá Maior | Lá, Si, Dó, Ré, Mi, 
 - ✅ Compatível com Excel/LibreOffice
 - ✅ Sem dependência de bibliotecas externas
 - ✅ Encoding UTF-8 universal
-
-**Alternativas Consideradas (mas rejeitadas):**
-- ❌ **JSON**: Mais complexo, maior overhead para dados simples
-- ❌ **XML**: Verboso, difícil leitura manual
-- ❌ **CSV**: Problemático com dados contendo vírgulas nas notas
 
 #### Validação em Duas Fases
 

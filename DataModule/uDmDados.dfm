@@ -5,12 +5,7 @@ object dmDados: TdmDados
   Width = 365
   object FDConexao: TFDConnection
     Params.Strings = (
-      'Server=DC-TR-06-VM\SERVERCURSO'
-      'Database=NotasMusicais'
-      'OSAuthent=Yes'
-      'User_Name=DOMTEC\devmv'
       'DriverID=MSSQL')
-    Connected = True
     LoginPrompt = False
     Left = 56
     Top = 24

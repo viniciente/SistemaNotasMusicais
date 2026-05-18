@@ -1,0 +1,239 @@
+﻿unit uDmDados;
+
+interface
+
+uses
+  System.SysUtils, System.Classes, FireDAC.Stan.Intf, FireDAC.Stan.Option,
+  FireDAC.Stan.Error, FireDAC.UI.Intf, FireDAC.Phys.Intf, FireDAC.Stan.Def,
+  FireDAC.Stan.Pool, FireDAC.Stan.Async, FireDAC.Phys, FireDAC.VCLUI.Wait,
+  Data.DB, FireDAC.Comp.Client, FireDAC.Phys.MSSQL, FireDAC.Phys.MSSQLDef,
+  Vcl.Dialogs, System.IniFiles, System.UITypes;
+
+type
+  TdmDados = class(TDataModule)
+    FDConexao: TFDConnection;
+    procedure DataModuleCreate(Sender: TObject);
+  private
+    procedure ConfigurarBancoInicial;
+    procedure ConfigurarConexaoDinamicamente;
+    procedure CriarBancoSeNaoExistir;
+    { Private declarations }
+  public
+    { Public declarations }
+  end;
+
+var
+  dmDados: TdmDados;
+
+implementation
+
+{$R *.dfm}
+
+procedure TdmDados.ConfigurarConexaoDinamicamente;
+var
+  LIni: TIniFile;
+  CaminhoArquivo: string;
+begin
+  CaminhoArquivo := ExtractFilePath(ParamStr(0)) + 'config.ini';
+  FDConexao.Params.DriverID := 'MSSQL';
+
+  LIni := TIniFile.Create(CaminhoArquivo);
+  try
+    if not FileExists(CaminhoArquivo) then
+    begin
+      LIni.WriteString('BANCO', 'Servidor', 'localhost\SQLEXPRESS');
+      LIni.WriteString('BANCO', 'NomeBanco', 'NotasMusicais');
+      LIni.WriteString('BANCO', 'AutenticacaoWindows', 'Yes');
+      LIni.WriteString('BANCO', 'Usuario', '');
+      LIni.WriteString('BANCO', 'Senha', '');
+      ShowMessage(
+        'Arquivo config.ini criado.' + sLineBreak +
+        'Edite com as configurações do seu servidor.' + sLineBreak +
+        'Caminho: ' + CaminhoArquivo
+      );
+    end;
+
+    FDConexao.Params.Values['Server']   := LIni.ReadString('BANCO', 'Servidor', 'localhost\SQLEXPRESS');
+    FDConexao.Params.Values['Database'] := LIni.ReadString('BANCO', 'NomeBanco', 'NotasMusicais');
+    FDConexao.Params.Values['ConnectionTimeout'] := '15';
+    FDConexao.LoginPrompt := False;
+
+    // ✅ Decide o tipo de autenticação
+    if LIni.ReadString('BANCO', 'AutenticacaoWindows', 'Yes') = 'Yes' then
+    begin
+      FDConexao.Params.Values['OSAuthent'] := 'Yes';
+      FDConexao.Params.Values['User_Name'] := '';
+      FDConexao.Params.Values['Password']  := '';
+    end
+    else
+    begin
+      FDConexao.Params.Values['OSAuthent'] := 'No';
+      FDConexao.Params.Values['User_Name'] := LIni.ReadString('BANCO', 'Usuario', 'sa');
+      FDConexao.Params.Values['Password']  := LIni.ReadString('BANCO', 'Senha', '');
+    end;
+
+  finally
+    LIni.Free;
+  end;
+end;
+
+procedure TdmDados.ConfigurarBancoInicial;
+var
+  BancoOriginal: string;
+  MaxTentativas: Integer;
+begin
+  MaxTentativas := 3;
+  repeat
+    try
+      BancoOriginal := FDConexao.Params.Database;
+      FDConexao.Params.Database := 'master';
+
+      FDConexao.LoginPrompt := False;
+      FDConexao.Connected := True;
+
+      FDConexao.ExecSQL('IF NOT EXISTS (SELECT * FROM sys.databases WHERE name = ' + QuotedStr(BancoOriginal) + ') ' +
+                        'CREATE DATABASE ' + BancoOriginal);
+
+      FDConexao.Connected := False;
+      FDConexao.Params.Database := BancoOriginal;
+      FDConexao.Connected := True;
+
+      FDConexao.ExecSQL('USE NotasMusicais');
+
+      // Criar tabelas (mantém o mesmo código)
+      FDConexao.ExecSQL(
+        'IF NOT EXISTS (SELECT * FROM sys.objects WHERE name = ''notas'') ' +
+        'CREATE TABLE notas ( ' +
+        '  notasId int identity (1,1) primary key, ' +
+        '  nome varchar(50) not null unique ' +
+        ');'
+      );
+
+      FDConexao.ExecSQL(
+        'IF NOT EXISTS (SELECT * FROM sys.objects WHERE name = ''tipoEscala'') ' +
+        'CREATE TABLE tipoEscala ( ' +
+        '  tipoEscalaId int identity (1,1) primary key, ' +
+        '  nome Varchar(30) not null unique ' +
+        ');'
+      );
+
+      FDConexao.ExecSQL(
+        'IF NOT EXISTS (SELECT * FROM sys.objects WHERE name = ''tonalidades'') ' +
+        'CREATE TABLE tonalidades ( ' +
+        '    tonalidadeId int identity (1,1) primary key, ' +
+        '    notaId int not null, ' +
+        '    nome varchar(50) not null unique, ' +
+        '    constraint FK_Tonalidade_Nota foreign key (notaId) references notas(notasId) ' +
+        ');'
+      );
+
+      FDConexao.ExecSQL(
+        'IF NOT EXISTS (SELECT * FROM sys.objects WHERE name = ''escalas'') ' +
+        'CREATE TABLE escalas ( ' +
+        '    escalaId int identity (1,1) primary key, ' +
+        '    nome varchar(100) not null, ' +
+        '    tonalidadeId int not null, ' +
+        '    tipoId int not null, ' +
+        '    listaNota varchar(255) not null, ' +
+        '    descricao varchar(500), ' +
+        '    constraint FK_Escalas_Tonalidade foreign key (tonalidadeId) references tonalidades(tonalidadeId), ' +
+        '    constraint FK_Escalas_TipoEscala foreign key (tipoId) references tipoEscala(tipoEscalaId) ' +
+        ');'
+      );
+
+      FDConexao.ExecSQL(
+        'IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(''escalas'') AND name = ''caminhoArquivo'') ' +
+        'BEGIN ' +
+        '    ALTER TABLE escalas ADD ' +
+        '    caminhoArquivo VARCHAR(500) NULL, ' +
+        '    nomeArquivo VARCHAR(255) NULL, ' +
+        '    conteudoArquivo VARCHAR(500) NULL; ' +
+        'END'
+      );
+
+      FDConexao.ExecSQL(
+        'IF NOT EXISTS (SELECT TOP 1 1 FROM notas) ' +
+        'INSERT INTO notas (nome) VALUES (''Dó''), (''Dó#''), (''Ré''), (''Ré#''), ' +
+        '(''Mi''), (''Fá''), (''Fá#''), (''Sol''), (''Sol#''), (''Lá''), (''Lá#''), (''Si'');'
+      );
+
+      FDConexao.ExecSQL(
+        'IF NOT EXISTS (SELECT TOP 1 1 FROM tipoEscala) ' +
+        'INSERT INTO tipoEscala (nome) VALUES (''Maior''), (''Menor Natural''), ' +
+        '(''Menor Harmônica''), (''Menor Melódica''), (''Pentatônica Maior''), ' +
+        '(''Pentatônica Menor''), (''Blues''), (''Cromática'');'
+      );
+
+      FDConexao.ExecSQL(
+        'IF NOT EXISTS (SELECT TOP 1 1 FROM tonalidades) ' +
+        'INSERT INTO tonalidades (notaId, nome) ' +
+        'SELECT notasId, nome + '' Maior'' FROM notas;'
+      );
+
+      Exit; // Sucesso, sai do loop
+    except
+      on E: Exception do
+      begin
+        Dec(MaxTentativas);
+        if MaxTentativas > 0 then
+        begin
+          if MessageDlg(
+            'Erro ao configurar banco de dados:' + sLineBreak + E.Message + sLineBreak + sLineBreak +
+            'Verifique se:' + sLineBreak +
+            '- SQL Server está rodando' + sLineBreak +
+            '- config.ini tem as configurações corretas' + sLineBreak + sLineBreak +
+            'Deseja tentar novamente?',
+            mtError, [mbYes, mbNo], 0) = mrYes then
+            Continue
+          else
+            raise;
+        end
+        else
+          raise;
+      end;
+    end;
+  until MaxTentativas = 0;
+end;
+
+procedure TdmDados.CriarBancoSeNaoExistir;
+var
+  LNomeBanco: string;
+begin
+  LNomeBanco := FDConexao.Params.Values['Database'];
+  FDConexao.Params.Values['Database'] := 'master';
+
+  try
+    FDConexao.Connected := True;
+  except
+    on E: Exception do
+      raise Exception.CreateFmt(
+        'Não foi possível conectar ao servidor "%s".' + sLineBreak + sLineBreak +
+        'Verifique:' + sLineBreak +
+        '  - O endereço do servidor no config.ini' + sLineBreak +
+        '  - Se o SQL Server está rodando' + sLineBreak +
+        '  - Se o firewall libera a porta 1433' + sLineBreak +
+        '  - Se o SQL Server aceita conexões remotas' + sLineBreak + sLineBreak +
+        'Detalhe técnico: %s',
+        [FDConexao.Params.Values['Server'], E.Message]
+      );
+  end;
+
+  FDConexao.ExecSQL(
+    'IF NOT EXISTS (' +
+    '  SELECT * FROM sys.databases WHERE name = ' + QuotedStr(LNomeBanco) +
+    ') ' +
+    'BEGIN CREATE DATABASE [' + LNomeBanco + '] END'
+  );
+
+  FDConexao.Connected := False;
+  FDConexao.Params.Values['Database'] := LNomeBanco;
+  FDConexao.Connected := True;
+end;
+
+procedure TdmDados.DataModuleCreate(Sender: TObject);
+begin
+  ConfigurarConexaoDinamicamente;
+  ConfigurarBancoInicial;
+end;
+
+end.

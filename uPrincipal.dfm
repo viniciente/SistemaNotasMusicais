@@ -3,7 +3,7 @@ object frmPrincipal: TfrmPrincipal
   Top = 0
   Caption = 'TELA PRINCIPAL'
   ClientHeight = 513
-  ClientWidth = 1266
+  ClientWidth = 1028
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -19,17 +19,17 @@ object frmPrincipal: TfrmPrincipal
   object pnlFundo: TPanel
     Left = 0
     Top = 0
-    Width = 1266
+    Width = 1028
     Height = 513
     Align = alClient
     Color = clWhite
     ParentBackground = False
     TabOrder = 0
     DesignSize = (
-      1266
+      1028
       513)
     object pnlImgPiano: TPanel
-      Left = 479
+      Left = 389
       Top = 0
       Width = 297
       Height = 513
@@ -178115,17 +178115,16 @@ object frmPrincipal: TfrmPrincipal
           49F32852ED18483292BDB12E0B98551BFBFF0051FB227BE4AAD81F0000000049
           454E44AE426082}
         ShowHint = False
-        ExplicitWidth = 2752
-        ExplicitHeight = 1536
+        ExplicitTop = 2
       end
     end
     object PnlBtnImportar: TPanel
-      Left = 60
+      Left = 10
       Top = 48
-      Width = 400
+      Width = 374
       Height = 380
       Cursor = crHandPoint
-      Anchors = [akLeft, akTop, akBottom]
+      Anchors = [akLeft, akTop, akRight, akBottom]
       BevelOuter = bvNone
       Color = clWhite
       ParentBackground = False
@@ -178238,20 +178237,20 @@ object frmPrincipal: TfrmPrincipal
       end
     end
     object PnlExportar: TPanel
-      Left = 800
-      Top = 48
-      Width = 400
-      Height = 380
+      Left = 699
+      Top = 61
+      Width = 300
+      Height = 277
       Cursor = crHandPoint
-      Anchors = [akTop, akRight, akBottom]
+      Anchors = [akLeft, akTop, akRight, akBottom]
       BevelOuter = bvNone
       Color = clWhite
       ParentBackground = False
       TabOrder = 2
       OnClick = PnlExportarClick
       object Label2: TLabel
-        Left = 106
-        Top = 143
+        Left = 77
+        Top = 119
         Width = 144
         Height = 32
         Caption = 'EXPORTA'#199#195'O'
@@ -178263,9 +178262,9 @@ object frmPrincipal: TfrmPrincipal
         ParentFont = False
       end
       object Label3: TLabel
-        Left = 10
-        Top = 181
-        Width = 346
+        Left = 0
+        Top = 157
+        Width = 300
         Height = 120
         Alignment = taCenter
         Caption = 
@@ -178280,8 +178279,8 @@ object frmPrincipal: TfrmPrincipal
         WordWrap = True
       end
       object Image3: TImage
-        Left = 113
-        Top = 24
+        Left = 84
+        Top = 0
         Width = 121
         Height = 113
         Center = True

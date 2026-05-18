@@ -3,7 +3,7 @@ object frmPrincipal: TfrmPrincipal
   Top = 0
   Caption = 'TELA PRINCIPAL'
   ClientHeight = 513
-  ClientWidth = 1266
+  ClientWidth = 1028
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -19,17 +19,18 @@ object frmPrincipal: TfrmPrincipal
   object pnlFundo: TPanel
     Left = 0
     Top = 0
-    Width = 1266
+    Width = 1028
     Height = 513
     Align = alClient
     Color = clWhite
     ParentBackground = False
     TabOrder = 0
+    ExplicitLeft = 8
     DesignSize = (
-      1266
+      1028
       513)
     object pnlImgPiano: TPanel
-      Left = 479
+      Left = 389
       Top = 0
       Width = 297
       Height = 513
@@ -41,7 +42,6 @@ object frmPrincipal: TfrmPrincipal
         Width = 295
         Height = 511
         Align = alClient
-        AutoSize = True
         Center = True
         ParentShowHint = False
         Picture.Data = {
@@ -178120,9 +178120,9 @@ object frmPrincipal: TfrmPrincipal
       end
     end
     object PnlBtnImportar: TPanel
-      Left = 60
+      Left = 10
       Top = 48
-      Width = 400
+      Width = 374
       Height = 380
       Cursor = crHandPoint
       Anchors = [akLeft, akTop, akBottom]
@@ -178131,11 +178131,16 @@ object frmPrincipal: TfrmPrincipal
       ParentBackground = False
       TabOrder = 1
       OnClick = PnlBtnImportarClick
+      DesignSize = (
+        374
+        380)
       object lblImportTitulo: TLabel
         Left = 96
         Top = 119
         Width = 146
         Height = 32
+        Anchors = [akTop, akRight]
+        AutoSize = False
         Caption = 'IMPORTA'#199#195'O'
         Font.Charset = ANSI_CHARSET
         Font.Color = clWindowText
@@ -178150,6 +178155,7 @@ object frmPrincipal: TfrmPrincipal
         Width = 358
         Height = 120
         Alignment = taCenter
+        Anchors = [akLeft, akTop, akRight, akBottom]
         Caption = 
           'Carregue escalas musicais a partir de arquivos externos.'#13#10'Os dad' +
           'os s'#227'o validados e adicionados ao banco de dados.'
@@ -178164,8 +178170,10 @@ object frmPrincipal: TfrmPrincipal
       object Image2: TImage
         Left = 111
         Top = 0
-        Width = 121
-        Height = 113
+        Width = 128
+        Height = 128
+        Anchors = [akLeft, akTop, akRight, akBottom]
+        AutoSize = True
         Center = True
         ParentShowHint = False
         Picture.Data = {
@@ -178234,13 +178242,14 @@ object frmPrincipal: TfrmPrincipal
           00CC1101982302304704608E08C01C1180392200734400E68800CC110198F33F
           94CD96AE19D0D2070000000049454E44AE426082}
         ShowHint = False
+        OnClick = Image2Click
       end
     end
     object PnlExportar: TPanel
-      Left = 800
-      Top = 48
-      Width = 400
-      Height = 380
+      Left = 699
+      Top = 61
+      Width = 300
+      Height = 277
       Cursor = crHandPoint
       Anchors = [akTop, akRight, akBottom]
       BevelOuter = bvNone
@@ -178248,11 +178257,16 @@ object frmPrincipal: TfrmPrincipal
       ParentBackground = False
       TabOrder = 2
       OnClick = PnlExportarClick
+      DesignSize = (
+        300
+        277)
       object Label2: TLabel
-        Left = 106
-        Top = 143
+        Left = 77
+        Top = 119
         Width = 144
         Height = 32
+        Anchors = [akTop, akRight]
+        AutoSize = False
         Caption = 'EXPORTA'#199#195'O'
         Font.Charset = ANSI_CHARSET
         Font.Color = clWindowText
@@ -178262,11 +178276,13 @@ object frmPrincipal: TfrmPrincipal
         ParentFont = False
       end
       object Label3: TLabel
-        Left = 10
-        Top = 181
-        Width = 346
-        Height = 120
+        Left = -7
+        Top = 157
+        Width = 297
+        Height = 180
         Alignment = taCenter
+        Anchors = [akLeft, akTop, akRight, akBottom]
+        AutoSize = False
         Caption = 
           'Exporte suas escalas cadastradas para arquivos externos.'#13#10'Ideal ' +
           'para backup, compartilhamento e integra'#231#227'o com outros sistemas.'
@@ -178279,10 +178295,12 @@ object frmPrincipal: TfrmPrincipal
         WordWrap = True
       end
       object Image3: TImage
-        Left = 113
-        Top = 24
-        Width = 121
-        Height = 113
+        Left = 84
+        Top = 0
+        Width = 128
+        Height = 128
+        Anchors = [akLeft, akTop, akRight, akBottom]
+        AutoSize = True
         Center = True
         ParentShowHint = False
         Picture.Data = {
@@ -178351,18 +178369,8 @@ object frmPrincipal: TfrmPrincipal
           5E14A5BA30A1148F0A507354809AA302D41C15A0E6A800354705A8392A40CDF9
           07726959BD3D6ACB490000000049454E44AE426082}
         ShowHint = False
+        OnClick = Image3Click
       end
-    end
-    object Panel1: TPanel
-      Left = 60
-      Top = 48
-      Width = 400
-      Height = 380
-      Anchors = [akLeft, akRight, akBottom]
-      BevelOuter = bvNone
-      TabOrder = 3
-      Visible = False
-      OnClick = Panel1Click
     end
   end
   object MainMenu1: TMainMenu

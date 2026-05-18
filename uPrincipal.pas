@@ -28,7 +28,7 @@ type
     Label1: TLabel;
     Image2: TImage;
     PnlExportar: TPanel;
-    Label2: TLabel;
+    lblExportar: TLabel;
     Label3: TLabel;
     Image3: TImage;
     procedure FECHAR1Click(Sender: TObject);
@@ -76,6 +76,8 @@ procedure TfrmPrincipal.FormCreate(Sender: TObject);
 begin
   lblImportTitulo.Font.Color := $00FF5EB1;
   lblImportTitulo.Font.Style := [fsBold];
+  lblExportar.Font.Color := $00FF5EB1;
+  lblExportar.Font.Style := [fsBold];
 end;
 
 procedure TfrmPrincipal.Image2Click(Sender: TObject);

@@ -25,6 +25,7 @@ object frmPrincipal: TfrmPrincipal
     Color = clWhite
     ParentBackground = False
     TabOrder = 0
+    ExplicitLeft = 8
     DesignSize = (
       1028
       513)
@@ -41,7 +42,6 @@ object frmPrincipal: TfrmPrincipal
         Width = 295
         Height = 511
         Align = alClient
-        AutoSize = True
         Center = True
         ParentShowHint = False
         Picture.Data = {
@@ -178115,7 +178115,8 @@ object frmPrincipal: TfrmPrincipal
           49F32852ED18483292BDB12E0B98551BFBFF0051FB227BE4AAD81F0000000049
           454E44AE426082}
         ShowHint = False
-        ExplicitTop = 2
+        ExplicitWidth = 2752
+        ExplicitHeight = 1536
       end
     end
     object PnlBtnImportar: TPanel
@@ -178124,17 +178125,21 @@ object frmPrincipal: TfrmPrincipal
       Width = 374
       Height = 380
       Cursor = crHandPoint
-      Anchors = [akLeft, akTop, akRight, akBottom]
+      Anchors = [akLeft, akTop, akBottom]
       BevelOuter = bvNone
       Color = clWhite
       ParentBackground = False
       TabOrder = 1
       OnClick = PnlBtnImportarClick
+      DesignSize = (
+        374
+        380)
       object lblImportTitulo: TLabel
         Left = 96
         Top = 119
         Width = 146
         Height = 32
+        Anchors = [akTop, akRight]
         Caption = 'IMPORTA'#199#195'O'
         Font.Charset = ANSI_CHARSET
         Font.Color = clWindowText
@@ -178149,6 +178154,7 @@ object frmPrincipal: TfrmPrincipal
         Width = 358
         Height = 120
         Alignment = taCenter
+        Anchors = [akLeft, akTop, akRight, akBottom]
         Caption = 
           'Carregue escalas musicais a partir de arquivos externos.'#13#10'Os dad' +
           'os s'#227'o validados e adicionados ao banco de dados.'
@@ -178163,8 +178169,10 @@ object frmPrincipal: TfrmPrincipal
       object Image2: TImage
         Left = 111
         Top = 0
-        Width = 121
-        Height = 113
+        Width = 128
+        Height = 128
+        Anchors = [akLeft, akTop, akRight, akBottom]
+        AutoSize = True
         Center = True
         ParentShowHint = False
         Picture.Data = {
@@ -178242,17 +178250,21 @@ object frmPrincipal: TfrmPrincipal
       Width = 300
       Height = 277
       Cursor = crHandPoint
-      Anchors = [akLeft, akTop, akRight, akBottom]
+      Anchors = [akTop, akRight, akBottom]
       BevelOuter = bvNone
       Color = clWhite
       ParentBackground = False
       TabOrder = 2
       OnClick = PnlExportarClick
-      object Label2: TLabel
-        Left = 77
+      DesignSize = (
+        300
+        277)
+      object lblExportar: TLabel
+        Left = 72
         Top = 119
         Width = 144
         Height = 32
+        Anchors = [akTop, akRight]
         Caption = 'EXPORTA'#199#195'O'
         Font.Charset = ANSI_CHARSET
         Font.Color = clWindowText
@@ -178262,11 +178274,13 @@ object frmPrincipal: TfrmPrincipal
         ParentFont = False
       end
       object Label3: TLabel
-        Left = 0
+        Left = 2
         Top = 157
-        Width = 300
-        Height = 120
+        Width = 303
+        Height = 180
         Alignment = taCenter
+        Anchors = [akLeft, akTop, akRight, akBottom]
+        AutoSize = False
         Caption = 
           'Exporte suas escalas cadastradas para arquivos externos.'#13#10'Ideal ' +
           'para backup, compartilhamento e integra'#231#227'o com outros sistemas.'
@@ -178281,8 +178295,10 @@ object frmPrincipal: TfrmPrincipal
       object Image3: TImage
         Left = 84
         Top = 0
-        Width = 121
-        Height = 113
+        Width = 128
+        Height = 128
+        Anchors = [akLeft, akTop, akRight, akBottom]
+        AutoSize = True
         Center = True
         ParentShowHint = False
         Picture.Data = {

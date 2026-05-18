@@ -42,6 +42,8 @@ type
     procedure PnlExportarClick(Sender: TObject);
     procedure Image2Click(Sender: TObject);
     procedure Image3Click(Sender: TObject);
+    procedure Label3Click(Sender: TObject);
+    procedure Label1Click(Sender: TObject);
   private
     { Private declarations }
   public
@@ -82,14 +84,11 @@ end;
 
 procedure TfrmPrincipal.Image2Click(Sender: TObject);
 begin
-  // 1. Verifica se a tela já não está criada (se você não usa auto-create)
   if not Assigned(frmArquivos) then
     Application.CreateForm(TfrmArquivos, frmArquivos);
 
-  // 2. Exibe a tela primeiro (para o usuário ver onde os dados vão cair)
   frmArquivos.Show;
 
-  // 3. Dispara o explorer automaticamente
   frmArquivos.AbrirImportacaoDireta;
 end;
 
@@ -129,6 +128,28 @@ begin
   end;
 end;
 
+procedure TfrmPrincipal.Label1Click(Sender: TObject);
+begin
+  if not Assigned(frmArquivos) then
+    Application.CreateForm(TfrmArquivos, frmArquivos);
+
+  frmArquivos.Show;
+
+  frmArquivos.AbrirImportacaoDireta;
+end;
+
+procedure TfrmPrincipal.Label3Click(Sender: TObject);
+var
+  frmArquivos: TfrmArquivos;
+begin
+  frmArquivos := TfrmArquivos.Create(Application);
+  try
+    frmArquivos.ShowModal;
+  finally
+    frmArquivos.Free;
+  end;
+end;
+
 procedure TfrmPrincipal.NOTAS1Click(Sender: TObject);
 var
   frmNotas: TfrmCadNotas;
@@ -154,14 +175,11 @@ end;
 
 procedure TfrmPrincipal.PnlBtnImportarClick(Sender: TObject);
 begin
-  // 1. Verifica se a tela já não está criada (se você não usa auto-create)
   if not Assigned(frmArquivos) then
     Application.CreateForm(TfrmArquivos, frmArquivos);
 
-  // 2. Exibe a tela primeiro (para o usuário ver onde os dados vão cair)
   frmArquivos.Show;
 
-  // 3. Dispara o explorer automaticamente
   frmArquivos.AbrirImportacaoDireta;
 end;
 

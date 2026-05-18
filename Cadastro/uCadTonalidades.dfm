@@ -3,6 +3,7 @@ inherited frmCadTonalidades: TfrmCadTonalidades
   PixelsPerInch = 96
   TextHeight = 13
   inherited pgcPrincipal: TPageControl
+    ActivePage = tsConsulta
     inherited tsConsulta: TTabSheet
       inherited dbGridConsulta: TDBGrid
         Columns = <
@@ -24,10 +25,6 @@ inherited frmCadTonalidades: TfrmCadTonalidades
       end
     end
     inherited tsDados: TTabSheet
-      ExplicitLeft = 8
-      ExplicitTop = 28
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object lblNome: TLabel [0]
         Left = 16
         Top = 99
@@ -95,7 +92,6 @@ inherited frmCadTonalidades: TfrmCadTonalidades
     end
   end
   inherited qryPrincipal: TFDQuery
-    Active = True
     SQL.Strings = (
       'SELECT '
       '    t.tonalidadeId, '
@@ -127,7 +123,6 @@ inherited frmCadTonalidades: TfrmCadTonalidades
     end
   end
   object qryNota: TFDQuery
-    Active = True
     Connection = dmDados.FDConexao
     SQL.Strings = (
       'SELECT notasId,'

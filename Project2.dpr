@@ -7,7 +7,6 @@ uses
   uDmDados in 'DataModule\uDmDados.pas' {dmDados: TDataModule},
   cCadNotas in 'Classes\cCadNotas.pas',
   uEnum in 'Classes\uEnum.pas',
-  cFuncao in 'Classes\cFuncao.pas',
   uPrincipal in 'uPrincipal.pas' {frmPrincipal},
   uCadTonalidades in 'Cadastro\uCadTonalidades.pas' {frmCadTonalidades},
   cCadTonalidades in 'Classes\cCadTonalidades.pas',

@@ -101,7 +101,6 @@ end;
 procedure TfrmCadNotas.FormCreate(Sender: TObject);
 begin
   inherited;
-
   oNotas := TNotas.Create(dmDados.FDConexao);
 end;
 

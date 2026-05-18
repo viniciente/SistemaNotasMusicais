@@ -117,7 +117,6 @@
         </DCCReference>
         <DCCReference Include="Classes\cCadNotas.pas"/>
         <DCCReference Include="Classes\uEnum.pas"/>
-        <DCCReference Include="Classes\cFuncao.pas"/>
         <DCCReference Include="uPrincipal.pas">
             <Form>frmPrincipal</Form>
             <FormType>dfm</FormType>

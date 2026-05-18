@@ -27,10 +27,6 @@ implementation
 
 {$R *.dfm}
 
-// ----------------------------------------------------------------------------
-// Le o config.ini na mesma pasta do executavel e configura o FDConexao.
-// Se o arquivo nao existir, cria um template e orienta o usuario.
-// ----------------------------------------------------------------------------
 procedure TdmDados.LerConfigIni;
 const
   TEMPLATE_INI =
@@ -105,17 +101,12 @@ begin
   end;
 end;
 
-// ----------------------------------------------------------------------------
-// Conecta no master, cria o banco se nao existir,
-// reconecta no banco correto e cria todas as tabelas + dados iniciais.
-// ----------------------------------------------------------------------------
 procedure TdmDados.CriarBancoETabelas;
 var
   LNomeBanco: string;
 begin
   LNomeBanco := FDConexao.Params.Values['Database'];
 
-  // -- Passo 1: conecta no master --------------------------------------------
   FDConexao.Params.Values['Database'] := 'master';
 
   try
@@ -137,19 +128,16 @@ begin
       );
   end;
 
-  // -- Passo 2: cria o banco se nao existir ----------------------------------
   FDConexao.ExecSQL(
     'IF NOT EXISTS (' +
     '  SELECT * FROM sys.databases WHERE name = ' + QuotedStr(LNomeBanco) +
     ') CREATE DATABASE [' + LNomeBanco + ']'
   );
 
-  // -- Passo 3: reconecta no banco do sistema --------------------------------
   FDConexao.Connected := False;
   FDConexao.Params.Values['Database'] := LNomeBanco;
   FDConexao.Connected := True;
 
-  // -- Passo 4: cria as tabelas (IF NOT EXISTS = idempotente) ----------------
   FDConexao.ExecSQL(
     'IF NOT EXISTS (SELECT * FROM sys.objects WHERE name = ''notas'') ' +
     'CREATE TABLE notas ( ' +
@@ -193,7 +181,6 @@ begin
     ')'
   );
 
-  // Migracao: adiciona colunas novas caso a tabela escalas ja exista sem elas
   FDConexao.ExecSQL(
     'IF NOT EXISTS (' +
     '  SELECT * FROM sys.columns ' +
@@ -207,7 +194,6 @@ begin
     'END'
   );
 
-  // -- Passo 5: popula dados iniciais (so se estiverem vazios) ---------------
   FDConexao.ExecSQL(
     'IF NOT EXISTS (SELECT TOP 1 1 FROM notas) ' +
     'INSERT INTO notas (nome) VALUES ' +

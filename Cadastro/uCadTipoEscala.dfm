@@ -3,6 +3,7 @@ inherited frmCadTipoEscala: TfrmCadTipoEscala
   PixelsPerInch = 96
   TextHeight = 13
   inherited pgcPrincipal: TPageControl
+    ActivePage = tsConsulta
     inherited tsConsulta: TTabSheet
       inherited dbGridConsulta: TDBGrid
         Columns = <

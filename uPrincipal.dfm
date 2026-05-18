@@ -178165,6 +178165,7 @@ object frmPrincipal: TfrmPrincipal
         Font.Style = []
         ParentFont = False
         WordWrap = True
+        OnClick = Label1Click
       end
       object Image2: TImage
         Left = 111
@@ -178291,6 +178292,7 @@ object frmPrincipal: TfrmPrincipal
         Font.Style = []
         ParentFont = False
         WordWrap = True
+        OnClick = Label3Click
       end
       object Image3: TImage
         Left = 84

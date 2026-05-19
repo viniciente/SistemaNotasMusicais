@@ -136,6 +136,7 @@ object frmArquivos: TfrmArquivos
         TitleFont.Height = -11
         TitleFont.Name = 'Tahoma'
         TitleFont.Style = []
+        OnDblClick = dbGridConsultaDblClick
         Columns = <
           item
             Expanded = False
@@ -336,6 +337,7 @@ object frmArquivos: TfrmArquivos
         TitleFont.Height = -11
         TitleFont.Name = 'Tahoma'
         TitleFont.Style = [fsBold]
+        OnDrawColumnCell = DBGrid1DrawColumnCell
       end
     end
   end

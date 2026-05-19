@@ -43,7 +43,6 @@ type
     dlgAbrir: TOpenDialog;
     cdsImport: TFDMemTable;
     dsImport: TDataSource;
-    btnAutoCadastro: TPngBitBtn;
     procedure FormCreate(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure btnExportarClick(Sender: TObject);
@@ -141,15 +140,12 @@ procedure TfrmArquivos.CentralizarColunas(pGrid: TDBGrid);
 var
   I: Integer;
 begin
-  // Verificamos se o grid foi atribuído para evitar erros
   if not Assigned(pGrid) then Exit;
 
   for I := 0 to pGrid.Columns.Count - 1 do
   begin
-    // Centraliza o texto das linhas (conteúdo)
     pGrid.Columns[I].Alignment := taCenter;
 
-    // Centraliza o texto do título (cabeçalho)
     pGrid.Columns[I].Title.Alignment := taCenter;
   end;
 end;
@@ -371,7 +367,7 @@ dlgAbrir.Filter   := 'Arquivo de Texto|*.txt';
   begin
     PrepararGridImport;
     LerArquivoTXT(dlgAbrir.FileName);
-    pgcPrincipal.ActivePage := tsDados; // Vai para a aba de dados
+    pgcPrincipal.ActivePage := tsDados;
   end;
 end;
 
@@ -481,27 +477,33 @@ procedure TfrmArquivos.btnSalvarClick(Sender: TObject);
 var
   msgErro: string;
   salvos, erros: Integer;
-  temErroComponente: Boolean; // Nova flag para identificar o tipo de erro
+  errDuplicidade, errComponente: Integer;
+  listaComponentesFaltantes: TStringList;
+  deveVoltarConsulta: Boolean;
 begin
   if cdsImport.IsEmpty then Exit;
 
   salvos := 0;
   erros  := 0;
-  temErroComponente := False;
+  errDuplicidade := 0;
+  errComponente  := 0;
+  deveVoltarConsulta := False;
+  listaComponentesFaltantes := TStringList.Create;
+  listaComponentesFaltantes.Duplicates := dupIgnore;
+  listaComponentesFaltantes.Sorted := True;
 
   try
-    // 1. Antes de tudo, testa a conexão para evitar erro de logon no meio do loop
     dmDados.FDConexao.Connected := True;
-
     dmDados.FDConexao.StartTransaction;
+
     cdsImport.DisableControls;
     try
       cdsImport.First;
       while not cdsImport.Eof do
       begin
-        Application.ProcessMessages; // Mantém a tela responsiva
-
-        if cdsImport.FieldByName('Status').AsString = 'SALVO' then
+        // Pula o que já foi salvo OU o que já foi identificado como duplicidade
+        if (cdsImport.FieldByName('Status').AsString = 'SALVO') or
+           (cdsImport.FieldByName('Status').AsString = 'DUPLICADO') then
         begin
           cdsImport.Next;
           Continue;
@@ -527,15 +529,26 @@ begin
         begin
           Inc(erros);
 
-          // VERIFICAÇÃO CRÍTICA: O erro é por falta de componente (Nota/Tipo/Tom)?
-          // Isso evita oferecer Auto-Cadastro para erro de duplicidade ou banco.
-          if (Pos('não encontrado', LowerCase(msgErro)) > 0) or
-             (Pos('não encontrada', LowerCase(msgErro)) > 0) then
-            temErroComponente := True;
-
           cdsImport.Edit;
-          cdsImport.FieldByName('Status').AsString := 'ERRO';
-          cdsImport.FieldByName('Erro').AsString := msgErro;
+          // Se for duplicidade, mudamos o Status para não tentar salvar de novo
+          if (Pos('já cadastrada', msgErro) > 0) then
+          begin
+            Inc(errDuplicidade);
+            cdsImport.FieldByName('Status').AsString := 'DUPLICADO';
+            cdsImport.FieldByName('Erro').AsString := 'Ignorado: Já existe no banco';
+          end
+          else if (Pos('não encontrado', msgErro) > 0) or (Pos('não encontrada', msgErro) > 0) then
+          begin
+            Inc(errComponente);
+            listaComponentesFaltantes.Add('• ' + msgErro);
+            cdsImport.FieldByName('Status').AsString := 'ERRO';
+            cdsImport.FieldByName('Erro').AsString := msgErro;
+          end
+          else
+          begin
+            cdsImport.FieldByName('Status').AsString := 'ERRO';
+            cdsImport.FieldByName('Erro').AsString := msgErro;
+          end;
           cdsImport.Post;
         end;
         cdsImport.Next;
@@ -544,50 +557,43 @@ begin
       cdsImport.EnableControls;
     end;
 
-    // --- TRATAMENTO DOS RESULTADOS ---
-    if erros > 0 then
+    // Se so teve duplicidade e o resto salvou, podemos dar Commit no que deu certo
+    if (errComponente = 0) and (salvos > 0) then
     begin
-      dmDados.FDConexao.Rollback; // Cancela o que foi feito nesta tentativa
+       dmDados.FDConexao.Commit;
+       deveVoltarConsulta := True;
+       ShowMessage('Processo finalizado!' + sLineBreak +
+                   'Salvos: ' + IntToStr(salvos) + sLineBreak +
+                   'Duplicados ignorados: ' + IntToStr(errDuplicidade));
+    end
+    // Se teve erro de componente, damos Rollback para o usuário decidir o Auto-Cadastro
+    else if (errComponente > 0) then
+    begin
+      dmDados.FDConexao.Rollback;
 
-      // Só oferece Auto-Cadastro se o erro for de componentes faltantes
-      if temErroComponente then
+      if errDuplicidade > 0 then
+        ShowMessage('Aviso: ' + IntToStr(errDuplicidade) + ' itens duplicados foram marcados para serem ignorados.');
+
+      if MessageDlg('Componentes faltando:' + sLineBreak + listaComponentesFaltantes.Text +
+                    sLineBreak + 'Deseja realizar o Auto-Cadastro agora?',
+                    mtConfirmation, [mbYes, mbNo], 0) = mrYes then
       begin
-        if MessageDlg('Existem ' + IntToStr(erros) + ' escala(s) com componentes não cadastrados.' + sLineBreak +
-                      'Deseja realizar o Auto-Cadastro desses itens agora?',
-                      mtConfirmation, [mbYes, mbNo], 0) = mrYes then
-        begin
-          btnAutoCadastroClick(nil);
-          ShowMessage('Componentes criados! Clique em SALVAR novamente para finalizar as escalas.');
-        end;
-      end
-      else
-      begin
-        // Se caiu aqui, o erro é duplicidade ou outro problema que o Auto-Cadastro não resolve
-        ShowMessage('Algumas escalas não puderam ser salvas por duplicidade ou erros de dados.' + sLineBreak +
-                    'Verifique a coluna "Erro" no grid.');
+        btnAutoCadastroClick(nil);
+        ShowMessage('Componentes criados! Clique em SALVAR para finalizar os itens restantes.');
+        Exit;
       end;
     end
-    else
+    else if (erros > 0) and (salvos = 0) then
     begin
-      // SUCESSO TOTAL
-      dmDados.FDConexao.Commit;
-      CarregarDados;
-      ShowMessage('Importação concluída com sucesso!' + sLineBreak + 'Total Salvo: ' + IntToStr(salvos));
+       dmDados.FDConexao.Rollback;
+       ShowMessage('Nenhum registro foi salvo. Verifique os erros no grid.');
+    end;
+
+  finally
+    listaComponentesFaltantes.Free;
+    CarregarDados;
+        if deveVoltarConsulta then
       pgcPrincipal.ActivePage := tsConsulta;
-    end;
-
-  except
-    on E: Exception do
-    begin
-      if dmDados.FDConexao.InTransaction then
-        dmDados.FDConexao.Rollback;
-
-      // Se for erro de login (o erro da sua imagem), para tudo.
-      if Pos('logon', LowerCase(E.Message)) > 0 then
-        ShowMessage('Erro de Conexão: Usuário ou senha do banco inválidos!')
-      else
-        ShowMessage('Erro crítico: ' + E.Message);
-    end;
   end;
 end;
 
@@ -721,7 +727,6 @@ begin
   vSecao := Self.Name + '_' + pGrid.Name;
   Ini := TIniFile.Create(NomeArquivo);
   try
-    // 1º Passo: Ajusta Largura e Visibilidade
     for i := 0 to pGrid.Columns.Count - 1 do
     begin
       vFieldName := pGrid.Columns[i].FieldName;
@@ -729,7 +734,6 @@ begin
       pGrid.Columns[i].Visible := Ini.ReadBool(vSecao + '_Visible', vFieldName, pGrid.Columns[i].Visible);
     end;
 
-    // 2º Passo: Restaura a Ordem das colunas
     for i := 0 to pGrid.Columns.Count - 1 do
     begin
       for vPos := 0 to pGrid.Columns.Count - 1 do
@@ -758,7 +762,6 @@ begin
   try
     vQuery.Connection := dmDados.FDConexao;
 
-    // Transação Exclusiva para garantir que os componentes sejam salvos agora
     dmDados.FDConexao.StartTransaction;
     try
       cdsImport.First;
@@ -779,13 +782,13 @@ begin
             vQuery.ExecSQL;
           end;
 
-          // 2. Grava Tipo Escala
+          // Grava Tipo Escala
           vQuery.SQL.Text := 'IF NOT EXISTS(SELECT 1 FROM tipoEscala WHERE LOWER(nome) = LOWER(:n)) ' +
                              'INSERT INTO tipoEscala (nome) VALUES (:n)';
           vQuery.ParamByName('n').AsString := Trim(cdsImport.FieldByName('Tipo').AsString);
           vQuery.ExecSQL;
 
-          // 3. Grava Tonalidade (Busca o ID da Nota Base primeiro)
+          // Grava Tonalidade (Busca o ID da Nota Base primeiro)
           sTon := Trim(cdsImport.FieldByName('Tonalidade').AsString);
           notaBase := sTon.Split([' '])[0];
 
@@ -821,7 +824,6 @@ begin
         cdsImport.Next;
       end;
 
-      // CONFIRMA AS INSERÇÕES DOS COMPONENTES NO BANCO
       dmDados.FDConexao.Commit;
     except
       dmDados.FDConexao.Rollback;

@@ -43,7 +43,6 @@ type
     dlgAbrir: TOpenDialog;
     cdsImport: TFDMemTable;
     dsImport: TDataSource;
-    btnAutoCadastro: TPngBitBtn;
     procedure FormCreate(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure btnExportarClick(Sender: TObject);
@@ -118,12 +117,6 @@ begin
     dbGridConsulta.Columns[i].Title.Font.Color := $00FF5EB1;
     dbGridConsulta.Columns[i].Title.Font.Style := [fsBold];
   end;
-
-//  for i := 0 to DBGrid1.Columns.Count- 1 do
-//  begin
-//    DBGrid1.Columns[i].Title.Font.Color := $00FF5EB1;
-//    DBGrid1.Columns[i].Title.Font.Style := [fsBold];
-//  end;
 
   fld := TStringField.Create(qryArquivos);
   fld.FieldName  := 'nomesNotas';
@@ -409,6 +402,9 @@ begin
 
   linhas := TStringList.Create;
   try
+    // ADICIONA O CABEÇALHO PADRÃO COMO PRIMEIRA LINHA
+    linhas.Add('nome da escala | tipo de escala | tonalidade | notas | descrição');
+
     posicaoAtual := qryArquivos.GetBookmark;
     try
       qryArquivos.DisableControls;
@@ -440,7 +436,8 @@ begin
 
     finally
       // Restaura a posição e habilita controles
-      qryArquivos.GotoBookmark(posicaoAtual);
+      if qryArquivos.BookmarkValid(posicaoAtual) then
+        qryArquivos.GotoBookmark(posicaoAtual);
       qryArquivos.FreeBookmark(posicaoAtual);
       qryArquivos.EnableControls;
     end;
@@ -480,6 +477,7 @@ var
   salvos, erros: Integer;
   errDuplicidade, errComponente: Integer;
   listaComponentesFaltantes: TStringList;
+  deveVoltarConsulta: Boolean;
 begin
   if cdsImport.IsEmpty then Exit;
 
@@ -487,6 +485,7 @@ begin
   erros  := 0;
   errDuplicidade := 0;
   errComponente  := 0;
+  deveVoltarConsulta := False;
   listaComponentesFaltantes := TStringList.Create;
   listaComponentesFaltantes.Duplicates := dupIgnore;
   listaComponentesFaltantes.Sorted := True;
@@ -560,6 +559,7 @@ begin
     if (errComponente = 0) and (salvos > 0) then
     begin
        dmDados.FDConexao.Commit;
+       deveVoltarConsulta := True;
        ShowMessage('Processo finalizado!' + sLineBreak +
                    'Salvos: ' + IntToStr(salvos) + sLineBreak +
                    'Duplicados ignorados: ' + IntToStr(errDuplicidade));
@@ -584,12 +584,14 @@ begin
     begin
        dmDados.FDConexao.Rollback;
        ShowMessage('Nenhum registro foi salvo. Verifique os erros no grid.');
+       Exit;
     end;
 
   finally
     listaComponentesFaltantes.Free;
     CarregarDados;
-    pgcPrincipal.ActivePage := tsConsulta;
+        if deveVoltarConsulta then
+      pgcPrincipal.ActivePage := tsConsulta;
   end;
 end;
 

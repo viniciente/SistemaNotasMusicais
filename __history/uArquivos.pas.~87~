@@ -54,6 +54,7 @@ type
     procedure DBGrid1DrawColumnCell(Sender: TObject; const Rect: TRect; DataCol: Integer; Column: TColumn;
       State: TGridDrawState);
     procedure dbGridConsultaDblClick(Sender: TObject);
+    procedure btnAutoCadastroClick(Sender: TObject);
   private
     procedure CarregarDados;
     function ObterNomesNotas(listaNota: string): string;
@@ -67,6 +68,7 @@ type
   out msgErro: string): Boolean;
     procedure CarregarConfiguracaoGrid(pGrid: TDBGrid);
     procedure SalvarConfiguracaoGrid(pGrid: TDBGrid);
+    procedure AutoCadastrarFaltantes;
   public
     { Public declarations }
     procedure AbrirImportacaoDireta;
@@ -138,15 +140,12 @@ procedure TfrmArquivos.CentralizarColunas(pGrid: TDBGrid);
 var
   I: Integer;
 begin
-  // Verificamos se o grid foi atribuído para evitar erros
   if not Assigned(pGrid) then Exit;
 
   for I := 0 to pGrid.Columns.Count - 1 do
   begin
-    // Centraliza o texto das linhas (conteúdo)
     pGrid.Columns[I].Alignment := taCenter;
 
-    // Centraliza o texto do título (cabeçalho)
     pGrid.Columns[I].Title.Alignment := taCenter;
   end;
 end;
@@ -368,8 +367,14 @@ dlgAbrir.Filter   := 'Arquivo de Texto|*.txt';
   begin
     PrepararGridImport;
     LerArquivoTXT(dlgAbrir.FileName);
-    pgcPrincipal.ActivePage := tsDados; // Vai para a aba de dados
+    pgcPrincipal.ActivePage := tsDados;
   end;
+end;
+
+procedure TfrmArquivos.btnAutoCadastroClick(Sender: TObject);
+begin
+  if cdsImport.IsEmpty then Exit;
+  AutoCadastrarFaltantes;
 end;
 
 procedure TfrmArquivos.btnCancelarClick(Sender: TObject);
@@ -386,22 +391,13 @@ var
   nomeEscala, tipoEscala, tonalidade, notasIds, nomesNotas, descricao: string;
   linha: string;
   posicaoAtual: TBookmark;
-  vSQL: string;
-  vQuery: TFDQuery;
-  filtrosAtivos: Boolean;
-  statusFiltro: string;
+  quantidadeExportada: Integer;
 begin
   if qryArquivos.IsEmpty then
   begin
     ShowMessage('Não há dados para exportar!');
     Exit;
   end;
-
-  filtrosAtivos := False;
-
-  if not VarIsNull(lkpPesqTonalidade.KeyValue) or
-     not VarIsNull(lkpPesqTipo.KeyValue) then
-    filtrosAtivos := True;
 
   dlgSalvar.Title      := 'Exportar escalas para TXT';
   dlgSalvar.Filter     := 'Arquivo de Texto|*.txt';
@@ -411,74 +407,50 @@ begin
   if not dlgSalvar.Execute then Exit;
 
   linhas := TStringList.Create;
-  vQuery := TFDQuery.Create(nil);
   try
-    // CORREÇÃO: Usar a mesma query que o grid usa, COM FILTROS
-    vQuery.Connection := dmDados.FDConexao;
+    posicaoAtual := qryArquivos.GetBookmark;
+    try
+      qryArquivos.DisableControls;
+      qryArquivos.First;
+      quantidadeExportada := 0;
 
-    vSQL :=
-      'SELECT e.escalaId, e.nome, t.nome AS tonalidade, te.nome AS tipoEscala, ' +
-      '       e.descricao, e.caminhoArquivo, e.nomeArquivo, e.listaNota ' +
-      'FROM escalas e ' +
-      'INNER JOIN tonalidades t  ON t.tonalidadeId  = e.tonalidadeId ' +
-      'INNER JOIN tipoEscala te ON te.tipoEscalaId = e.tipoId ' +
-      'WHERE 1=1 ';
+      while not qryArquivos.Eof do
+      begin
+        nomeEscala  := qryArquivos.FieldByName('nome').AsString;
+        tipoEscala  := qryArquivos.FieldByName('tipoEscala').AsString;
+        tonalidade  := qryArquivos.FieldByName('tonalidade').AsString;
+        notasIds    := qryArquivos.FieldByName('listaNota').AsString;
+        descricao   := qryArquivos.FieldByName('descricao').AsString;
 
-    // Aplicar mesmos filtros da grid
-    if not VarIsNull(lkpPesqTonalidade.KeyValue) and
-       not VarIsEmpty(lkpPesqTonalidade.KeyValue) then
-      vSQL := vSQL + ' AND e.tonalidadeId = ' + IntToStr(Integer(lkpPesqTonalidade.KeyValue));
+        // Converte IDs das notas para nomes
+        nomesNotas := ObterNomesNotas(notasIds);
 
-    if not VarIsNull(lkpPesqTipo.KeyValue) and
-       not VarIsEmpty(lkpPesqTipo.KeyValue) then
-      vSQL := vSQL + ' AND e.tipoId = ' + IntToStr(Integer(lkpPesqTipo.KeyValue));
+        // Monta a linha no formato: Nome | Tipo | Tonalidade | Notas | Descrição
+        linha := nomeEscala  + ' | ' +
+                 tipoEscala  + ' | ' +
+                 tonalidade  + ' | ' +
+                 nomesNotas  + ' | ' +
+                 descricao;
 
-    vSQL := vSQL + ' ORDER BY e.nome';
+        linhas.Add(linha);
+        Inc(quantidadeExportada);
+        qryArquivos.Next;
+      end;
 
-    vQuery.SQL.Text := vSQL;
-    vQuery.Open;
-
-    if vQuery.IsEmpty then
-    begin
-      ShowMessage('Nenhuma escala encontrada com os filtros aplicados!');
-      Exit;
-    end;
-
-    // Exportar dados
-    vQuery.First;
-    while not vQuery.Eof do
-    begin
-      nomeEscala  := vQuery.FieldByName('nome').AsString;
-      tipoEscala  := vQuery.FieldByName('tipoEscala').AsString;
-      tonalidade  := vQuery.FieldByName('tonalidade').AsString;
-      notasIds    := vQuery.FieldByName('listaNota').AsString;
-      descricao   := vQuery.FieldByName('descricao').AsString;
-
-      // Converte IDs das notas para nomes
-      nomesNotas := ObterNomesNotas(notasIds);
-
-      // Monta a linha no formato: Nome | Tipo | Tonalidade | Notas | Descrição
-      linha := nomeEscala  + ' | ' +
-               tipoEscala  + ' | ' +
-               tonalidade  + ' | ' +
-               nomesNotas  + ' | ' +
-               descricao;
-
-      linhas.Add(linha);
-      vQuery.Next;
+    finally
+      // Restaura a posição e habilita controles
+      qryArquivos.GotoBookmark(posicaoAtual);
+      qryArquivos.FreeBookmark(posicaoAtual);
+      qryArquivos.EnableControls;
     end;
 
     // Grava o arquivo em UTF-8
     try
       linhas.SaveToFile(dlgSalvar.FileName, TEncoding.UTF8);
 
-      statusFiltro := '';
-      if filtrosAtivos then
-        statusFiltro := ' (com filtros aplicados)';
-
       ShowMessage(
         'Exportação concluída com sucesso!' + sLineBreak +
-        IntToStr(linhas.Count) + ' escala(s) exportada(s)' + statusFiltro + '.' + sLineBreak +
+        IntToStr(quantidadeExportada) + ' escala(s) exportada(s).' + sLineBreak +
         'Arquivo: ' + dlgSalvar.FileName
       );
     except
@@ -487,7 +459,6 @@ begin
     end;
 
   finally
-    vQuery.Free;
     linhas.Free;
   end;
 end;
@@ -506,88 +477,120 @@ procedure TfrmArquivos.btnSalvarClick(Sender: TObject);
 var
   msgErro: string;
   salvos, erros: Integer;
-  resumoErros: TStringList;
-  msg: string;
-  i: Integer;
+  errDuplicidade, errComponente: Integer;
+  listaComponentesFaltantes: TStringList;
 begin
-  if cdsImport.IsEmpty then
-  begin
-    ShowMessage('Nenhuma linha para salvar!');
-    Exit;
-  end;
+  if cdsImport.IsEmpty then Exit;
 
-  salvos      := 0;
-  erros       := 0;
-  resumoErros := TStringList.Create;
+  salvos := 0;
+  erros  := 0;
+  errDuplicidade := 0;
+  errComponente  := 0;
+  listaComponentesFaltantes := TStringList.Create;
+  listaComponentesFaltantes.Duplicates := dupIgnore;
+  listaComponentesFaltantes.Sorted := True;
+
   try
+    dmDados.FDConexao.Connected := True;
+    dmDados.FDConexao.StartTransaction;
+
     cdsImport.DisableControls;
     try
       cdsImport.First;
       while not cdsImport.Eof do
       begin
-        if cdsImport.FieldByName('Status').AsString = 'ERRO' then
+        // Pula o que já foi salvo OU o que já foi identificado como duplicidade
+        if (cdsImport.FieldByName('Status').AsString = 'SALVO') or
+           (cdsImport.FieldByName('Status').AsString = 'DUPLICADO') then
         begin
-          Inc(erros);
-          // Já tem erro de formato — registra no resumo
-          resumoErros.Add('• ' + cdsImport.FieldByName('Nome').AsString +
-            ': ' + cdsImport.FieldByName('Erro').AsString);
           cdsImport.Next;
           Continue;
         end;
 
-      if ValidarESalvarLinha(
-        cdsImport.FieldByName('Nome').AsString,
-        cdsImport.FieldByName('Tipo').AsString,
-        cdsImport.FieldByName('Tonalidade').AsString,
-        cdsImport.FieldByName('Notas').AsString,
-        cdsImport.FieldByName('Descricao').AsString,
-        dlgAbrir.FileName,
-        ExtractFileName(dlgAbrir.FileName),
-        '',
-        msgErro) then
+        if ValidarESalvarLinha(
+             cdsImport.FieldByName('Nome').AsString,
+             cdsImport.FieldByName('Tipo').AsString,
+             cdsImport.FieldByName('Tonalidade').AsString,
+             cdsImport.FieldByName('Notas').AsString,
+             cdsImport.FieldByName('Descricao').AsString,
+             dlgAbrir.FileName,
+             ExtractFileName(dlgAbrir.FileName),
+             '', msgErro) then
         begin
           Inc(salvos);
           cdsImport.Edit;
           cdsImport.FieldByName('Status').AsString := 'SALVO';
-          cdsImport.FieldByName('Erro').AsString   := '';
+          cdsImport.FieldByName('Erro').AsString := '';
           cdsImport.Post;
         end
         else
         begin
           Inc(erros);
-          // Registra no resumo com o nome da escala + motivo
-          resumoErros.Add('• ' + cdsImport.FieldByName('Nome').AsString +
-            ': ' + msgErro);
+
           cdsImport.Edit;
-          cdsImport.FieldByName('Status').AsString := 'ERRO';
-          cdsImport.FieldByName('Erro').AsString   := msgErro;
+          // Se for duplicidade, mudamos o Status para não tentar salvar de novo
+          if (Pos('já cadastrada', msgErro) > 0) then
+          begin
+            Inc(errDuplicidade);
+            cdsImport.FieldByName('Status').AsString := 'DUPLICADO';
+            cdsImport.FieldByName('Erro').AsString := 'Ignorado: Já existe no banco';
+          end
+          else if (Pos('não encontrado', msgErro) > 0) or (Pos('não encontrada', msgErro) > 0) then
+          begin
+            Inc(errComponente);
+            listaComponentesFaltantes.Add('• ' + msgErro);
+            cdsImport.FieldByName('Status').AsString := 'ERRO';
+            cdsImport.FieldByName('Erro').AsString := msgErro;
+          end
+          else
+          begin
+            cdsImport.FieldByName('Status').AsString := 'ERRO';
+            cdsImport.FieldByName('Erro').AsString := msgErro;
+          end;
           cdsImport.Post;
         end;
-
         cdsImport.Next;
       end;
     finally
       cdsImport.EnableControls;
     end;
 
-    CarregarDados;
+    // Se so teve duplicidade e o resto salvou, podemos dar Commit no que deu certo
+    if (errComponente = 0) and (salvos > 0) then
+    begin
+       dmDados.FDConexao.Commit;
+       ShowMessage('Processo finalizado!' + sLineBreak +
+                   'Salvos: ' + IntToStr(salvos) + sLineBreak +
+                   'Duplicados ignorados: ' + IntToStr(errDuplicidade));
+    end
+    // Se teve erro de componente, damos Rollback para o usuário decidir o Auto-Cadastro
+    else if (errComponente > 0) then
+    begin
+      dmDados.FDConexao.Rollback;
 
-    // Monta mensagem final detalhada
-    msg := 'Registro da Importação!' + #13#10 +
-               'Salvos: ' + IntToStr(salvos) + #13#10 +
-               'Erros:  ' + IntToStr(erros);
+      if errDuplicidade > 0 then
+        ShowMessage('Aviso: ' + IntToStr(errDuplicidade) + ' itens duplicados foram marcados para serem ignorados.');
 
-    if resumoErros.Count > 0 then
-      msg := msg + #13#10 + #13#10 +
-             'Detalhes dos erros:' + #13#10 +
-             resumoErros.Text;
-
-    ShowMessage(msg);
+      if MessageDlg('Componentes faltando:' + sLineBreak + listaComponentesFaltantes.Text +
+                    sLineBreak + 'Deseja realizar o Auto-Cadastro agora?',
+                    mtConfirmation, [mbYes, mbNo], 0) = mrYes then
+      begin
+        btnAutoCadastroClick(nil);
+        ShowMessage('Componentes criados! Clique em SALVAR para finalizar os itens restantes.');
+        Exit;
+      end;
+    end
+    else if (erros > 0) and (salvos = 0) then
+    begin
+       dmDados.FDConexao.Rollback;
+       ShowMessage('Nenhum registro foi salvo. Verifique os erros no grid.');
+    end;
 
   finally
-    resumoErros.Free;
+    listaComponentesFaltantes.Free;
+    CarregarDados;
+    pgcPrincipal.ActivePage := tsConsulta;
   end;
-  pgcPrincipal.ActivePage := tsConsulta;
 end;
 
 procedure TfrmArquivos.LerArquivoTXT(caminho: string);
@@ -720,7 +723,6 @@ begin
   vSecao := Self.Name + '_' + pGrid.Name;
   Ini := TIniFile.Create(NomeArquivo);
   try
-    // 1º Passo: Ajusta Largura e Visibilidade
     for i := 0 to pGrid.Columns.Count - 1 do
     begin
       vFieldName := pGrid.Columns[i].FieldName;
@@ -728,7 +730,6 @@ begin
       pGrid.Columns[i].Visible := Ini.ReadBool(vSecao + '_Visible', vFieldName, pGrid.Columns[i].Visible);
     end;
 
-    // 2º Passo: Restaura a Ordem das colunas
     for i := 0 to pGrid.Columns.Count - 1 do
     begin
       for vPos := 0 to pGrid.Columns.Count - 1 do
@@ -743,6 +744,89 @@ begin
     end;
   finally
     Ini.Free;
+  end;
+end;
+
+procedure TfrmArquivos.AutoCadastrarFaltantes;
+var
+  vQuery: TFDQuery;
+  notaBase, sTon, sNota: string;
+  notaId, I: Integer;
+  notasArr: TArray<string>;
+begin
+  vQuery := TFDQuery.Create(nil);
+  try
+    vQuery.Connection := dmDados.FDConexao;
+
+    dmDados.FDConexao.StartTransaction;
+    try
+      cdsImport.First;
+      while not cdsImport.Eof do
+      begin
+        if cdsImport.FieldByName('Status').AsString = 'ERRO' then
+        begin
+          // 1. Grava as Notas
+          notasArr := cdsImport.FieldByName('Notas').AsString.Split([',']);
+          for I := 0 to High(notasArr) do
+          begin
+            sNota := Trim(notasArr[I]);
+            if sNota = '' then Continue;
+
+            vQuery.SQL.Text := 'IF NOT EXISTS(SELECT 1 FROM notas WHERE LOWER(nome) = LOWER(:n)) ' +
+                               'INSERT INTO notas (nome) VALUES (:n)';
+            vQuery.ParamByName('n').AsString := sNota;
+            vQuery.ExecSQL;
+          end;
+
+          // Grava Tipo Escala
+          vQuery.SQL.Text := 'IF NOT EXISTS(SELECT 1 FROM tipoEscala WHERE LOWER(nome) = LOWER(:n)) ' +
+                             'INSERT INTO tipoEscala (nome) VALUES (:n)';
+          vQuery.ParamByName('n').AsString := Trim(cdsImport.FieldByName('Tipo').AsString);
+          vQuery.ExecSQL;
+
+          // Grava Tonalidade (Busca o ID da Nota Base primeiro)
+          sTon := Trim(cdsImport.FieldByName('Tonalidade').AsString);
+          notaBase := sTon.Split([' '])[0];
+
+          vQuery.Close;
+          vQuery.SQL.Text := 'SELECT notasId FROM notas WHERE LOWER(nome) = LOWER(:n)';
+          vQuery.ParamByName('n').AsString := notaBase;
+          vQuery.Open;
+
+          if vQuery.IsEmpty then
+          begin
+            vQuery.Close;
+            vQuery.SQL.Text := 'INSERT INTO notas (nome) VALUES (:n); SELECT SCOPE_IDENTITY();';
+            vQuery.ParamByName('n').AsString := notaBase;
+            vQuery.Open;
+            notaId := vQuery.Fields[0].AsInteger;
+          end
+          else
+            notaId := vQuery.FieldByName('notasId').AsInteger;
+
+          vQuery.Close;
+          vQuery.SQL.Text := 'IF NOT EXISTS(SELECT 1 FROM tonalidades WHERE LOWER(nome) = LOWER(:n)) ' +
+                             'INSERT INTO tonalidades (notaId, nome) VALUES (:id, :n)';
+          vQuery.ParamByName('id').AsInteger := notaId;
+          vQuery.ParamByName('n').AsString := sTon;
+          vQuery.ExecSQL;
+
+          // Limpa o Status para a próxima tentativa de Salvar
+          cdsImport.Edit;
+          cdsImport.FieldByName('Status').AsString := 'OK';
+          cdsImport.FieldByName('Erro').AsString := '';
+          cdsImport.Post;
+        end;
+        cdsImport.Next;
+      end;
+
+      dmDados.FDConexao.Commit;
+    except
+      dmDados.FDConexao.Rollback;
+      raise;
+    end;
+  finally
+    vQuery.Free;
   end;
 end;
 

@@ -305,15 +305,6 @@ object frmArquivos: TfrmArquivos
             FB9072C4E8F1859041C6597E11E66BC39FF222BB4E9021EFF74E36264BF1EB93
             62E952CDD70A2F0000000049454E44AE426082}
         end
-        object btnAutoCadastro: TPngBitBtn
-          Left = 408
-          Top = 6
-          Width = 81
-          Height = 25
-          Caption = 'Auto-Cadastro'
-          TabOrder = 2
-          OnClick = btnAutoCadastroClick
-        end
       end
       object pnlCadastro: TPanel
         Left = 0

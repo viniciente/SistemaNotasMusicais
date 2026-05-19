@@ -6,7 +6,6 @@ inherited frmCadEscalaMusical: TfrmCadEscalaMusical
   TextHeight = 13
   inherited pgcPrincipal: TPageControl
     Height = 375
-    ActivePage = tsConsulta
     ExplicitHeight = 375
     inherited tsConsulta: TTabSheet
       ExplicitHeight = 347

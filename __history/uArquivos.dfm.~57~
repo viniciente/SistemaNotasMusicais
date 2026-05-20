@@ -193,6 +193,7 @@ object frmArquivos: TfrmArquivos
           Width = 75
           Height = 25
           Cursor = crHandPoint
+          Cancel = True
           Caption = '&FECHAR'
           TabOrder = 0
           OnClick = btnFecharClick
@@ -342,6 +343,7 @@ object frmArquivos: TfrmArquivos
     end
   end
   object qryArquivos: TFDQuery
+    OnCalcFields = qryArquivosCalcFields
     Connection = dmDados.FDConexao
     SQL.Strings = (
       '        SELECT e.escalaId,'

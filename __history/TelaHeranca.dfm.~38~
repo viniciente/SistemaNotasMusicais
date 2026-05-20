@@ -1,9 +1,9 @@
-object frmArquivos: TfrmArquivos
+object frmTelaHeranca: TfrmTelaHeranca
   Left = 0
   Top = 0
-  Caption = 'IMPORTA'#199#195'O / EXPORTA'#199#195'O'
-  ClientHeight = 387
-  ClientWidth = 713
+  Caption = 'frmTelaHeranca'
+  ClientHeight = 376
+  ClientWidth = 689
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -12,7 +12,6 @@ object frmArquivos: TfrmArquivos
   Font.Style = []
   OldCreateOrder = False
   Position = poScreenCenter
-  OnClose = FormClose
   OnCreate = FormCreate
   OnShow = FormShow
   PixelsPerInch = 96
@@ -20,8 +19,8 @@ object frmArquivos: TfrmArquivos
   object pgcPrincipal: TPageControl
     Left = 0
     Top = 0
-    Width = 713
-    Height = 387
+    Width = 689
+    Height = 376
     ActivePage = tsDados
     Align = alClient
     TabOrder = 0
@@ -30,7 +29,7 @@ object frmArquivos: TfrmArquivos
       object pnlTop: TPanel
         Left = 0
         Top = 0
-        Width = 705
+        Width = 681
         Height = 57
         Margins.Left = 0
         Margins.Top = 0
@@ -41,7 +40,7 @@ object frmArquivos: TfrmArquivos
         object pnlNome: TPanel
           Left = 1
           Top = 1
-          Width = 703
+          Width = 679
           Height = 24
           Align = alTop
           BevelOuter = bvNone
@@ -56,77 +55,113 @@ object frmArquivos: TfrmArquivos
           ParentFont = False
           TabOrder = 0
         end
-        object btnExportar: TPngBitBtn
-          Left = 400
-          Top = 31
-          Width = 105
+        object btnAdicionar: TPngBitBtn
+          Left = 369
+          Top = 28
+          Width = 107
           Height = 25
           Cursor = crHandPoint
-          Caption = 'EXPORTAR TXT'
+          Caption = '&ADICIONAR'
           TabOrder = 1
-          OnClick = btnExportarClick
-          PngImage.Data = {
-            89504E470D0A1A0A0000000D49484452000000100000001008060000001FF3FF
-            6100000009704859730000007600000076014E7B26080000001974455874536F
-            667477617265007777772E696E6B73636170652E6F72679BEE3C1A0000022D49
-            44415478DAA5924F48545114C6BF633E29683D1544D8A64D0B179A10953046AD
-            6C6AC0711351460B89C8C1B2B0267BC958948423AE6A114241E0484896140C2A
-            5A2E5CB42B8316457F18B320CD9C79F7DDFBDEE9CCC848914D45071E977BDEBD
-            BFFB9DEF1CC27F06AD947C7B82AB8C839032F05C0D4BBEB16DFD94FA2BC0C766
-            DEA35C6C511E1E198DF0A2851ECCE380D258BDE31EDDFE2360B6993B95833ED7
-            47E31742BCEA266572F9A7613EFFA1145D0D497257042CB671C835A89457A7B2
-            0A012F8BBB9BFBC829FC9F0C739D9412713466647D1C1AA191658069E746AD61
-            D65CF95562219E84F9A07832BD7B889EDDAFE5430259A89FA0C13C405FE4EBD6
-            253A55CC6D01EC4C5560D2B6C9CFED076A385E3F4EB125403BC7AD0E8A150EBF
-            6EE272DF43548C4B1BA9D8F5B0412B24B60FD29BC299815DDC2E0A3A0A0A7A4A
-            5FA08592E4A5A35C2E97A25F3FE14CC95A9C948EB0E5A277CEE09ACB480405D2
-            1FE1553483CB91093A9B07B817B8D2181CD606BD8E42D3E734DAB68ADBD347D8
-            1663517187ECE7112E9B7570D555B8E17838AA3DDCAA1FA397CB5D5838CD0129
-            6EAF18551548503497FB1190DB8FEEE36EE9C2D482C170438AE6571EA428DBEB
-            1264BF3AC6FB45D52671DB132FDE55F7D3D0681DDBC1074BB06283D4AD4A70CE
-            CD60A3C88DE41464B348FA2578EF64D059FB905A8A038EF37A4588A10CADDFE6
-            50A31490D118F70DBAA413F1E0B0D8570C906FA3407C8D56192EED8802592DF6
-            D1559DFCF9F26F01FF12DF01E7EA2420068B92D80000000049454E44AE426082}
-        end
-        object btnImportar: TPngBitBtn
-          Left = 536
-          Top = 31
-          Width = 105
-          Height = 25
-          Cursor = crHandPoint
-          Caption = 'IMPORTAR TXT'
-          TabOrder = 2
-          OnClick = btnImportarClick
+          OnClick = btnAdicionarClick
           PngImage.Data = {
             89504E470D0A1A0A0000000D49484452000000100000001008060000001FF3FF
             61000000097048597300000EC300000EC301C76FA8640000001974455874536F
-            667477617265007777772E696E6B73636170652E6F72679BEE3C1A000001F249
-            44415478DA636440020A0A0A8D7ABAFA092C2C2CFF90C5817C560E4E4E6118FF
-            FAA51BCC22AC72ABB69F5E15C388AC504B4B6BF2C2F94B7238383818F0818593
-            96317CDD2DC4F044E2D42A9C069C3D7B86E1F7EFDF281AE5E4E418A4A4A419EE
-            DCBAC7B07FD3218613570EFFC669C0EDDBB7300C9090906410121282F3274F99
-            F803AB01AB96AF6570F17062E0E4606778FEFC39861724252519040585E006F0
-            82C20924A1A6A2D6397DC6ACD479FD2B18FE7D656130F35167E0E1E5C23000E6
-            15B001EAE22677ED54829821A1CDC4CEC5C72E21C42EC56022E1CDB0F6563783
-            9EA71483BD932DC3ABD7AF187EFDFC093640484898818B8B0B6280BF5EE6FD6C
-            BB1E055C21BEF7E122060ECD770C3C221C0C5F3E7F068BE9E9E933A8A9A9430C
-            88D42BF894685CC58BCB80975F1E33AC7ED6C3D032B58681911125C820068468
-            677E8FD2CD4789785626360676164E869B6F2F309CFCB389A1B82D9361C3C6F5
-            0C9F3E7E04CB9B995B30E868EB400C30967668E6E3149602493CF97AD3D2DF33
-            44F3FAD9DB0CE622EE0C6F246F30A4944463D84C301A9B4A3B19CC2DCC1894F4
-            65184E9F3A89A111C505D80C60656565606666662004701A004A8973E6CE62F8
-            FCE50B568D8EF68E0C060686F80D200660182027A7D0686F6717CDC2CCF21F59
-            9C9989998D938B5304DD8013278EFF0400CA18BBA6B3B249450000000049454E
-            44AE426082}
+            667477617265007777772E696E6B73636170652E6F72679BEE3C1A0000021149
+            44415478DA9D534F48D45110FE66C90A4A928DD29616822E12AE419722584888
+            62C543864114D531EAA004055A87ED0F2E1128052D4487E8501E0C9625FB8389
+            0A190411FD61AD8DA84368A6A28BD90695B0E3F77EEFB9BB99076D7EF09B79F3
+            66BEF766BE790227A3590D41B14B81320856D125A2B4292A98328ADF4F8167F7
+            5794CAA0D913F31B1ED1B3AAB844D387C5498E99E78201B92C9FD31A62D69B25
+            24E7417C3954CBC717DAC8AB5E2BDEB9FB14487D59382BB409381CB6364B6B92
+            748F46699F2F0EBAD001FCFA63EDC05AAB4726AD5EB91C881E72818AA8A4EE69
+            8CF5B498F58D2EE0D81E207E1FF8ED00C221AB075256AF20C0E9030E401093D7
+            B7B49DE629B3BE99048E4480DB0F017F29B0713D102CB7B143636CF63890F901
+            9CD83F978F36797955E3A4EEA471DCE10D1AF6029D8F084002831B807257C218
+            4B18FA46009278745FBEDAEBF2FCA2C6E100924C8CEC06BA9E00333336A2AAD2
+            EAC10F569794F090BA22806767B49D33E095D0DD0DD4D400BDBD0500BFDFEA4C
+            A6001089E47BD0267DC735461ABD260E307107294A73C626464D93FF163375EB
+            2A48E5B6FC3A263D070B34BEEA07B66CB7A7CC1703B66C9E5F0D8D8F6BB591B6
+            37485FDF03D3130B0F90F0B8CAF03FEE2679B053ABD487B7F88F51E60DAABDC7
+            94D8AACDEC43EB124072ACA9A53E255764CE93D8CC9B90049A6BB8B9DAB9CB9C
+            9E725DCBF2FF9D6FA0AFE193BC33AE592CC7A95570A43EA30000000049454E44
+            AE426082}
+        end
+        object btnRemover: TPngBitBtn
+          Left = 482
+          Top = 28
+          Width = 89
+          Height = 25
+          Cursor = crHandPoint
+          Caption = '&REMOVER'
+          TabOrder = 2
+          OnClick = btnRemoverClick
+          PngImage.Data = {
+            89504E470D0A1A0A0000000D49484452000000100000001008060000001FF3FF
+            61000000097048597300000EC300000EC301C76FA8640000001974455874536F
+            667477617265007777772E696E6B73636170652E6F72679BEE3C1A0000021B49
+            44415478DA8D52CF6B1361107D934D6292B664535141D4D61F275B6B0F4A532B
+            622882F10F082852412B55C406A467BD79D36A8928A81803BD7852840A12AA08
+            967A288826822258AD274BB3E9469B34DBCDF8ED26BB6E62950EECF2BEC7CCFB
+            BE9979848678D09BDB23310D32A11F8C769324CC8A7F9A88EF0D4CB5669CF964
+            81B128AF9395C551060F89A30BAB87CE8C3B819FF2A55896CAB680511C54F2CF
+            048C602D4198F4AB72D410310592E1FC6D029F73E66CEA76C3D75A7DE0D23C63
+            FEFD4AA34CE2D474E822193DBB98DEFEE7D9FF0A9DF5CA5E4A85959B0C0C5BEC
+            BE613F42BBA4552B729F74CC248ACE018E5232AC6405D86D917D9703D819F542
+            6CE0CF886BF8F3D332A6AE2E393533F430AC140468B698AED33E749FF561EE95
+            86AD873C266761E3F6ECF8B253A06008A802B458CC8EA35E1CBC12C0D7171ADA
+            2255816F2F356C3BECC1E4C82F7C7FAD3905D4BF5AD8D0E946F46EB379EB963E
+            0FF432E3C73B1D9B7BDC781C53A1CE551A5AE8556E881EE316E30B1162134151
+            B482609B047D9951CA33E4ED12C62379B05E37D7EB943A90EBE48AB9467BF4C7
+            D341789AA82E73F18B8E27270A756B94B8D25535528F9220C2057B95713F9A36
+            D6DB62E1A38E4CAAE45CE1D8C074286E0A3CEA606FB1253F2160FF1A4D942E69
+            F2B1A119D2EC77D644AE0978DED94EA3FB44C1ADA2268F18C57058C58EE4FE85
+            0E97E43A23BC73441CDB6BF4ACF89E8B9EEF9F7CB3FE8333FF3789B4C8452BCA
+            CF8C0000000049454E44AE426082}
+        end
+        object btnEditar: TPngBitBtn
+          Left = 577
+          Top = 28
+          Width = 98
+          Height = 25
+          Cursor = crHandPoint
+          Caption = '&EDITAR'
+          TabOrder = 3
+          OnClick = btnEditarClick
+          PngImage.Data = {
+            89504E470D0A1A0A0000000D49484452000000100000001008060000001FF3FF
+            61000000097048597300000EC300000EC301C76FA8640000001974455874536F
+            667477617265007777772E696E6B73636170652E6F72679BEE3C1A0000028749
+            44415478DA75935B48145118C7FF6766AF5E92A420292F0F4B91A686F4D04B51
+            496245644437288212D48D12C2DEF3452A4A2B8C2292A0C2076343B1CC5BBD1B
+            89129A123DAC24D6B6AE971D1D75CE653AB3BADBEE62E765BE33F3FD7FE7FBE6
+            FB1F82A4D596BA506810B39229AC9429228FA91C8C083F55593F83787E339033
+            129F4FA241174CE7927BB989125E25850A53A450118800ACE7EA9E1BAAF9D4C8
+            D06EDC1A2D3062004B4CEDF40353D9411A498E09620077365054998281963066
+            83F4134FD78F589008E0BDCA9E4841B595BC1EC09D4350D1BE11939F57B0A5C4
+            8157E7A7301BA0CDF5139E6BA40F66A1A1B2E148D9EB00DC79C0B1B719981EA3
+            706D22D0021CD37E031F1B439CDBCC62D2A3F087F2275D8F9E160F70E502E51D
+            E918B8BD80B18E451C7F9D898C5C152FCFFDC2FC0C95B9BC89F412312A83FC64
+            8033DB4459672ABEDCD331E6D3B1E382132535A9683DFB07732163ED1031427A
+            88D0E46969F100478E89D2772918BAAB63DCB784ED179D28F6A6A0ED4C107341
+            1A3F19CD028465901E05D8A5F840970BC37796F1FDCD323C97EC28F2BAE13B1D
+            C27C90AE56F80F104E68C1B64D605FAF035F1B0CFCF049F1653BF2AB5D683F35
+            83F0348D881201B2856E853FE044D45A2F76BF5091B997A0FB908EAD150A767A
+            9DE83C3927C52C3695A40A1A490FCC5D6C758C6AD9841D939D0C59E52AA86EA2
+            EB84062D4413C61A0570E9CA159B59143552B3D323AE968EDBB1386162AA8F61
+            B041C7E22C4FB6727C058FEAFD9EDA08A00DA6634336EDE336BEDF32CA7A564E
+            02F4FFDC3C73F4D9E01E1ABB4C1644752FDDA744D458EDFCEF32C9EF8F33B382
+            7555529C701BA3AB354D2BE0C4BCC2157E583A346FCD1B7EA18A5E39C496BADF
+            B9DFE2F3FF02C2D8CFD248E31F3B0000000049454E44AE426082}
         end
       end
       object dbGridConsulta: TDBGrid
         Left = 0
         Top = 57
-        Width = 705
-        Height = 261
+        Width = 681
+        Height = 250
         Align = alClient
-        DataSource = dsArquivos
+        DataSource = dsPrincipal
         DrawingStyle = gdsClassic
         FixedColor = 5263440
         ReadOnly = True
@@ -136,60 +171,19 @@ object frmArquivos: TfrmArquivos
         TitleFont.Height = -11
         TitleFont.Name = 'Tahoma'
         TitleFont.Style = []
-        Columns = <
-          item
-            Expanded = False
-            FieldName = 'escalaId'
-            Visible = True
-          end
-          item
-            Expanded = False
-            FieldName = 'nome'
-            Visible = True
-          end
-          item
-            Expanded = False
-            FieldName = 'tonalidade'
-            Visible = True
-          end
-          item
-            Expanded = False
-            FieldName = 'tipoEscala'
-            Visible = True
-          end
-          item
-            Expanded = False
-            FieldName = 'listaNota'
-            Visible = True
-          end
-          item
-            Expanded = False
-            FieldName = 'descricao'
-            Visible = True
-          end
-          item
-            Expanded = False
-            FieldName = 'nomeArquivo'
-            Visible = True
-          end
-          item
-            Expanded = False
-            FieldName = 'caminhoArquivo'
-            Visible = True
-          end>
       end
       object pnlBottom: TPanel
         Left = 0
-        Top = 318
-        Width = 705
+        Top = 307
+        Width = 681
         Height = 41
         Align = alBottom
         BevelOuter = bvNone
         TabOrder = 2
         object btnFechar: TPngBitBtn
-          Left = 624
-          Top = 10
-          Width = 75
+          Left = 577
+          Top = 6
+          Width = 98
           Height = 25
           Cursor = crHandPoint
           Caption = '&FECHAR'
@@ -225,8 +219,8 @@ object frmArquivos: TfrmArquivos
       ImageIndex = 1
       object pnlDadosBottom: TPanel
         Left = 0
-        Top = 318
-        Width = 705
+        Top = 307
+        Width = 681
         Height = 41
         Align = alBottom
         BevelOuter = bvNone
@@ -267,7 +261,7 @@ object frmArquivos: TfrmArquivos
         object btnCancelar: TPngBitBtn
           Left = 592
           Top = 8
-          Width = 89
+          Width = 75
           Height = 25
           Cursor = crHandPoint
           Caption = '&CANCELAR'
@@ -300,7 +294,7 @@ object frmArquivos: TfrmArquivos
       object pnlCadastro: TPanel
         Left = 0
         Top = 0
-        Width = 705
+        Width = 681
         Height = 25
         Align = alTop
         Caption = 'CADASTRO'
@@ -314,137 +308,15 @@ object frmArquivos: TfrmArquivos
         ParentFont = False
         TabOrder = 1
       end
-      object DBGrid1: TDBGrid
-        Left = 0
-        Top = 25
-        Width = 705
-        Height = 293
-        Align = alClient
-        DataSource = dsImport
-        DrawingStyle = gdsClassic
-        FixedColor = 5263440
-        Font.Charset = DEFAULT_CHARSET
-        Font.Color = clWindowText
-        Font.Height = -11
-        Font.Name = 'Tahoma'
-        Font.Style = []
-        ParentFont = False
-        ReadOnly = True
-        TabOrder = 2
-        TitleFont.Charset = DEFAULT_CHARSET
-        TitleFont.Color = 16735921
-        TitleFont.Height = -11
-        TitleFont.Name = 'Tahoma'
-        TitleFont.Style = [fsBold]
-      end
     end
   end
-  object qryArquivos: TFDQuery
+  object qryPrincipal: TFDQuery
     Connection = dmDados.FDConexao
-    SQL.Strings = (
-      '        SELECT e.escalaId,'
-      '               e.nome,'
-      '               t.nome AS tonalidade,'
-      '               te.nome AS tipoEscala,'
-      '               e.listaNota,'
-      '               e.descricao,'
-      '               e.caminhoArquivo,'
-      '               e.nomeArquivo,'
-      '               e.conteudoArquivo'
-      '     FROM escalas e'
-      '     INNER JOIN tonalidades t ON t.tonalidadeId = e.tonalidadeId'
-      '     INNER JOIN tipoEscala te ON te.tipoEscalaId = e.tipoId'
-      '     ORDER BY e.nome')
-    Left = 525
+    Left = 613
     Top = 1
-    object qryArquivosescalaId: TFDAutoIncField
-      DisplayLabel = 'Id'
-      FieldName = 'escalaId'
-      Origin = 'escalaId'
-      ProviderFlags = [pfInWhere, pfInKey]
-      ReadOnly = True
-    end
-    object qryArquivosnome: TStringField
-      DisplayLabel = 'Nome'
-      FieldName = 'nome'
-      Origin = 'nome'
-      Required = True
-      Size = 100
-    end
-    object qryArquivostonalidade: TStringField
-      DisplayLabel = 'Tonalidade'
-      FieldName = 'tonalidade'
-      Origin = 'tonalidade'
-      Required = True
-      Size = 50
-    end
-    object qryArquivostipoEscala: TStringField
-      DisplayLabel = 'Tipo Escala'
-      FieldName = 'tipoEscala'
-      Origin = 'tipoEscala'
-      Required = True
-      Size = 30
-    end
-    object qryArquivoslistaNota: TStringField
-      DisplayLabel = 'Notas'
-      FieldName = 'listaNota'
-      Origin = 'listaNota'
-      Required = True
-      Size = 255
-    end
-    object qryArquivosdescricao: TStringField
-      DisplayLabel = 'Descri'#231#227'o'
-      FieldName = 'descricao'
-      Origin = 'descricao'
-      Size = 500
-    end
-    object qryArquivoscaminhoArquivo: TStringField
-      DisplayLabel = 'Caminho do Arquivo'
-      FieldName = 'caminhoArquivo'
-      Origin = 'caminhoArquivo'
-      Size = 500
-    end
-    object qryArquivosnomeArquivo: TStringField
-      DisplayLabel = 'Nome do Arquivo'
-      FieldName = 'nomeArquivo'
-      Origin = 'nomeArquivo'
-      Size = 255
-    end
-    object qryArquivosconteudoArquivo: TStringField
-      DisplayLabel = 'Conteudo'
-      FieldName = 'conteudoArquivo'
-      Origin = 'conteudoArquivo'
-      Size = 500
-    end
   end
-  object dsArquivos: TDataSource
-    DataSet = qryArquivos
-    Left = 592
-  end
-  object dlgSalvar: TSaveDialog
-    Left = 620
-    Top = 232
-  end
-  object dlgAbrir: TOpenDialog
-    FileName = 'Selecionar arquivo TXT'
-    Filter = 'Arquivo de Texto|*.txt'
-    Left = 612
-    Top = 184
-  end
-  object cdsImport: TFDMemTable
-    FetchOptions.AssignedValues = [evMode]
-    FetchOptions.Mode = fmAll
-    ResourceOptions.AssignedValues = [rvSilentMode]
-    ResourceOptions.SilentMode = True
-    UpdateOptions.AssignedValues = [uvCheckRequired, uvAutoCommitUpdates]
-    UpdateOptions.CheckRequired = False
-    UpdateOptions.AutoCommitUpdates = True
-    Left = 548
-    Top = 88
-  end
-  object dsImport: TDataSource
-    DataSet = cdsImport
-    Left = 604
-    Top = 88
+  object dsPrincipal: TDataSource
+    DataSet = qryPrincipal
+    Left = 648
   end
 end

@@ -43,7 +43,6 @@ type
     dlgAbrir: TOpenDialog;
     cdsImport: TFDMemTable;
     dsImport: TDataSource;
-    btnAutoCadastro: TPngBitBtn;
     procedure FormCreate(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure btnExportarClick(Sender: TObject);
@@ -119,12 +118,6 @@ begin
     dbGridConsulta.Columns[i].Title.Font.Style := [fsBold];
   end;
 
-//  for i := 0 to DBGrid1.Columns.Count- 1 do
-//  begin
-//    DBGrid1.Columns[i].Title.Font.Color := $00FF5EB1;
-//    DBGrid1.Columns[i].Title.Font.Style := [fsBold];
-//  end;
-
   fld := TStringField.Create(qryArquivos);
   fld.FieldName  := 'nomesNotas';
   fld.FieldKind  := fkCalculated;
@@ -141,15 +134,12 @@ procedure TfrmArquivos.CentralizarColunas(pGrid: TDBGrid);
 var
   I: Integer;
 begin
-  // Verificamos se o grid foi atribuído para evitar erros
   if not Assigned(pGrid) then Exit;
 
   for I := 0 to pGrid.Columns.Count - 1 do
   begin
-    // Centraliza o texto das linhas (conteúdo)
     pGrid.Columns[I].Alignment := taCenter;
 
-    // Centraliza o texto do título (cabeçalho)
     pGrid.Columns[I].Title.Alignment := taCenter;
   end;
 end;
@@ -371,7 +361,7 @@ dlgAbrir.Filter   := 'Arquivo de Texto|*.txt';
   begin
     PrepararGridImport;
     LerArquivoTXT(dlgAbrir.FileName);
-    pgcPrincipal.ActivePage := tsDados; // Vai para a aba de dados
+    pgcPrincipal.ActivePage := tsDados;
   end;
 end;
 
@@ -412,6 +402,9 @@ begin
 
   linhas := TStringList.Create;
   try
+    // ADICIONA O CABEÇALHO PADRÃO COMO PRIMEIRA LINHA
+    linhas.Add('nome da escala | tipo de escala | tonalidade | notas | descrição');
+
     posicaoAtual := qryArquivos.GetBookmark;
     try
       qryArquivos.DisableControls;
@@ -443,7 +436,8 @@ begin
 
     finally
       // Restaura a posição e habilita controles
-      qryArquivos.GotoBookmark(posicaoAtual);
+      if qryArquivos.BookmarkValid(posicaoAtual) then
+        qryArquivos.GotoBookmark(posicaoAtual);
       qryArquivos.FreeBookmark(posicaoAtual);
       qryArquivos.EnableControls;
     end;
@@ -483,6 +477,7 @@ var
   salvos, erros: Integer;
   errDuplicidade, errComponente: Integer;
   listaComponentesFaltantes: TStringList;
+  deveVoltarConsulta: Boolean;
 begin
   if cdsImport.IsEmpty then Exit;
 
@@ -490,6 +485,7 @@ begin
   erros  := 0;
   errDuplicidade := 0;
   errComponente  := 0;
+  deveVoltarConsulta := False;
   listaComponentesFaltantes := TStringList.Create;
   listaComponentesFaltantes.Duplicates := dupIgnore;
   listaComponentesFaltantes.Sorted := True;
@@ -559,12 +555,11 @@ begin
       cdsImport.EnableControls;
     end;
 
-    // --- DECISÃO DE COMMIT OU ROLLBACK ---
-
-    // Se SÓ teve duplicidade e o resto salvou, podemos dar Commit no que deu certo
+    // Se so teve duplicidade e o resto salvou, podemos dar Commit no que deu certo
     if (errComponente = 0) and (salvos > 0) then
     begin
        dmDados.FDConexao.Commit;
+       deveVoltarConsulta := True;
        ShowMessage('Processo finalizado!' + sLineBreak +
                    'Salvos: ' + IntToStr(salvos) + sLineBreak +
                    'Duplicados ignorados: ' + IntToStr(errDuplicidade));
@@ -589,11 +584,14 @@ begin
     begin
        dmDados.FDConexao.Rollback;
        ShowMessage('Nenhum registro foi salvo. Verifique os erros no grid.');
+       Exit;
     end;
 
   finally
     listaComponentesFaltantes.Free;
-    CarregarDados; // Atualiza a tela
+    CarregarDados;
+        if deveVoltarConsulta then
+      pgcPrincipal.ActivePage := tsConsulta;
   end;
 end;
 
@@ -727,7 +725,6 @@ begin
   vSecao := Self.Name + '_' + pGrid.Name;
   Ini := TIniFile.Create(NomeArquivo);
   try
-    // 1º Passo: Ajusta Largura e Visibilidade
     for i := 0 to pGrid.Columns.Count - 1 do
     begin
       vFieldName := pGrid.Columns[i].FieldName;
@@ -735,7 +732,6 @@ begin
       pGrid.Columns[i].Visible := Ini.ReadBool(vSecao + '_Visible', vFieldName, pGrid.Columns[i].Visible);
     end;
 
-    // 2º Passo: Restaura a Ordem das colunas
     for i := 0 to pGrid.Columns.Count - 1 do
     begin
       for vPos := 0 to pGrid.Columns.Count - 1 do
@@ -764,7 +760,6 @@ begin
   try
     vQuery.Connection := dmDados.FDConexao;
 
-    // Transação Exclusiva para garantir que os componentes sejam salvos agora
     dmDados.FDConexao.StartTransaction;
     try
       cdsImport.First;
@@ -785,13 +780,13 @@ begin
             vQuery.ExecSQL;
           end;
 
-          // 2. Grava Tipo Escala
+          // Grava Tipo Escala
           vQuery.SQL.Text := 'IF NOT EXISTS(SELECT 1 FROM tipoEscala WHERE LOWER(nome) = LOWER(:n)) ' +
                              'INSERT INTO tipoEscala (nome) VALUES (:n)';
           vQuery.ParamByName('n').AsString := Trim(cdsImport.FieldByName('Tipo').AsString);
           vQuery.ExecSQL;
 
-          // 3. Grava Tonalidade (Busca o ID da Nota Base primeiro)
+          // Grava Tonalidade (Busca o ID da Nota Base primeiro)
           sTon := Trim(cdsImport.FieldByName('Tonalidade').AsString);
           notaBase := sTon.Split([' '])[0];
 
@@ -827,7 +822,6 @@ begin
         cdsImport.Next;
       end;
 
-      // CONFIRMA AS INSERÇÕES DOS COMPONENTES NO BANCO
       dmDados.FDConexao.Commit;
     except
       dmDados.FDConexao.Rollback;

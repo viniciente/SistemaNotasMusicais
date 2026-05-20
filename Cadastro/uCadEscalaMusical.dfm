@@ -6,8 +6,12 @@ inherited frmCadEscalaMusical: TfrmCadEscalaMusical
   TextHeight = 13
   inherited pgcPrincipal: TPageControl
     Height = 375
+    ActivePage = tsConsulta
     ExplicitHeight = 375
     inherited tsConsulta: TTabSheet
+      ExplicitLeft = 4
+      ExplicitTop = 24
+      ExplicitWidth = 681
       ExplicitHeight = 347
       inherited pnlTop: TPanel
         Height = 65
@@ -172,10 +176,14 @@ inherited frmCadEscalaMusical: TfrmCadEscalaMusical
       end
       inherited pnlBottom: TPanel
         Top = 306
-        ExplicitTop = 306
+        ExplicitLeft = 1
+        ExplicitTop = 312
       end
     end
     inherited tsDados: TTabSheet
+      ExplicitLeft = 4
+      ExplicitTop = 24
+      ExplicitWidth = 681
       ExplicitHeight = 347
       object lblCodigo: TLabel [0]
         Left = 3

@@ -27,6 +27,10 @@ object frmArquivos: TfrmArquivos
     TabOrder = 0
     object tsConsulta: TTabSheet
       Caption = 'CONSULTA'
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       object pnlTop: TPanel
         Left = 0
         Top = 0
@@ -136,6 +140,7 @@ object frmArquivos: TfrmArquivos
         TitleFont.Height = -11
         TitleFont.Name = 'Tahoma'
         TitleFont.Style = []
+        OnDblClick = dbGridConsultaDblClick
         Columns = <
           item
             Expanded = False
@@ -223,6 +228,10 @@ object frmArquivos: TfrmArquivos
     object tsDados: TTabSheet
       Caption = 'DADOS'
       ImageIndex = 1
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       object pnlDadosBottom: TPanel
         Left = 0
         Top = 318

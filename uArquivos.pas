@@ -55,6 +55,7 @@ type
       State: TGridDrawState);
     procedure dbGridConsultaDblClick(Sender: TObject);
     procedure btnAutoCadastroClick(Sender: TObject);
+    procedure qryArquivosCalcFields(DataSet: TDataSet);
   private
     procedure CarregarDados;
     function ObterNomesNotas(listaNota: string): string;
@@ -84,7 +85,6 @@ implementation
 
 procedure TfrmArquivos.FormClose(Sender: TObject; var Action: TCloseAction);
 begin
-
   SalvarConfiguracaoGrid(dbGridConsulta);
 end;
 
@@ -254,6 +254,12 @@ begin
   cdsImport.FieldDefs.Add('Erro',       ftString, 300);
   cdsImport.CreateDataSet;
   cdsImport.Open;
+end;
+
+procedure TfrmArquivos.qryArquivosCalcFields(DataSet: TDataSet);
+begin
+  qryArquivos.FieldByName('nomesNotas').AsString :=
+    ObterNomesNotas(qryArquivoslistaNota.AsString)
 end;
 
 function TfrmArquivos.ValidarESalvarLinha(

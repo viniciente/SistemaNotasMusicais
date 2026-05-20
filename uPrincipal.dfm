@@ -12,6 +12,7 @@ object frmPrincipal: TfrmPrincipal
   Font.Style = []
   Menu = MainMenu1
   OldCreateOrder = False
+  Position = poScreenCenter
   WindowState = wsMaximized
   OnCreate = FormCreate
   PixelsPerInch = 96
@@ -25,7 +26,6 @@ object frmPrincipal: TfrmPrincipal
     Color = clWhite
     ParentBackground = False
     TabOrder = 0
-    ExplicitLeft = 8
     DesignSize = (
       1028
       513)

@@ -22,7 +22,7 @@ object frmArquivos: TfrmArquivos
     Top = 0
     Width = 713
     Height = 387
-    ActivePage = tsDados
+    ActivePage = tsConsulta
     Align = alClient
     TabOrder = 0
     object tsConsulta: TTabSheet
@@ -193,6 +193,7 @@ object frmArquivos: TfrmArquivos
           Width = 75
           Height = 25
           Cursor = crHandPoint
+          Cancel = True
           Caption = '&FECHAR'
           TabOrder = 0
           OnClick = btnFecharClick
@@ -296,15 +297,6 @@ object frmArquivos: TfrmArquivos
             6530FDFDE485786BA168A145B6A5023758FAA25EC41654C1CE77823F967B35D9
             FB9072C4E8F1859041C6597E11E66BC39FF222BB4E9021EFF74E36264BF1EB93
             62E952CDD70A2F0000000049454E44AE426082}
-        end
-        object btnAutoCadastro: TPngBitBtn
-          Left = 408
-          Top = 6
-          Width = 81
-          Height = 25
-          Caption = 'Auto-Cadastro'
-          TabOrder = 2
-          OnClick = btnAutoCadastroClick
         end
       end
       object pnlCadastro: TPanel

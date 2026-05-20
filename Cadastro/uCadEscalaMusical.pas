@@ -441,7 +441,7 @@ begin
      not VarIsEmpty(lkpPesqTonalidade.KeyValue) then
   begin
     vSQL := vSQL + ' AND e.tonalidadeId = ' + IntToStr(Integer(lkpPesqTonalidade.KeyValue));
-    lblFiltroTonalidade.Font.Color := $00FF5EB1; // Pink - indica filtro ativo
+    lblFiltroTonalidade.Font.Color := $00FF5EB1;
     lblFiltroTonalidade.Font.Style := lblFiltroTonalidade.Font.Style + [fsBold];
   end
   else
@@ -454,7 +454,7 @@ begin
      not VarIsEmpty(lkpPesqTipo.KeyValue) then
   begin
     vSQL := vSQL + ' AND e.tipoId = ' + IntToStr(Integer(lkpPesqTipo.KeyValue));
-    lblFiltroTipoEscala.Font.Color := $00FF5EB1; // Pink - indica filtro ativo
+    lblFiltroTipoEscala.Font.Color := $00FF5EB1;
     lblFiltroTipoEscala.Font.Style := lblFiltroTipoEscala.Font.Style + [fsBold];
   end
   else

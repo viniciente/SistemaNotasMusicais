@@ -21,7 +21,7 @@ object frmTelaHeranca: TfrmTelaHeranca
     Top = 0
     Width = 689
     Height = 376
-    ActivePage = tsDados
+    ActivePage = tsConsulta
     Align = alClient
     TabOrder = 0
     object tsConsulta: TTabSheet
@@ -186,6 +186,7 @@ object frmTelaHeranca: TfrmTelaHeranca
           Width = 98
           Height = 25
           Cursor = crHandPoint
+          Cancel = True
           Caption = '&FECHAR'
           TabOrder = 0
           OnClick = btnFecharClick
